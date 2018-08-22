@@ -1,0 +1,27 @@
+version: '1.0'
+steps:
+  unit_test_step:
+    title: "Executing unit tests..."
+    image: node:6.11.1-alpine
+    environment:
+        - COVERALLS_SERVICE_NAME=codefresh-io
+        - COVERALLS_REPO_TOKEN=${{COVERALLS_TOKEN}}
+    working_directory: ${{main_clone}}
+    commands:
+        - yarn install --frozen-lockfile
+        - yarn depcheck
+        - yarn lint
+        - yarn test:coverage
+        - yarn coveralls
+        - yarn run clean
+
+  build_step:
+    title: "Building step..."
+    type: build
+    image_name: codefresh/cf-docker-builder
+
+  push_to_registry:
+    type: push
+    candidate: ${{build_step}}
+    tag: ${{CF_BRANCH}}
+
