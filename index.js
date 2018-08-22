@@ -4,4 +4,4 @@
 
 const { main } = require('./src/main.js');
 
-main(JSON.parse(process.env.DOCKER_OPTIONS));
+main(process.env.BUILD_ID);
