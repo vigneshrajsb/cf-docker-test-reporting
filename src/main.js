@@ -16,9 +16,11 @@ const BUCKET_NAME = 'pasha-codefresh';
 
 exports.main = async (buildId) => {
 
+    console.log("RUN TEST GENERATION");
+
     console.log("PATH: " + process.cwd());
 
-    const generation = allure(['generate', "allure-results"]);
+    const generation = allure(['generate', "allure-results", "--clean"]);
 
     generation.on('exit', async (exitCode) => {
         console.log('Generation is finished with code:', exitCode);
