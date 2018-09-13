@@ -1,56 +1,52 @@
+'use strict';
 
-const allure = require('allure-commandline');
+const allureCmd = require('../cf-allure-commandline');
 const recursiveReadSync = require('recursive-readdir-sync');
-const path = require('path');
+const config = require('../config');
+const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 
+function generateReport() {
+    return allureCmd(['generate', 'allure-results', '--clean']);
+}
 
-const config = {
-    projectId: 'local-codefresh',
-    keyFilename: path.resolve(__dirname, 'local-codefresh-edb26332ca27.json')
-};
+exports.main = async (buildId) => { // eslint-disable-line
+    console.log(`Start generating test report for build ${buildId}`);
+    console.log(`Working directory: ${process.cwd()}`);
 
-const gcs = require('@google-cloud/storage')(config);
-
-const REPORT_FOLDER_NAME = "allure-report";
-const BUCKET_NAME = 'pasha-codefresh';
-
-exports.main = async (buildId) => {
-
-    console.log("RUN TEST GENERATION");
-
-    console.log("PATH: " + process.cwd());
-
-    const generation = allure(['generate', "allure-results", "--clean"]);
+    const generation = generateReport();
 
     generation.on('exit', async (exitCode) => {
-        console.log('Generation is finished with code:', exitCode);
+        if (exitCode === 0) {
+            console.log('Report generation is finished successfully');
+        } else {
+            console.log('Report generation is fail, exit with code:', exitCode);
+        }
 
-        const bucket = gcs.bucket(BUCKET_NAME);
+        const bucket = gcs.bucket(config.bucketName);
 
         try {
-            const files = await recursiveReadSync(REPORT_FOLDER_NAME);
-            files.forEach(f => {
-                const pathToDeploy = buildId + f.replace(REPORT_FOLDER_NAME, '');
-                bucket.upload(f, { destination: pathToDeploy }, (err, file) => {
-                    if (!err) {
-                        console.log(`File ${pathToDeploy} sucessfull uploaded`);
-                    }
-                    else {
-                        console.error(err);
-                    }
+            const files = await recursiveReadSync(config.resultReportFolderName);
 
+            console.log('Start upload report files');
+
+            files.forEach((f) => {
+                const pathToDeploy = buildId + f.replace(config.resultReportFolderName, '');
+                bucket.upload(f, { destination: pathToDeploy }, (err) => {
+                    if (!err) {
+                        console.log(`File ${pathToDeploy} successful uploaded`);
+                    } else {
+                        console.error(`Fail to upload file ${pathToDeploy}, error: `, err.message ? err.message : err);
+                    }
                 });
             });
-            console.log(files);
-        } catch(err){
-            if(err.errno === 34){
+        } catch (err) {
+            if (err.errno === 34) {
                 console.log('Path does not exist');
             } else {
-                //something unrelated went wrong, rethrow
                 throw err;
             }
         }
     });
-
-
 };
+
+exports.generateReport = generateReport;
