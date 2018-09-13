@@ -13,5 +13,5 @@ module.exports = {
         keyFilename: path.resolve(__dirname, googleStorageCongigFile)
     },
     resultReportFolderName: 'allure-report',
-    bucketName: 'pasha-codefresh'
+    bucketName: 'codefresh-test-report'
 };
