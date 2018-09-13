@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const googleStorageCongigFile = 'google.storage.config.json';
 
-fs.writeFileSync(googleStorageCongigFile, process.env.STORAGE_CONFIG);
+// fs.writeFileSync(googleStorageCongigFile, process.env.STORAGE_CONFIG);
 
 module.exports = {
     googleStorageConfig: {
