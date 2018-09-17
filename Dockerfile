@@ -7,6 +7,16 @@ RUN apt-get install -y curl \
 # Create app directory
 WORKDIR /app/
 
+# define variables passed form codefresh
+ARG STORAGE_CONFIG
+ARG BUCKET_NAME
+
+# make available variable in application
+ENV BUCKET_NAME=$BUCKET_NAME
+
+# create config file from variable
+RUN echo $STORAGE_CONFIG > /app/google.storage.config.json
+
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)

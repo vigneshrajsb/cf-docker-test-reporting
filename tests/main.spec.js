@@ -1,9 +1,12 @@
 'use strict';
 
+// Before run this test you must specify env variable STORAGE_CONFIG with json config and BUCKET_NAME
+
 const chai = require('chai');
 const fs = require('fs');
-const { main, generateReport } = require('./main');
 
+let main;
+let generateReport;
 const expect = chai.expect;
 
 const sourceReportFolder = 'allure-results';
@@ -24,6 +27,16 @@ const deleteFolderRecursive = function (path) {
 };
 
 describe('Generate and push report', () => {
+
+    before(() => {
+        fs.writeFileSync('google.storage.config.json', process.env.STORAGE_CONFIG);
+
+        const src = require('../src/main');
+        main = src.main;
+        generateReport = src.generateReport;
+    });
+
+
     // create test source report
     beforeEach(() => {
         if (fs.existsSync(resultReportFolder)) {
@@ -59,6 +72,10 @@ describe('Generate and push report', () => {
         if (fs.existsSync(resultReportFolder)) {
             deleteFolderRecursive(resultReportFolder);
         }
+    });
+
+    after(() => {
+        fs.unlinkSync('google.storage.config.json');
     });
 
     it('should push report to cloud without error', async () => {

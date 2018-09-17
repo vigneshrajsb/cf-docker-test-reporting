@@ -3,6 +3,13 @@
 const allureCmd = require('../cf-allure-commandline');
 const recursiveReadSync = require('recursive-readdir-sync');
 const config = require('../config');
+const fs = require('fs');
+
+/* json config wrapped in single quotes we need remove them before use config */
+let content = fs.readFileSync(config.googleStorageConfig.keyFilename);
+content = content.toString().replace(/'/gm, '');
+fs.writeFileSync(config.googleStorageConfig.keyFilename, content);
+
 const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 
 function generateReport() {
@@ -19,7 +26,7 @@ exports.main = async (buildId) => { // eslint-disable-line
         if (exitCode === 0) {
             console.log('Report generation is finished successfully');
         } else {
-            console.log('Report generation is fail, exit with code:', exitCode);
+            console.error('Report generation is fail, exit with code:', exitCode);
         }
 
         const bucket = gcs.bucket(config.bucketName);
@@ -41,7 +48,7 @@ exports.main = async (buildId) => { // eslint-disable-line
             });
         } catch (err) {
             if (err.errno === 34) {
-                console.log('Path does not exist');
+                console.error('Path does not exist');
             } else {
                 throw err;
             }

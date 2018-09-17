@@ -1,17 +1,12 @@
 'use strict';
 
 const path = require('path');
-const fs = require('fs');
-
-const googleStorageCongigFile = 'google.storage.config.json';
-
-// fs.writeFileSync(googleStorageCongigFile, process.env.STORAGE_CONFIG);
 
 module.exports = {
     googleStorageConfig: {
         projectId: 'local-codefresh',
-        keyFilename: path.resolve(__dirname, googleStorageCongigFile)
+        keyFilename: path.resolve(__dirname, 'google.storage.config.json')
     },
     resultReportFolderName: 'allure-report',
-    bucketName: 'codefresh-test-report'
+    bucketName: process.env.BUCKET_NAME
 };
