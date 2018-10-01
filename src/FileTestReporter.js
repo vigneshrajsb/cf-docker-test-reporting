@@ -21,7 +21,7 @@ class FileTestReporter extends BasicTestReporter {
 
         await this.prepareForGenerateReport();
 
-        // await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
+        await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
 
         const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
         if (missingVars.length) {

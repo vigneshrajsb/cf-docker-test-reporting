@@ -64,7 +64,7 @@ Ensure that "working_directory" was specified for this step and he contains dire
         console.log(`Working directory: ${process.cwd()}`);
         console.log('Volume path: ', this.volumePath);
 
-        // await this.setExportVariable('TEST_REPORT', true);
+        await this.setExportVariable('TEST_REPORT', true);
 
         const missedGeneralVars = this.findMissingVars(config.requiredGeneralVars);
         if (missedGeneralVars.length) {
