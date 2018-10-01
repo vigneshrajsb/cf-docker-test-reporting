@@ -10,6 +10,9 @@ WORKDIR /app/
 # define variables passed form codefresh
 ARG STORAGE_CONFIG
 ARG BUCKET_NAME
+ARG UPLOAD_DIR
+ARG UPLOAD_DIR_INDEX_FILE
+ARG VOLUME_PATH
 
 # make available variable in application
 ENV BUCKET_NAME=$BUCKET_NAME
