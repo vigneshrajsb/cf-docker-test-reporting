@@ -3,7 +3,7 @@
 const BasicTestReporter = require('./BasicTestReporter');
 const config = require('../config');
 const allureCmd = require('../cf-allure-commandline');
-const { uploadFiles } = require('./FileManager');
+const fileManager = require('./FileManager');
 
 class AllureTestReporter extends  BasicTestReporter {
     generateReport() {
@@ -13,7 +13,7 @@ class AllureTestReporter extends  BasicTestReporter {
     async start() {
         await this.prepareForGenerateReport();
 
-        await this.validateUploadDir(config.sourceReportFolderName);
+        await fileManager.validateUploadDir(config.sourceReportFolderName);
 
         console.log(`Start generating visualization of test report for build ${this.buildId}`);
         const generation = this.generateReport();
@@ -24,7 +24,7 @@ class AllureTestReporter extends  BasicTestReporter {
                 throw new Error(`Report generation is fail, exit with code: ${exitCode}`);
             }
 
-            await uploadFiles({ srcDir: config.resultReportFolderName, bucket: this.bucket, buildId: this.buildId });
+            await fileManager.uploadFiles({ srcDir: config.resultReportFolderName, bucket: this.bucket, buildId: this.buildId });
         });
     }
 }

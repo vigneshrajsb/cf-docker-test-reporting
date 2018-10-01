@@ -2,6 +2,8 @@
 
 const recursiveReadSync = require('recursive-readdir-sync');
 const Exec = require('child_process').exec;
+const fs = require('fs');
+const config = require('../config');
 
 class FileManager {
     static async uploadFiles({ srcDir, bucket, buildId }) {
@@ -41,6 +43,23 @@ class FileManager {
                 res(parseInt(match.toString().trim()) / 1024);
             });
         });
+    }
+
+    static async validateUploadDir(pathToDir) {
+        if (!fs.existsSync(pathToDir)) {
+            throw new Error(`Error: Directory for upload is not exists. 
+Ensure that "working_directory" was specified for this step and he contains directory for upload`);
+        }
+
+        if (!fs.readdirSync(pathToDir).length) {
+            throw new Error('Error: Directory for upload is empty');
+        }
+
+        if (config.directoryForUploadMaxSize < await this.getDirSize(pathToDir)) {
+            throw new Error(`Error: Directory for upload is to large, max size is ${config.directoryForUploadMaxSize} MB`)
+        }
+
+        return true;
     }
 }
 

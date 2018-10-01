@@ -2,7 +2,7 @@
 
 const BasicTestReporter = require('./BasicTestReporter');
 const config = require('../config');
-const { uploadFiles } = require('./FileManager');
+const fileManager = require('./FileManager');
 
 class FileTestReporter extends BasicTestReporter {
     constructor({
@@ -28,9 +28,9 @@ class FileTestReporter extends BasicTestReporter {
             throw new Error(`For upload custom test report you must specify ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
         }
 
-        await this.validateUploadDir(this.dirForUpload);
+        await fileManager.validateUploadDir(this.dirForUpload);
 
-        await uploadFiles({ srcDir: this.dirForUpload, bucket: this.bucket, buildId: this.buildId });
+        await fileManager.uploadFiles({ srcDir: this.dirForUpload, bucket: this.bucket, buildId: this.buildId });
     }
 }
 
