@@ -2,6 +2,7 @@
 
 const BasicTestReporter = require('./BasicTestReporter');
 const config = require('../config');
+const { uploadFiles } = require('./FileManager');
 
 class FileTestReporter extends BasicTestReporter {
     constructor({
@@ -20,7 +21,7 @@ class FileTestReporter extends BasicTestReporter {
 
         await this.prepareForGenerateReport();
 
-        await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
+        // await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
 
         const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
         if (missingVars.length) {
@@ -29,7 +30,7 @@ class FileTestReporter extends BasicTestReporter {
 
         await this.validateUploadDir(this.dirForUpload);
 
-        await this.uploadFiles({ srcDir: this.dirForUpload, bucket: this.bucket, buildId: this.buildId });
+        await uploadFiles({ srcDir: this.dirForUpload, bucket: this.bucket, buildId: this.buildId });
     }
 }
 

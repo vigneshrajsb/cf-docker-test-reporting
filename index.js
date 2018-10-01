@@ -11,13 +11,14 @@ function isUploadMode(vars) {
 
 async function init() {
     try {
+        let reporter;
         if (isUploadMode(config.requiredVarsForUploadMode)) {
-            const fileTestReporter = new FileTestReporter();
-            await fileTestReporter.start();
+            reporter = new FileTestReporter();
         } else {
-            const allureTestReporter = new AllureTestReporter();
-            await allureTestReporter.start();
+            reporter = new AllureTestReporter();
         }
+
+        await reporter.start();
     } catch (e) {
         console.error(e.message);
         process.exit(1);

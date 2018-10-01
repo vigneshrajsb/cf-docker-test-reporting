@@ -1,10 +1,10 @@
 'use strict';
 
-const Exec = require('child_process').exec;
 const config = require('../config');
 const fs = require('fs');
-const recursiveReadSync = require('recursive-readdir-sync');
 const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
+const { getDirSize } = require('./FileManager');
+const Exec = require('child_process').exec;
 
 class BasicTestReporter {
     constructor({
@@ -52,57 +52,19 @@ Ensure that "working_directory" was specified for this step and he contains dire
             throw new Error('Error: Directory for upload is empty');
         }
 
-        if (config.directoryForUploadMaxSize < await this.getDirSize(pathToDir)) {
+        if (config.directoryForUploadMaxSize < await getDirSize(pathToDir)) {
             throw new Error(`Error: Directory for upload is to large, max size is ${config.directoryForUploadMaxSize} MB`)
         }
 
         return true;
     }
 
-    async uploadFiles({ srcDir, bucket, buildId }) {
-        try {
-            const files = await recursiveReadSync(srcDir);
-
-            console.log('Start upload report files');
-
-            files.forEach((f) => {
-                const pathToDeploy = buildId + f.replace(srcDir, '');
-                bucket.upload(f, { destination: pathToDeploy }, (err) => {
-                    if (!err) {
-                        console.log(`File ${pathToDeploy} successful uploaded`);
-                    } else {
-                        console.error(`Fail to upload file ${pathToDeploy}, error: `, err.message ? err.message : err);
-                    }
-                });
-            });
-        } catch (err) {
-            if (err.errno === 34) {
-                throw new Error('Error while uploading files: Path does not exist');
-            } else {
-                throw new Error(`Error while uploading files: ${err.message || 'Error while uploading files'}`);
-            }
-        }
-    }
-
-    getDirSize(pathToDir) {
-        return new Promise((res) => {
-            Exec(`du -sk ${pathToDir}`, (err, response) => {
-                const match = response.trim().match(/^[\d\.\,]+/);
-
-                if (!match) {
-                    res(null);
-                }
-
-                res(parseInt(match.toString().trim()) / 1024);
-            });
-        });
-    }
-
     async prepareForGenerateReport() {
+        console.log(`Working directory: ${process.cwd()}`);
         console.log(`Working directory: ${process.cwd()}`);
         console.log('Volume path: ', this.volumePath);
 
-        await this.setExportVariable('TEST_REPORT', true);
+        // await this.setExportVariable('TEST_REPORT', true);
 
         const missedGeneralVars = this.findMissingVars(config.requiredGeneralVars);
         if (missedGeneralVars.length) {
