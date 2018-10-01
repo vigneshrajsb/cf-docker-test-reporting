@@ -10,6 +10,8 @@ class AllureTestReporter extends  BasicTestReporter {
     }
 
     async start() {
+        await this.prepareForGenerateReport();
+
         await this.validateUploadDir(config.sourceReportFolderName);
 
         console.log(`Start generating visualization of test report for build ${this.buildId}`);

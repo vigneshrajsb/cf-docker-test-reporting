@@ -4,10 +4,21 @@ const BasicTestReporter = require('./BasicTestReporter');
 const config = require('../config');
 
 class FileTestReporter extends BasicTestReporter {
+    constructor({
+                    dirForUpload = process.env.UPLOAD_DIR,
+                    uploadIndexFile = process.env.UPLOAD_DIR_INDEX_FILE,
+                } = {}
+                ) {
+        super();
+        this.dirForUpload = typeof dirForUpload === 'string' ? dirForUpload.trim() : dirForUpload;
+        this.uploadIndexFile = typeof uploadIndexFile === 'string' ? uploadIndexFile.trim() : uploadIndexFile;
+    }
     async start() {
         console.log('Start upload custom test report (without generating visualization of test report)');
         console.log('UPLOAD_DIR: ', this.dirForUpload);
         console.log('UPLOAD_DIR_INDEX_FILE: ', this.uploadIndexFile);
+
+        await this.prepareForGenerateReport();
 
         await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
 

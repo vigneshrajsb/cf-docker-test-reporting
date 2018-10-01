@@ -1,12 +1,23 @@
 'use strict';
 
-const BasicTestReporter = require('./src/BasicTestReporter');
+const FileTestReporter = require('./src/FileTestReporter');
+const AllureTestReporter = require('./src/AllureTestReporter');
+const config = require('./config');
 
-const basicTestReporter = new BasicTestReporter();
+function isUploadMode(vars) {
+    return vars.some(varName => !!process.env[varName]);
+}
+
 
 async function init() {
     try {
-        await basicTestReporter.start();
+        if (isUploadMode(config.requiredVarsForUploadMode)) {
+            const fileTestReporter = new FileTestReporter();
+            await fileTestReporter.start();
+        } else {
+            const allureTestReporter = new AllureTestReporter();
+            await allureTestReporter.start();
+        }
     } catch (e) {
         console.error(e.message);
         process.exit(1);

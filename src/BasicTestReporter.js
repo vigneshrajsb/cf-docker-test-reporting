@@ -9,15 +9,10 @@ const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 class BasicTestReporter {
     constructor({
                     buildId = process.env.BUILD_ID,
-                    dirForUpload = process.env.UPLOAD_DIR,
-                    uploadIndexFile = process.env.UPLOAD_DIR_INDEX_FILE,
                     volumePath = process.env.VOLUME_PATH
-
                 } = {}
     ) {
         this.buildId = buildId;
-        this.dirForUpload = typeof dirForUpload === 'string' ? dirForUpload.trim() : dirForUpload;
-        this.uploadIndexFile = typeof uploadIndexFile === 'string' ? uploadIndexFile.trim() : uploadIndexFile;
         this.volumePath = volumePath;
         this.bucket = gcs.bucket(config.bucketName);
     }
@@ -33,10 +28,6 @@ class BasicTestReporter {
                 }
             });
         });
-    }
-
-    isUploadMode(vars) {
-        return vars.some(varName => !!process.env[varName]);
     }
 
     findMissingVars(requiredVars) {
@@ -107,27 +98,15 @@ Ensure that "working_directory" was specified for this step and he contains dire
         });
     }
 
-    async start() {
-        const FileTestReporter = require('./FileTestReporter');
-        const AllureTestReporter = require('./AllureTestReporter');
-        const fileTestReporter = new FileTestReporter();
-        const allureTestReporter = new AllureTestReporter();
-
+    async prepareForGenerateReport() {
         console.log(`Working directory: ${process.cwd()}`);
         console.log('Volume path: ', this.volumePath);
-
 
         await this.setExportVariable('TEST_REPORT', true);
 
         const missedGeneralVars = this.findMissingVars(config.requiredGeneralVars);
         if (missedGeneralVars.length) {
             throw new Error(`Error: For this step you must specify ${missedGeneralVars.join(', ')} variable${missedGeneralVars.length > 1 ? 's' : ''}`);
-        }
-
-        if (this.isUploadMode(config.requiredVarsForUploadMode)) {
-            fileTestReporter.start();
-        } else {
-            allureTestReporter.start();
         }
     }
 }
