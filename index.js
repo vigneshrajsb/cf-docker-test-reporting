@@ -8,4 +8,15 @@ const testReporter = new TestReporter({
     uploadIndexFile: process.env.UPLOAD_DIR_INDEX_FILE,
     volumePath: process.env.VOLUME_PATH
 });
-testReporter.start();
+
+async function init() {
+    try {
+        await testReporter.start();
+    } catch (e) {
+        console.error(e.message);
+        process.exit(1);
+    }
+}
+
+init();
+

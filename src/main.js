@@ -14,17 +14,16 @@ fs.writeFileSync(config.googleStorageConfig.keyFilename, content);
 const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 
 function setExportVariable(varName, varValue) {
-    try {
+    return new Promise((res, rej) => {
         Exec(`echo ${varName}=${varValue} >> ${process.env.VOLUME_PATH}/env_vars_to_export`, (err) => {
             if (err) {
-                console.error(`Fail to set export variable, cause: ${err.message}`);
+                rej(new Error(`Fail to set export variable, cause: ${err.message}`));
             } else {
                 console.log(`Variable set success ${varName}`);
+                res();
             }
         });
-    } catch (e) {
-        console.error(`Fail to set export variable, cause: ${e.message}`);
-    }
+    });
 }
 
 class TestReporter {
@@ -56,19 +55,16 @@ class TestReporter {
 
     async validateUploadDir(pathToDir) {
         if (!fs.existsSync(pathToDir)) {
-            console.error(`Error: Directory for upload is not exists. 
+            throw new Error(`Error: Directory for upload is not exists. 
 Ensure that "working_directory" was specified for this step and he contains directory for upload`);
-            return false;
         }
 
         if (!fs.readdirSync(pathToDir).length) {
-            console.error('Error: Directory for upload is empty');
-            return false;
+            throw new Error('Error: Directory for upload is empty');
         }
 
         if (config.directoryForUploadMaxSize < await this.getDirSize(pathToDir)) {
-            console.error(`Error: Directory for upload is to large, max size is ${config.directoryForUploadMaxSize} MB`);
-            return false;
+            throw new Error(`Error: Directory for upload is to large, max size is ${config.directoryForUploadMaxSize} MB`)
         }
 
         return true;
@@ -92,9 +88,9 @@ Ensure that "working_directory" was specified for this step and he contains dire
             });
         } catch (err) {
             if (err.errno === 34) {
-                console.error('Path does not exist');
+                throw new Error('Error while uploading files: Path does not exist');
             } else {
-                console.error(err.message || 'Error while uploading files');
+                throw new Error(`Error while uploading files: ${err.message || 'Error while uploading files'}`);
             }
         }
     }
@@ -117,12 +113,11 @@ Ensure that "working_directory" was specified for this step and he contains dire
         console.log(`Working directory: ${process.cwd()}`);
         console.log('Volume path: ', process.env.VOLUME_PATH);
 
-        setExportVariable('TEST_REPORT', true);
+        await setExportVariable('TEST_REPORT', true);
 
         const missedGeneralVars = this.findMissingVars(config.requiredGeneralVars);
         if (missedGeneralVars.length) {
-            console.error(`Error: For this step you must specify ${missedGeneralVars.join(', ')} variable${missedGeneralVars.length > 1 ? 's' : ''}`);
-            return null;
+            throw new Error(`Error: For this step you must specify ${missedGeneralVars.join(', ')} variable${missedGeneralVars.length > 1 ? 's' : ''}`);
         }
 
         const bucket = gcs.bucket(config.bucketName);
@@ -132,23 +127,18 @@ Ensure that "working_directory" was specified for this step and he contains dire
             console.log('UPLOAD_DIR: ', this.dirForUpload);
             console.log('UPLOAD_DIR_INDEX_FILE: ', this.uploadIndexFile);
 
-            setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
+            await setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
 
             const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
             if (missingVars.length) {
-                console.error(`For upload custom test report you must specify ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
-                return null;
+                throw new Error(`For upload custom test report you must specify ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
             }
 
-            if (!(await this.validateUploadDir(this.dirForUpload))) {
-                return null;
-            }
+            await this.validateUploadDir(this.dirForUpload);
 
             await this.uploadFiles({ srcDir: this.dirForUpload, bucket, buildId: this.buildId });
         } else {
-            if (!await this.validateUploadDir(config.sourceReportFolderName)) {
-                return null;
-            }
+            await this.validateUploadDir(config.sourceReportFolderName);
 
             console.log(`Start generating visualization of test report for build ${this.buildId}`);
             const generation = this.generateReport();
@@ -156,7 +146,7 @@ Ensure that "working_directory" was specified for this step and he contains dire
                 if (exitCode === 0) {
                     console.log('Report generation is finished successfully');
                 } else {
-                    console.error('Report generation is fail, exit with code:', exitCode);
+                    throw new Error(`Report generation is fail, exit with code: ${exitCode}`);
                 }
 
                 await this.uploadFiles({ srcDir: config.resultReportFolderName, bucket, buildId: this.buildId });
