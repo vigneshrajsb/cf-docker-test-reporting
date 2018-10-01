@@ -1,40 +1,38 @@
 'use strict';
 
-const allureCmd = require('../cf-allure-commandline');
-const recursiveReadSync = require('recursive-readdir-sync');
+const Exec = require('child_process').exec;
 const config = require('../config');
 const fs = require('fs');
-const Exec = require('child_process').exec;
-
-/* json config wrapped in single quotes we need remove them before use config */
-let content = fs.readFileSync(config.googleStorageConfig.keyFilename);
-content = content.toString().replace(/'/gm, '');
-fs.writeFileSync(config.googleStorageConfig.keyFilename, content);
-
+const recursiveReadSync = require('recursive-readdir-sync');
 const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 
-function setExportVariable(varName, varValue) {
-    return new Promise((res, rej) => {
-        Exec(`echo ${varName}=${varValue} >> ${process.env.VOLUME_PATH}/env_vars_to_export`, (err) => {
-            if (err) {
-                rej(new Error(`Fail to set export variable, cause: ${err.message}`));
-            } else {
-                console.log(`Variable set success ${varName}`);
-                res();
-            }
-        });
-    });
-}
+class BasicTestReporter {
+    constructor({
+                    buildId = process.env.BUILD_ID,
+                    dirForUpload = process.env.UPLOAD_DIR,
+                    uploadIndexFile = process.env.UPLOAD_DIR_INDEX_FILE,
+                    volumePath = process.env.VOLUME_PATH
 
-class TestReporter {
-    constructor({ buildId, dirForUpload, uploadIndexFile }) {
+                } = {}
+    ) {
         this.buildId = buildId;
         this.dirForUpload = typeof dirForUpload === 'string' ? dirForUpload.trim() : dirForUpload;
         this.uploadIndexFile = typeof uploadIndexFile === 'string' ? uploadIndexFile.trim() : uploadIndexFile;
+        this.volumePath = volumePath;
+        this.bucket = gcs.bucket(config.bucketName);
     }
 
-    generateReport() {
-        return allureCmd(['generate', config.sourceReportFolderName, '--clean']);
+    setExportVariable(varName, varValue) {
+        return new Promise((res, rej) => {
+            Exec(`echo ${varName}=${varValue} >> ${this.volumePath}/env_vars_to_export`, (err) => {
+                if (err) {
+                    rej(new Error(`Fail to set export variable, cause: ${err.message}`));
+                } else {
+                    console.log(`Variable set success ${varName}`);
+                    res();
+                }
+            });
+        });
     }
 
     isUploadMode(vars) {
@@ -109,50 +107,29 @@ Ensure that "working_directory" was specified for this step and he contains dire
         });
     }
 
-    async start() { // eslint-disable-line
-        console.log(`Working directory: ${process.cwd()}`);
-        console.log('Volume path: ', process.env.VOLUME_PATH);
+    async start() {
+        const FileTestReporter = require('./FileTestReporter');
+        const AllureTestReporter = require('./AllureTestReporter');
+        const fileTestReporter = new FileTestReporter();
+        const allureTestReporter = new AllureTestReporter();
 
-        await setExportVariable('TEST_REPORT', true);
+        console.log(`Working directory: ${process.cwd()}`);
+        console.log('Volume path: ', this.volumePath);
+
+
+        await this.setExportVariable('TEST_REPORT', true);
 
         const missedGeneralVars = this.findMissingVars(config.requiredGeneralVars);
         if (missedGeneralVars.length) {
             throw new Error(`Error: For this step you must specify ${missedGeneralVars.join(', ')} variable${missedGeneralVars.length > 1 ? 's' : ''}`);
         }
 
-        const bucket = gcs.bucket(config.bucketName);
-
         if (this.isUploadMode(config.requiredVarsForUploadMode)) {
-            console.log('Start upload custom test report (without generating visualization of test report)');
-            console.log('UPLOAD_DIR: ', this.dirForUpload);
-            console.log('UPLOAD_DIR_INDEX_FILE: ', this.uploadIndexFile);
-
-            await setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
-
-            const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
-            if (missingVars.length) {
-                throw new Error(`For upload custom test report you must specify ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
-            }
-
-            await this.validateUploadDir(this.dirForUpload);
-
-            await this.uploadFiles({ srcDir: this.dirForUpload, bucket, buildId: this.buildId });
+            fileTestReporter.start();
         } else {
-            await this.validateUploadDir(config.sourceReportFolderName);
-
-            console.log(`Start generating visualization of test report for build ${this.buildId}`);
-            const generation = this.generateReport();
-            generation.on('exit', async (exitCode) => {
-                if (exitCode === 0) {
-                    console.log('Report generation is finished successfully');
-                } else {
-                    throw new Error(`Report generation is fail, exit with code: ${exitCode}`);
-                }
-
-                await this.uploadFiles({ srcDir: config.resultReportFolderName, bucket, buildId: this.buildId });
-            });
+            allureTestReporter.start();
         }
     }
 }
 
-module.exports = TestReporter;
+module.exports = BasicTestReporter;

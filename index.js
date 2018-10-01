@@ -1,17 +1,12 @@
 'use strict';
 
-const TestReporter = require('./src/main.js');
+const BasicTestReporter = require('./src/BasicTestReporter');
 
-const testReporter = new TestReporter({
-    buildId: process.env.BUILD_ID,
-    dirForUpload: process.env.UPLOAD_DIR,
-    uploadIndexFile: process.env.UPLOAD_DIR_INDEX_FILE,
-    volumePath: process.env.VOLUME_PATH
-});
+const basicTestReporter = new BasicTestReporter();
 
 async function init() {
     try {
-        await testReporter.start();
+        await basicTestReporter.start();
     } catch (e) {
         console.error(e.message);
         process.exit(1);
