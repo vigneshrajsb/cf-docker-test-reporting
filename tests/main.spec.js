@@ -4,9 +4,9 @@
 
 const chai = require('chai');
 const fs = require('fs');
+const AllureTestReporter = require('../src/AllureTestReporter');
+const allureTestReporter = new AllureTestReporter();
 
-let main;
-let generateReport;
 const expect = chai.expect;
 
 const sourceReportFolder = 'allure-results';
@@ -26,14 +26,12 @@ const deleteFolderRecursive = function (path) {
     }
 };
 
-describe('Generate and push report', () => {
+describe('Test reporting logic', () => {
 
     before(() => {
         fs.writeFileSync('google.storage.config.json', process.env.STORAGE_CONFIG);
 
-        const src = require('../src/main');
-        main = src.main;
-        generateReport = src.generateReport;
+        process.env.VOLUME_PATH='test'
     });
 
 
@@ -78,31 +76,15 @@ describe('Generate and push report', () => {
         fs.unlinkSync('google.storage.config.json');
     });
 
-    it('should push report to cloud without error', async () => {
-        try {
-            await main('unit_test');
-        } catch (e) {
-            expect.fail(true, true, 'main function must work without throwing error');
-        }
+    it.skip('should generate report for upload', async () => {
+       expect(1).to.equal(1);
     });
 
-    it('should generate report', async () => {
-        const generation = generateReport();
+    it('should generate report for upload1', async function() {
+        console.log(1111);
 
-        const generationPromise = new Promise((res) => {
-            generation.on('exit', async (exitCode) => {
-                if (exitCode !== 0) {
-                    res(0);
-                } else {
-                    res(1);
-                }
-            });
-        });
+        this.retries(3)
 
-        const generationResult = await generationPromise;
-
-        if (!generationResult) {
-            expect.fail(true, true, 'fail to generate report');
-        }
+        expect(1).to.equal(2);
     });
 });
