@@ -17,15 +17,23 @@ class AllureTestReporter extends  BasicTestReporter {
 
         console.log(`Start generating visualization of test report for build ${this.buildId}`);
         const generation = this.generateReport();
-        generation.on('exit', async (exitCode) => {
-            if (exitCode === 0) {
-                console.log('Report generation is finished successfully');
-            } else {
-                throw new Error(`Report generation is fail, exit with code: ${exitCode}`);
-            }
+        return new Promise(async (res, rej) => {
+            generation.on('exit', async (exitCode) => {
+                if (exitCode === 0) {
+                    console.log('Report generation is finished successfully');
+                } else {
+                    rej(new Error(`Report generation is fail, exit with code: ${exitCode}`));
+                }
 
-            await fileManager.uploadFiles({ srcDir: config.resultReportFolderName, bucket: this.bucket, buildId: this.buildId });
+                const result = await fileManager.uploadFiles({
+                    srcDir: config.resultReportFolderName,
+                    bucket: this.bucket,
+                    buildId: this.buildId
+                });
+                res(result);
+            });
         });
+
     }
 }
 

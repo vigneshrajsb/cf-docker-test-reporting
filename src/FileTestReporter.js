@@ -30,7 +30,11 @@ class FileTestReporter extends BasicTestReporter {
 
         await fileManager.validateUploadDir(this.dirForUpload);
 
-        await fileManager.uploadFiles({ srcDir: this.dirForUpload, bucket: this.bucket, buildId: this.buildId });
+        return fileManager.uploadFiles({
+            srcDir: this.dirForUpload,
+            bucket: this.bucket,
+            buildId: this.buildId
+        });
     }
 }
 

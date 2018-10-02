@@ -7,28 +7,37 @@ const config = require('../config');
 
 class FileManager {
     static async uploadFiles({ srcDir, bucket, buildId }) {
-        try {
-            const files = await recursiveReadSync(srcDir);
+        return new Promise(async (res, rej) => {
+            try {
+                const files = await recursiveReadSync(srcDir);
 
-            console.log('Start upload report files');
+                console.log('Start upload report files');
 
-            files.forEach((f) => {
-                const pathToDeploy = buildId + f.replace(srcDir, '');
-                bucket.upload(f, { destination: pathToDeploy }, (err) => {
-                    if (!err) {
-                        console.log(`File ${pathToDeploy} successful uploaded`);
-                    } else {
-                        console.error(`Fail to upload file ${pathToDeploy}, error: `, err.message ? err.message : err);
-                    }
+                const uploadPromises = files.map((f) => {
+                    const pathToDeploy = buildId + f.replace(srcDir, '');
+
+                    return new Promise((resolve, reject) => {
+                        bucket.upload(f, { destination: pathToDeploy }, (err) => {
+                            if (!err) {
+                                console.log(`File ${pathToDeploy} successful uploaded`);
+                                resolve(true);
+                            } else {
+                                console.error(`Fail to upload file ${pathToDeploy}, error: `, err.message ? err.message : err);
+                                reject(new Error('Fail to upload file'));
+                            }
+                        });
+                    });
                 });
-            });
-        } catch (err) {
-            if (err.errno === 34) {
-                throw new Error('Error while uploading files: Path does not exist');
-            } else {
-                throw new Error(`Error while uploading files: ${err.message || 'Error while uploading files'}`);
+
+                Promise.all(uploadPromises).then(() => { res(true); }, (err) => { rej(err); });
+            } catch (err) {
+                if (err.errno === 34) {
+                    rej(new Error('Error while uploading files: Path does not exist'));
+                } else {
+                    rej(new Error(`Error while uploading files: ${err.message || 'Error while uploading files'}`));
+                }
             }
-        }
+        });
     }
 
     static getDirSize(pathToDir) {
