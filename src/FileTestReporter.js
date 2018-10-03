@@ -6,7 +6,7 @@ const fileManager = require('./FileManager');
 
 class FileTestReporter extends BasicTestReporter {
     constructor({
-                    dirForUpload = process.env.UPLOAD_DIR,
+                    dirForUpload = process.env.REPORT_DIR,
                     uploadIndexFile = process.env.REPORT_INDEX_FILE,
                 } = {}
                 ) {
@@ -16,7 +16,7 @@ class FileTestReporter extends BasicTestReporter {
     }
     async start() {
         console.log('Start upload custom test report (without generating visualization of test report)');
-        console.log('UPLOAD_DIR: ', this.dirForUpload);
+        console.log('REPORT_DIR: ', this.dirForUpload);
         console.log('REPORT_INDEX_FILE: ', this.uploadIndexFile);
 
         await this.prepareForGenerateReport();
