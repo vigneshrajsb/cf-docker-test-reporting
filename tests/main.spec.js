@@ -1,13 +1,12 @@
 'use strict';
 
-// Before run this test you must specify env variable STORAGE_CONFIG with json config and BUCKET_NAME
+// Before run this test you must specify env variables STORAGE_CONFIG with json config and BUCKET_NAME
 
 const chai = require('chai');
 const fs = require('fs');
-const AllureTestReporter = require('../src/AllureTestReporter');
-const allureTestReporter = new AllureTestReporter();
 
-const expect = chai.expect;
+const should = chai.should;
+should();
 
 const sourceReportFolder = 'allure-results';
 const resultReportFolder = 'allure-report';
@@ -26,12 +25,28 @@ const deleteFolderRecursive = function (path) {
     }
 };
 
-describe('Test reporting logic', () => {
+function setEnvVariables(varsObj){
+    Object.keys(varsObj).forEach(function (key) {
+        process.env[key] = varsObj[key];
+    });
+}
+
+describe('Test reporting logic', function () {
+
+    this.timeout(10000);
 
     before(() => {
+        setEnvVariables({
+            VOLUME_PATH: 'fakeVolume',
+            BUILD_ID: '5bb328cb60275d6c1f8c891c'
+        });
+
         fs.writeFileSync('google.storage.config.json', process.env.STORAGE_CONFIG);
 
-        process.env.VOLUME_PATH='test'
+        if (!fs.existsSync(process.env.VOLUME_PATH)) {
+            fs.mkdirSync(process.env.VOLUME_PATH, '0744');
+            fs.writeFileSync(`${process.env.VOLUME_PATH}/env_vars_to_export`, '');
+        }
     });
 
 
@@ -76,15 +91,16 @@ describe('Test reporting logic', () => {
         fs.unlinkSync('google.storage.config.json');
     });
 
-    it.skip('should generate report for upload', async () => {
-       expect(1).to.equal(1);
+    it('should generate and upload allure report', async function () {
+        const initReporter = require('../src/init');
+        const result = await initReporter();
+        result.should.be.true;
     });
 
-    it('should generate report for upload1', async function() {
-        console.log(1111);
-
-        this.retries(3)
-
-        expect(1).to.equal(2);
+    it('should upload custom report', async function () {
+        const initReporter = require('../src/init');
+        setEnvVariables({ UPLOAD_DIR_INDEX_FILE: 'main.spec.js', UPLOAD_DIR: 'tests' });
+        const result = await initReporter();
+        result.should.be.true;
     });
 });
