@@ -12,12 +12,12 @@ function isUploadMode(vars) {
 
 async function init() {
 
-    if (!process.env.STORAGE_CONFIG) {
-        return Promise.reject('Environment variable STORAGE_CONFIG required for this service!');
+    if (!process.env.GCS_CONFIG) {
+        return Promise.reject('Environment variable GCS_CONFIG required for this service!');
     }
 
     /* json config wrapped in single quotes we need remove them before use config */
-    fs.writeFileSync(config.googleStorageConfig.keyFilename, process.env.STORAGE_CONFIG);
+    fs.writeFileSync(config.googleStorageConfig.keyFilename, process.env.GCS_CONFIG);
 
     try {
         let reporter;

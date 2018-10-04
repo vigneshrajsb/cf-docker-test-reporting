@@ -1,6 +1,6 @@
 'use strict';
 
-// Before run this test you must specify env variables STORAGE_CONFIG with json config and BUCKET_NAME
+// Before run this test you must specify env variables GCS_CONFIG with json config and BUCKET_NAME
 
 const chai = require('chai');
 const fs = require('fs');
@@ -41,7 +41,7 @@ describe('Test reporting logic', function () {
             CF_BUILD_ID: '5bb328cb60275d6c1f8c891c'
         });
 
-        fs.writeFileSync('google.storage.config.json', process.env.STORAGE_CONFIG);
+        fs.writeFileSync('google.storage.config.json', process.env.GCS_CONFIG);
 
         if (!fs.existsSync(process.env.CF_VOLUME_PATH)) {
             fs.mkdirSync(process.env.CF_VOLUME_PATH, '0744');
