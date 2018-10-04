@@ -16,9 +16,6 @@ ARG REPORT_INDEX_FILE
 # make available variable in application
 ENV BUCKET_NAME=$BUCKET_NAME
 
-# create config file from variable
-RUN echo $STORAGE_CONFIG > /app/google.storage.config.json
-
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
