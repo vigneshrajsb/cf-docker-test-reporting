@@ -37,15 +37,15 @@ describe('Test reporting logic', function () {
 
     before(() => {
         setEnvVariables({
-            VOLUME_PATH: 'fakeVolume',
-            BUILD_ID: '5bb328cb60275d6c1f8c891c'
+            CF_VOLUME_PATH: 'fakeVolume',
+            CF_BUILD_ID: '5bb328cb60275d6c1f8c891c'
         });
 
         fs.writeFileSync('google.storage.config.json', process.env.STORAGE_CONFIG);
 
-        if (!fs.existsSync(process.env.VOLUME_PATH)) {
-            fs.mkdirSync(process.env.VOLUME_PATH, '0744');
-            fs.writeFileSync(`${process.env.VOLUME_PATH}/env_vars_to_export`, '');
+        if (!fs.existsSync(process.env.CF_VOLUME_PATH)) {
+            fs.mkdirSync(process.env.CF_VOLUME_PATH, '0744');
+            fs.writeFileSync(`${process.env.CF_VOLUME_PATH}/env_vars_to_export`, '');
         }
     });
 

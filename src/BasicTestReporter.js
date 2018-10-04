@@ -6,8 +6,8 @@ const Exec = require('child_process').exec;
 
 class BasicTestReporter {
     constructor({
-                    buildId = process.env.BUILD_ID,
-                    volumePath = process.env.VOLUME_PATH
+                    buildId = process.env.CF_BUILD_ID,
+                    volumePath = process.env.CF_VOLUME_PATH
                 } = {}
     ) {
         this.buildId = buildId;
@@ -20,10 +20,9 @@ class BasicTestReporter {
             Exec(`echo ${varName}=${varValue} >> ${this.volumePath}/env_vars_to_export`, (err) => {
                 if (err) {
                     rej(new Error(`Fail to set export variable, cause: ${err.message}`));
-                } else {
-                    console.log(`Variable set success ${varName}`);
-                    res();
                 }
+
+                res();
             });
         });
     }
@@ -42,14 +41,8 @@ class BasicTestReporter {
 
     async prepareForGenerateReport() {
         console.log(`Working directory: ${process.cwd()}`);
-        console.log('Volume path: ', this.volumePath);
 
         await this.setExportVariable('TEST_REPORT', true);
-
-        const missedGeneralVars = this.findMissingVars(config.requiredGeneralVars);
-        if (missedGeneralVars.length) {
-            throw new Error(`Error: For this step you must specify ${missedGeneralVars.join(', ')} variable${missedGeneralVars.length > 1 ? 's' : ''}`);
-        }
     }
 }
 

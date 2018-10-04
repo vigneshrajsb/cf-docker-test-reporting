@@ -4,6 +4,7 @@ const recursiveReadSync = require('recursive-readdir-sync');
 const Exec = require('child_process').exec;
 const fs = require('fs');
 const config = require('../config');
+const path = require('path');
 
 class FileManager {
     static async uploadFiles({ srcDir, bucket, buildId }) {
@@ -14,7 +15,7 @@ class FileManager {
                 console.log('Start upload report files');
 
                 const uploadPromises = files.map((f) => {
-                    const pathToDeploy = buildId + f.replace(srcDir, '');
+                    const pathToDeploy = `${buildId}/${path.parse(f).base}`;
 
                     return new Promise((resolve, reject) => {
                         bucket.upload(f, { destination: pathToDeploy }, (err) => {
@@ -29,7 +30,11 @@ class FileManager {
                     });
                 });
 
-                Promise.all(uploadPromises).then(() => { res(true); }, (err) => { rej(err); });
+                Promise.all(uploadPromises).then(() => {
+                    console.log(`All report files was successfully uploaded.
+You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${process.env.REPORT_INDEX_FILE || 'index.html'}`);
+                    res(true);
+                }, (err) => { rej(err); });
             } catch (err) {
                 if (err.errno === 34) {
                     rej(new Error('Error while uploading files: Path does not exist'));
@@ -56,8 +61,8 @@ class FileManager {
 
     static async validateUploadDir(pathToDir) {
         if (!fs.existsSync(pathToDir)) {
-            throw new Error(`Error: Directory for upload is not exists. 
-Ensure that "working_directory" was specified for this step and he contains directory for upload`);
+            throw new Error(`Error: Directory for upload does not exist. 
+Ensure that "working_directory" was specified for this step and it contains the directory for upload`);
         }
 
         if (!fs.readdirSync(pathToDir).length) {
@@ -65,7 +70,7 @@ Ensure that "working_directory" was specified for this step and he contains dire
         }
 
         if (config.directoryForUploadMaxSize < await this.getDirSize(pathToDir)) {
-            throw new Error(`Error: Directory for upload is to large, max size is ${config.directoryForUploadMaxSize} MB`)
+            throw new Error(`Error: Directory for upload is to large, max size is ${config.directoryForUploadMaxSize} MB`);
         }
 
         return true;
