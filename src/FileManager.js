@@ -15,7 +15,9 @@ class FileManager {
                 console.log('Start upload report files');
 
                 const uploadPromises = files.map((f) => {
-                    const pathToDeploy = `${buildId}/${path.parse(f).base}`;
+                    // const pathToDeploy = `${buildId}/${path.parse(f).base}`;
+                    const pathWithoutSrcDir = f.replace(srcDir, '');
+                    const pathToDeploy = buildId + pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`;
 
                     return new Promise((resolve, reject) => {
                         bucket.upload(f, { destination: pathToDeploy }, (err) => {
