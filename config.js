@@ -12,5 +12,5 @@ module.exports = {
     bucketName: process.env.BUCKET_NAME,
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
     // directoryForUploadMaxSize in MB
-    directoryForUploadMaxSize: 10,
+    directoryForUploadMaxSize: 30,
 };
