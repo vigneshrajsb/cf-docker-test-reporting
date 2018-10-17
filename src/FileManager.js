@@ -22,10 +22,10 @@ class FileManager {
                             if (err) {
                                 console.error(`Fail to upload file ${pathToDeploy}, error: `, err.message ? err.message : err);
                                 reject(new Error('Fail to upload file'));
+                            } else {
+                                console.log(`File ${pathToDeploy} successful uploaded`);
+                                resolve(true);
                             }
-
-                            console.log(`File ${pathToDeploy} successful uploaded`);
-                            resolve(true);
                         });
                     });
                 });
