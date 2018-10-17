@@ -4,7 +4,6 @@ const recursiveReadSync = require('recursive-readdir-sync');
 const Exec = require('child_process').exec;
 const fs = require('fs');
 const config = require('../config');
-const path = require('path');
 
 class FileManager {
     static async uploadFiles({ srcDir, bucket, buildId }) {
@@ -15,19 +14,18 @@ class FileManager {
                 console.log('Start upload report files');
 
                 const uploadPromises = files.map((f) => {
-                    // const pathToDeploy = `${buildId}/${path.parse(f).base}`;
                     const pathWithoutSrcDir = f.replace(srcDir, '');
                     const pathToDeploy = buildId + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
 
                     return new Promise((resolve, reject) => {
                         bucket.upload(f, { destination: pathToDeploy }, (err) => {
-                            if (!err) {
-                                console.log(`File ${pathToDeploy} successful uploaded`);
-                                resolve(true);
-                            } else {
+                            if (err) {
                                 console.error(`Fail to upload file ${pathToDeploy}, error: `, err.message ? err.message : err);
                                 reject(new Error('Fail to upload file'));
                             }
+
+                            console.log(`File ${pathToDeploy} successful uploaded`);
+                            resolve(true);
                         });
                     });
                 });
@@ -38,11 +36,7 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
                     res(true);
                 }, (err) => { rej(err); });
             } catch (err) {
-                if (err.errno === 34) {
-                    rej(new Error('Error while uploading files: Path does not exist'));
-                } else {
-                    rej(new Error(`Error while uploading files: ${err.message || 'Error while uploading files'}`));
-                }
+                rej(new Error(`Error while uploading files: ${err.message || 'Unknown error'}`));
             }
         });
     }
@@ -76,6 +70,21 @@ Ensure that "working_directory" was specified for this step and it contains the 
         }
 
         return true;
+    }
+
+    static removeTestReportDir(pathToDir) {
+        return new Promise((res) => {
+            console.log('Start removing test report folder (we need clear test report on each build for avoid some bugs)');
+            Exec(`rm -rf ${pathToDir}`, (err) => {
+                if (err) {
+                    console.error(`Cant remove report folder "${pathToDir}", cause: ${err.message ? err.message : 'unknown error'}`);
+                } else {
+                    console.log(`Test report folder "${pathToDir}" has been removed`);
+                }
+
+                res(true);
+            });
+        });
     }
 }
 
