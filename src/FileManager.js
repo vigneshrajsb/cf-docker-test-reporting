@@ -44,13 +44,13 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
     static getDirOrFileSize(pathToResource) {
         return new Promise((res) => {
             Exec(`du -sk ${pathToResource}`, (err, response) => {
-                const match = response.trim().match(/^[\d\.\,]+/);
+                const match = response.trim().match(/^[\d.,]+/);
 
                 if (!match) {
                     res(null);
                 }
 
-                res(parseInt(match.toString().trim()) / 1024);
+                res(parseInt(match.toString().trim(), 10) / 1024);
             });
         });
     }
@@ -85,7 +85,7 @@ Ensure that "working_directory" was specified for this step and it contains the 
         return true;
     }
 
-    static validateUploadResource({ isUploadFile, uploadIndexFile, dirForUpload }){
+    static validateUploadResource({ isUploadFile, uploadIndexFile, dirForUpload }) {
         if (isUploadFile) {
             return this.validateUploadFile(uploadIndexFile);
         } else {
