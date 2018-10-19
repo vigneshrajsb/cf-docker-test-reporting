@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint consistent-return: 0 */
+
 const FileTestReporter = require('./FileTestReporter');
 const AllureTestReporter = require('./AllureTestReporter');
 const config = require('../config');

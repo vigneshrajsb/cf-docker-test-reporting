@@ -26,7 +26,8 @@ class FileTestReporter extends BasicTestReporter {
         if (!isUploadFile) {
             const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
             if (missingVars.length) {
-                throw new Error(`For upload custom test report you must specify ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
+                throw new Error(`For upload custom test report you must specify:
+${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
             }
         }
 
