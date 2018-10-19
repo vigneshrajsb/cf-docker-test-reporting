@@ -25,7 +25,7 @@ const deleteFolderRecursive = function (path) {
     }
 };
 
-function setEnvVariables(varsObj){
+function setEnvVariables(varsObj) {
     Object.keys(varsObj).forEach(function (key) {
         process.env[key] = varsObj[key];
     });
@@ -91,16 +91,25 @@ describe('Test reporting logic', function () {
         fs.unlinkSync('google.storage.config.json');
     });
 
-    it('should generate and upload allure report', async function () {
-        const initReporter = require('../src/init');
-        const result = await initReporter();
-        result.should.be.true;
-    });
+    describe('Positive', function () {
+        it('should generate and upload allure report', async function () {
+            const initReporter = require('../src/init');
+            const result = await initReporter();
+            result.should.be.true;
+        });
 
-    it('should upload custom report', async function () {
-        const initReporter = require('../src/init');
-        setEnvVariables({ UPLOAD_DIR_INDEX_FILE: 'main.spec.js', UPLOAD_DIR: 'tests' });
-        const result = await initReporter();
-        result.should.be.true;
+        it('should upload custom report', async function () {
+            setEnvVariables({ REPORT_INDEX_FILE: 'main.spec.js', REPORT_DIR: 'tests' });
+            const initReporter = require('../src/init');
+            const result = await initReporter();
+            result.should.be.true;
+        });
+
+        it('should upload one file', async function () {
+            setEnvVariables({ REPORT_INDEX_FILE: 'tests/main.spec.js' });
+            const initReporter = require('../src/init');
+            const result = await initReporter();
+            result.should.be.true;
+        });
     });
 });
