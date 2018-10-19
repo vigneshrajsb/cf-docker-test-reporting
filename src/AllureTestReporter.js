@@ -19,11 +19,11 @@ class AllureTestReporter extends  BasicTestReporter {
         const generation = this.generateReport();
         return new Promise(async (res, rej) => {
             generation.on('exit', async (exitCode) => {
-                if (exitCode === 0) {
-                    console.log('Report generation is finished successfully');
-                } else {
+                if (exitCode !== 0) {
                     rej(new Error(`Report generation is fail, exit with code: ${exitCode}`));
                 }
+
+                console.log('Report generation is finished successfully');
 
                 const result = await fileManager.uploadFiles({
                     srcDir: config.resultReportFolderName,

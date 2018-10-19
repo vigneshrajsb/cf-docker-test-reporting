@@ -11,6 +11,6 @@ module.exports = {
     sourceReportFolderName: 'allure-results',
     bucketName: process.env.BUCKET_NAME,
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
-    // directoryForUploadMaxSize in MB
-    directoryForUploadMaxSize: 30,
+    // uploadMaxSize in MB
+    uploadMaxSize: 30,
 };

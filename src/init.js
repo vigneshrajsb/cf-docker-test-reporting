@@ -12,14 +12,14 @@ function isUploadMode(vars) {
 
 async function init() {
 
-    if (!process.env.GCS_CONFIG) {
-        return Promise.reject('Environment variable GCS_CONFIG required for this service!');
-    }
-
-    /* json config wrapped in single quotes we need remove them before use config */
-    fs.writeFileSync(config.googleStorageConfig.keyFilename, process.env.GCS_CONFIG);
-
     try {
+        if (!process.env.GCS_CONFIG) {
+            throw new Error('Environment variable GCS_CONFIG required for this service!');
+        }
+
+        /* json config wrapped in single quotes we need remove them before use config */
+        fs.writeFileSync(config.googleStorageConfig.keyFilename, process.env.GCS_CONFIG);
+
         let reporter;
         if (isUploadMode(config.requiredVarsForUploadMode)) {
             reporter = new FileTestReporter();
@@ -27,7 +27,7 @@ async function init() {
             reporter = new AllureTestReporter();
         }
 
-        return await reporter.start();
+        return await reporter.start(!process.env.REPORT_DIR);
     } catch (e) {
         console.error(e.message);
         process.exit(1);
