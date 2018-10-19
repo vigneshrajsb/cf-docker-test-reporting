@@ -1,4 +1,7 @@
 'use strict';
+
+/* eslint consistent-return: 0 */
+
 const { removeTestReportDir } = require('./FileManager');
 const FileTestReporter = require('./FileTestReporter');
 const AllureTestReporter = require('./AllureTestReporter');
@@ -30,7 +33,7 @@ async function init() {
             reporter = new AllureTestReporter();
         }
 
-        const result = await reporter.start();
+        const result = await reporter.start(!process.env.REPORT_DIR);
 
         if (!isUpload || process.env.CLEAR_TEST_REPORT) {
             await removeTestReportDir(config.sourceReportFolderName);

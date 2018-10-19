@@ -4,12 +4,13 @@ const recursiveReadSync = require('recursive-readdir-sync');
 const Exec = require('child_process').exec;
 const fs = require('fs');
 const config = require('../config');
+const path = require('path');
 
 class FileManager {
-    static async uploadFiles({ srcDir, bucket, buildId }) {
+    static async uploadFiles({ srcDir, bucket, buildId, uploadFile, isUploadFile }) {
         return new Promise(async (res, rej) => {
             try {
-                const files = await recursiveReadSync(srcDir);
+                const files = await this._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
 
                 console.log('Start upload report files');
 
@@ -41,16 +42,16 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
         });
     }
 
-    static getDirSize(pathToDir) {
+    static getDirOrFileSize(pathToResource) {
         return new Promise((res) => {
-            Exec(`du -sk ${pathToDir}`, (err, response) => {
-                const match = response.trim().match(/^[\d\.\,]+/);
+            Exec(`du -sk ${pathToResource}`, (err, response) => {
+                const match = response.trim().match(/^[\d.,]+/);
 
                 if (!match) {
                     res(null);
                 }
 
-                res(parseInt(match.toString().trim()) / 1024);
+                res(parseInt(match.toString().trim(), 10) / 1024);
             });
         });
     }
@@ -65,11 +66,49 @@ Ensure that "working_directory" was specified for this step and it contains the 
             throw new Error('Error: Directory for upload is empty');
         }
 
-        if (config.directoryForUploadMaxSize < await this.getDirSize(pathToDir)) {
-            throw new Error(`Error: Directory for upload is to large, max size is ${config.directoryForUploadMaxSize} MB`);
+        if (config.uploadMaxSize < await this.getDirOrFileSize(pathToDir)) {
+            throw new Error(`Error: Directory for upload is to large, max size is ${config.uploadMaxSize} MB`);
         }
 
         return true;
+    }
+
+    static async validateUploadFile(pathToFile) {
+        if (!fs.existsSync(pathToFile)) {
+            throw new Error(`Error: FIle for upload does not exist. 
+Ensure that "working_directory" was specified for this step and it contains the file for upload`);
+        }
+
+        if (config.uploadMaxSize < await this.getDirOrFileSize(pathToFile)) {
+            throw new Error(`Error: File for upload is to large, max size is ${config.uploadMaxSize} MB`);
+        }
+
+        return true;
+    }
+
+    static validateUploadResource({ isUploadFile, uploadIndexFile, dirForUpload }) {
+        if (isUploadFile) {
+            return this.validateUploadFile(uploadIndexFile);
+        } else {
+            return this.validateUploadDir(dirForUpload);
+        }
+    }
+
+    static _getFilesForUpload({ srcDir, uploadFile, isUploadFile }) {
+        if (!isUploadFile) {
+            return recursiveReadSync(srcDir);
+        } else {
+            return [uploadFile];
+        }
+    }
+
+    static _getFilePathForDeploy({ f, buildId, srcDir, isUploadFile, uploadFile }) {
+        if (!isUploadFile) {
+            const pathWithoutSrcDir = f.replace(srcDir, '');
+            return buildId + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
+        } else {
+            return `${buildId}/${path.parse(uploadFile).base}`;
+        }
     }
 
     static removeTestReportDir(pathToDir) {

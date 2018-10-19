@@ -14,7 +14,7 @@ class FileTestReporter extends BasicTestReporter {
         this.dirForUpload = typeof dirForUpload === 'string' ? dirForUpload.trim() : dirForUpload;
         this.uploadIndexFile = typeof uploadIndexFile === 'string' ? uploadIndexFile.trim() : uploadIndexFile;
     }
-    async start() {
+    async start(isUploadFile) {
         console.log('Start upload custom test report (without generating visualization of test report)');
         console.log('REPORT_DIR: ', this.dirForUpload);
         console.log('REPORT_INDEX_FILE: ', this.uploadIndexFile);
@@ -23,17 +23,27 @@ class FileTestReporter extends BasicTestReporter {
 
         await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
 
-        const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
-        if (missingVars.length) {
-            throw new Error(`For upload custom test report you must specify ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
+        if (!isUploadFile) {
+            const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
+            if (missingVars.length) {
+                throw new Error(`For upload custom test report you must specify:
+${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
+            }
         }
 
-        await fileManager.validateUploadDir(this.dirForUpload);
+        await fileManager.validateUploadResource({
+            isUploadFile,
+            uploadIndexFile: this.uploadIndexFile,
+            dirForUpload: this.dirForUpload
+        });
+
 
         return fileManager.uploadFiles({
             srcDir: this.dirForUpload,
             bucket: this.bucket,
-            buildId: this.buildId
+            buildId: this.buildId,
+            uploadFile: this.uploadIndexFile,
+            isUploadFile
         });
     }
 }
