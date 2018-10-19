@@ -3,14 +3,13 @@
 /* eslint consistent-return: 0 */
 
 const { removeTestReportDir } = require('./FileManager');
+const BasicTestReporter = require('./BasicTestReporter');
 const FileTestReporter = require('./FileTestReporter');
 const AllureTestReporter = require('./AllureTestReporter');
 const config = require('../config');
 const fs = require('fs');
 
-function isUploadMode(vars) {
-    return vars.some(varName => !!process.env[varName]);
-}
+const { isUploadMode } = new BasicTestReporter();
 
 
 async function init() {
@@ -35,15 +34,11 @@ async function init() {
 
         const result = await reporter.start(!process.env.REPORT_DIR);
 
-        if (!isUpload || process.env.CLEAR_TEST_REPORT) {
-            await removeTestReportDir(config.sourceReportFolderName);
-        }
+        await removeTestReportDir();
 
         return result;
     } catch (e) {
-        if (!isUpload || process.env.CLEAR_TEST_REPORT) {
-            await removeTestReportDir(config.sourceReportFolderName);
-        }
+        await removeTestReportDir();
 
         console.error(e.message);
         process.exit(1);

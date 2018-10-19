@@ -1,10 +1,13 @@
 'use strict';
 
+const BasicTestReporter = require('./BasicTestReporter');
 const recursiveReadSync = require('recursive-readdir-sync');
 const Exec = require('child_process').exec;
 const fs = require('fs');
 const config = require('../config');
 const path = require('path');
+
+const { isUploadMode } = new BasicTestReporter();
 
 class FileManager {
     static async uploadFiles({ srcDir, bucket, buildId, uploadFile, isUploadFile }) {
@@ -15,8 +18,7 @@ class FileManager {
                 console.log('Start upload report files');
 
                 const uploadPromises = files.map((f) => {
-                    const pathWithoutSrcDir = f.replace(srcDir, '');
-                    const pathToDeploy = buildId + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
+                    const pathToDeploy = this._getFilePathForDeploy({ f, buildId, srcDir, isUploadFile, uploadFile });
 
                     return new Promise((resolve, reject) => {
                         bucket.upload(f, { destination: pathToDeploy }, (err) => {
@@ -111,19 +113,32 @@ Ensure that "working_directory" was specified for this step and it contains the 
         }
     }
 
-    static removeTestReportDir(pathToDir) {
-        return new Promise((res) => {
-            console.log('Start removing test report folder (we need clear test report on each build for avoid some bugs)');
-            Exec(`rm -rf ${pathToDir}`, (err) => {
-                if (err) {
-                    console.error(`Cant remove report folder "${pathToDir}", cause: ${err.message ? err.message : 'unknown error'}`);
-                } else {
-                    console.log(`Test report folder "${pathToDir}" has been removed`);
-                }
+    static removeTestReportDir() {
+        let folderForRemove;
 
-                res(true);
+        const isUpload = isUploadMode(config.requiredVarsForUploadMode);
+
+        if (!isUpload || (process.env.CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
+            folderForRemove = process.env.REPORT_DIR || config.sourceReportFolderName;
+        }
+
+        if (folderForRemove) {
+            return new Promise((res) => {
+                console.log('Start removing test report folder (we need clear test report on each build for avoid some bugs)');
+                Exec(`rm -rf ${folderForRemove}`, (err) => {
+                    if (err) {
+                        console.error(`Cant remove report folder "${folderForRemove}", cause: 
+                        ${err.message ? err.message : 'unknown error'}`);
+                    } else {
+                        console.log(`Test report folder "${folderForRemove}" has been removed`);
+                    }
+
+                    res(true);
+                });
             });
-        });
+        }
+
+        return Promise.resolve();
     }
 }
 

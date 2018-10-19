@@ -44,6 +44,10 @@ class BasicTestReporter {
 
         await this.setExportVariable('TEST_REPORT', true);
     }
+
+    isUploadMode(vars) {
+        return vars.some(varName => !!process.env[varName]);
+    }
 }
 
 module.exports = BasicTestReporter;
