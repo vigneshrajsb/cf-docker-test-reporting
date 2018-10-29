@@ -25,15 +25,18 @@ class AllureTestReporter extends  BasicTestReporter {
 
                 console.log('Report generation is finished successfully');
 
-                const result = await fileManager.uploadFiles({
-                    srcDir: config.resultReportFolderName,
-                    bucket: this.bucket,
-                    buildId: this.buildId
-                });
-                res(result);
+                try {
+                    const result = await fileManager.uploadFiles({
+                        srcDir: config.resultReportFolderName,
+                        bucket: this.bucket,
+                        buildId: this.buildId
+                    });
+                    res(result);
+                } catch (e) {
+                    rej(e);
+                }
             });
         });
-
     }
 }
 

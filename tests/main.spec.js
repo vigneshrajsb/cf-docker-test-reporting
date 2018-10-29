@@ -31,6 +31,12 @@ function setEnvVariables(varsObj) {
     });
 }
 
+function clearEnvVariables() {
+    delete process.env.CLEAR_TEST_REPORT;
+    delete process.env.REPORT_DIR;
+    delete process.env.REPORT_INDEX_FILE;
+}
+
 describe('Test reporting logic', function () {
 
     this.timeout(10000);
@@ -52,6 +58,8 @@ describe('Test reporting logic', function () {
 
     // create test source report
     beforeEach(() => {
+        clearEnvVariables();
+
         if (fs.existsSync(resultReportFolder)) {
             deleteFolderRecursive(resultReportFolder);
         }
@@ -103,6 +111,19 @@ describe('Test reporting logic', function () {
             const initReporter = require('../src/init');
             const result = await initReporter();
             result.should.be.true;
+        });
+
+        it('should remove test dir after upload', async function () {
+            if (!fs.existsSync('testUploadDir')) {
+                fs.mkdirSync('testUploadDir', '0744');
+                fs.writeFileSync('testUploadDir/test.txt', 'some data');
+            }
+
+            setEnvVariables({ REPORT_INDEX_FILE: 'test.txt', REPORT_DIR: 'testUploadDir', CLEAR_TEST_REPORT: true });
+            const initReporter = require('../src/init');
+            const result = await initReporter();
+            result.should.be.true;
+            fs.existsSync('testUploadDir').should.be.false;
         });
 
         it('should upload one file', async function () {
