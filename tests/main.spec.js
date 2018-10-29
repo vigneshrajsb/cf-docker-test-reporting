@@ -4,9 +4,13 @@
 
 const chai = require('chai');
 const fs = require('fs');
+const config = require('../config');
 
+const expect = chai.expect;
 const should = chai.should;
 should();
+
+process.exit = () => 0;
 
 const sourceReportFolder = 'allure-results';
 const resultReportFolder = 'allure-report';
@@ -106,8 +110,35 @@ describe('Test reporting logic', function () {
             result.should.be.true;
         });
 
+        it('should generate and upload allure report with custom name', async function () {
+            // this test overides allure-results folder name and default allure source dir name
+            // after test this values must be restored
+
+            const customAllureDir = 'allure-results-test';
+            config.sourceReportFolderName = customAllureDir;
+
+            fs.renameSync(`${process.cwd()}/allure-results`, `${process.cwd()}/${customAllureDir}`);
+
+            setEnvVariables({ ALLURE_DIR: customAllureDir });
+            const initReporter = require('../src/init');
+            const result = await initReporter();
+
+            config.sourceReportFolderName = 'allure-results';
+
+            if (fs.existsSync(customAllureDir)) {
+                deleteFolderRecursive(customAllureDir);
+            }
+
+            expect(result, 'fail during upload custom allure').to.be.true;
+        });
+
         it('should upload custom report', async function () {
-            setEnvVariables({ REPORT_INDEX_FILE: 'main.spec.js', REPORT_DIR: 'tests' });
+            if (!fs.existsSync('testUploadDir')) {
+                fs.mkdirSync('testUploadDir', '0744');
+                fs.writeFileSync('testUploadDir/test.txt', 'some data');
+            }
+
+            setEnvVariables({ REPORT_INDEX_FILE: 'test.txt', REPORT_DIR: 'testUploadDir' });
             const initReporter = require('../src/init');
             const result = await initReporter();
             result.should.be.true;
@@ -127,7 +158,12 @@ describe('Test reporting logic', function () {
         });
 
         it('should upload one file', async function () {
-            setEnvVariables({ REPORT_INDEX_FILE: 'tests/main.spec.js' });
+            if (!fs.existsSync('testUploadDir')) {
+                fs.mkdirSync('testUploadDir', '0744');
+                fs.writeFileSync('testUploadDir/test.txt', 'some data');
+            }
+
+            setEnvVariables({ REPORT_INDEX_FILE: 'testUploadDir/test.txt' });
             const initReporter = require('../src/init');
             const result = await initReporter();
             result.should.be.true;

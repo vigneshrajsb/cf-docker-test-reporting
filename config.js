@@ -8,7 +8,7 @@ module.exports = {
         keyFilename: path.resolve(__dirname, 'google.storage.config.json')
     },
     resultReportFolderName: 'allure-report',
-    sourceReportFolderName: 'allure-results',
+    sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
     bucketName: process.env.BUCKET_NAME,
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
     // uploadMaxSize in MB
