@@ -11,7 +11,6 @@ const fs = require('fs');
 
 const { isUploadMode } = new BasicTestReporter();
 
-
 async function init() {
     let isUpload;
 
