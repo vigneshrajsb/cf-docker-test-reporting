@@ -24,6 +24,12 @@ async function init() {
 
         isUpload = isUploadMode(config.requiredVarsForUploadMode);
 
+        if (isUpload) {
+            console.log('Using custom upload mode (only upload custom folder or file)');
+        } else {
+            console.log('Using allure upload mode (generate allure visualization and upload it)');
+        }
+
         let reporter;
         if (isUpload) {
             reporter = new FileTestReporter();
