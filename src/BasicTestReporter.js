@@ -46,6 +46,9 @@ class BasicTestReporter {
     }
 
     isUploadMode(vars) {
+        if (process.env.AllURE_DIR) {
+            return false;
+        }
         return vars.some(varName => !!process.env[varName]);
     }
 }
