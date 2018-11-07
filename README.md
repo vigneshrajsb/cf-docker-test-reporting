@@ -7,3 +7,4 @@ future flag for showing test report link)
 
 fsd
 234234
+eqeq
