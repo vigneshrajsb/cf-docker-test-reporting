@@ -6,8 +6,9 @@ const Exec = require('child_process').exec;
 const fs = require('fs');
 const config = require('../config');
 const path = require('path');
+const rp = require('request-promise');
 
-const { isUploadMode } = new BasicTestReporter();
+const basicTestReporter = new BasicTestReporter();
 
 class FileManager {
     static async uploadFiles({ srcDir, bucket, buildId, uploadFile, isUploadFile }) {
@@ -17,20 +18,10 @@ class FileManager {
 
                 console.log('Start upload report files');
 
-                const uploadPromises = files.map((f) => {
-                    const pathToDeploy = this._getFilePathForDeploy({ f, buildId, srcDir, isUploadFile, uploadFile });
+                const uploadPromises = files.map((file) => {
+                    const pathToDeploy = this._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile });
 
-                    return new Promise((resolve, reject) => {
-                        bucket.upload(f, { destination: pathToDeploy }, (err) => {
-                            if (err) {
-                                console.error(`Fail to upload file ${pathToDeploy}, error: `, err.message ? err.message : err);
-                                reject(new Error('Fail to upload file'));
-                            } else {
-                                console.log(`File ${pathToDeploy} successful uploaded`);
-                                resolve(true);
-                            }
-                        });
-                    });
+                    return this._uploadFileWithRetry({ file, pathToDeploy, bucket, retryCount: config.uploadRetryCount });
                 });
 
                 Promise.all(uploadPromises).then(() => {
@@ -42,6 +33,68 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
                 rej(new Error(`Error while uploading files: ${err.message || 'Unknown error'}`));
             }
         });
+    }
+
+    static _uploadFileWithRetry({ file, pathToDeploy, bucket, retryCount }) {
+        return new Promise(async (resolve, reject) => {
+            const { type, storageConfig: { accessToken } = {} } = basicTestReporter.extractStorageConfigFromVar();
+            let isUploaded = false;
+            let lastUploadErr;
+
+            for (let i = 0; i < retryCount; i += 1) {
+                if (isUploaded) {
+                    break;
+                }
+
+                try {
+                    if (type !== 'auth') {
+                        await this._uploadFile({ file, pathToDeploy, bucket }); // eslint-disable-line no-await-in-loop
+                    } else {
+                        await this._uploadFileUsingOauth({ file, accessToken, pathToDeploy, bucketName: config.bucketName }); // eslint-disable-line no-await-in-loop
+                    }
+
+                    isUploaded = true;
+                } catch (e) {
+                    if (i < retryCount) {
+                        console.log(`Fail to upload file "${pathToDeploy}", retry to upload`);
+                    }
+                    lastUploadErr = e;
+                }
+            }
+
+            if (isUploaded) {
+                console.log(`File ${pathToDeploy} successful uploaded`);
+                resolve(true);
+            } else {
+                console.error(`Fail to upload file ${pathToDeploy}, error: `, lastUploadErr.message ? lastUploadErr.message : lastUploadErr); // eslint-disable-line
+                reject(new Error('Fail to upload file'));
+            }
+        });
+    }
+
+    static _uploadFile({ file, pathToDeploy, bucket }) {
+        return new Promise((resolve, reject) => {
+            bucket.upload(file, { destination: pathToDeploy }, (err) => {
+                if (err) {
+                    reject(new Error(err.message || 'Unknown error during upload file'));
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
+
+    static _uploadFileUsingOauth({ file, accessToken, pathToDeploy, bucketName }) {
+        const options = {
+            uri: `https://www.googleapis.com/upload/storage/v1/b/${bucketName}/o?uploadType=media&name=${pathToDeploy}`,
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: fs.createReadStream(file)
+        };
+
+        return rp(options);
     }
 
     static getDirOrFileSize(pathToResource) {
@@ -104,9 +157,9 @@ Ensure that "working_directory" was specified for this step and it contains the 
         }
     }
 
-    static _getFilePathForDeploy({ f, buildId, srcDir, isUploadFile, uploadFile }) {
+    static _getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile }) {
         if (!isUploadFile) {
-            const pathWithoutSrcDir = f.replace(srcDir, '');
+            const pathWithoutSrcDir = file.replace(srcDir, '');
             return buildId + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
         } else {
             return `${buildId}/${path.parse(uploadFile).base}`;
@@ -116,7 +169,7 @@ Ensure that "working_directory" was specified for this step and it contains the 
     static removeTestReportDir() {
         let folderForRemove;
 
-        const isUpload = isUploadMode(config.requiredVarsForUploadMode);
+        const isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 
         if (!isUpload || (process.env.CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
             folderForRemove = process.env.REPORT_DIR || config.sourceReportFolderName;

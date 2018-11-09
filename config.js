@@ -13,4 +13,5 @@ module.exports = {
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
     // uploadMaxSize in MB
     uploadMaxSize: 30,
+    uploadRetryCount: 3,
 };

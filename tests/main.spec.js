@@ -43,7 +43,7 @@ function clearEnvVariables() {
 
 describe('Test reporting logic', function () {
 
-    this.timeout(10000);
+    this.timeout(20000);
 
     before(() => {
         setEnvVariables({
