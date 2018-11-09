@@ -90,7 +90,7 @@ class BasicTestReporter {
         console.log('Starting validate storage config');
 
         if (!process.env.GCS_CONFIG && !process.env.STORAGE_INTEGRATION) {
-            throw new Error('This service require storage config, you can specify them using GCS_CONFIG variable or specify integration via CF_STORAGE_INTEGRATION');
+            throw new Error('This service require storage config, you can specify them using GCS_CONFIG variable or specify integration via CF_STORAGE_INTEGRATION'); // eslint-disable-line
         }
 
         const { type, storageConfig } = this.extractStorageConfigFromVar();
@@ -106,7 +106,7 @@ class BasicTestReporter {
 
     validateStorageConfFields(conf, type) {
         if (!_.isObject(conf)) {
-           throw new Error(`Storage ${type} config must be an object, instead got ${typeof conf}`);
+            throw new Error(`Storage ${type} config must be an object, instead got ${typeof conf}`);
         }
 
         const requiredFields = type === 'json' ? ['client_email', 'private_key'] : ['accessToken', 'refreshToken'];

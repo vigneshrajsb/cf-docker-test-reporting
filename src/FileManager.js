@@ -50,7 +50,7 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
                     if (type !== 'auth') {
                         await this._uploadFile({ file, pathToDeploy, bucket }); // eslint-disable-line no-await-in-loop
                     } else {
-                        await this._uploadFileUsingOauth({ file, accessToken, pathToDeploy, bucketName: config.bucketName }); // eslint-disable-line no-await-in-loop
+                        await this._uploadFileUsingOauth({ file, accessToken, pathToDeploy, bucketName: config.bucketName }); // eslint-disable-line
                     }
 
                     isUploaded = true;
