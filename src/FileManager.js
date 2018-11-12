@@ -1,6 +1,7 @@
 'use strict';
 
 const BasicTestReporter = require('./BasicTestReporter');
+const storageConfigManager = require('./StorageConfigManager');
 const recursiveReadSync = require('recursive-readdir-sync');
 const Exec = require('child_process').exec;
 const fs = require('fs');
@@ -37,15 +38,11 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
 
     static _uploadFileWithRetry({ file, pathToDeploy, bucket, retryCount }) {
         return new Promise(async (resolve, reject) => {
-            const { type, storageConfig: { accessToken } = {} } = basicTestReporter.extractStorageConfigFromVar();
+            const { type, storageConfig: { accessToken } = {} } = storageConfigManager.extractStorageConfigFromVar();
             let isUploaded = false;
             let lastUploadErr;
 
             for (let i = 0; i < retryCount; i += 1) {
-                if (isUploaded) {
-                    break;
-                }
-
                 try {
                     if (type !== 'auth') {
                         await this._uploadFile({ file, pathToDeploy, bucket }); // eslint-disable-line no-await-in-loop
@@ -54,6 +51,7 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
                     }
 
                     isUploaded = true;
+                    break;
                 } catch (e) {
                     if (i < retryCount) {
                         console.log(`Fail to upload file "${pathToDeploy}", retry to upload`);
@@ -177,7 +175,7 @@ Ensure that "working_directory" was specified for this step and it contains the 
 
         if (folderForRemove) {
             return new Promise((res) => {
-                console.log('Start removing test report folder (we need clear test report on each build for avoid some bugs)');
+                console.log('Start removing test report folder');
                 Exec(`rm -rf ${folderForRemove}`, (err) => {
                     if (err) {
                         console.error(`Cant remove report folder "${folderForRemove}", cause: 

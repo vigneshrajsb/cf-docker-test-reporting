@@ -4,6 +4,7 @@
 
 const { removeTestReportDir } = require('./FileManager');
 const BasicTestReporter = require('./BasicTestReporter');
+const storageConfigManager = require('./StorageConfigManager');
 const FileTestReporter = require('./FileTestReporter');
 const AllureTestReporter = require('./AllureTestReporter');
 const config = require('../config');
@@ -15,9 +16,9 @@ async function init() {
     let isUpload;
 
     try {
-        basicTestReporter.validateStorageConfig();
+        storageConfigManager.validateStorageConfig();
 
-        const { type, name: contextName, storageConfig } = basicTestReporter.extractStorageConfigFromVar();
+        const { type, name: contextName, storageConfig } = storageConfigManager.extractStorageConfigFromVar();
         if (type === 'json') {
             fs.writeFileSync(config.googleStorageConfig.keyFilename, JSON.stringify(storageConfig));
         }
