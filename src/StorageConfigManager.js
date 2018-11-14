@@ -1,8 +1,25 @@
 'use strict';
 
 const _ = require('lodash');
+const rp = require('request-promise');
 
 class StorageConfigManager {
+    static getStorageConfig() {
+        const opts = {
+            uri: `http://${process.env.CF_HOST_NAME}:9007/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
+            headers: {
+                'x-access-token': process.env.CF_API_KEY
+            },
+            method: 'POST'
+        };
+
+        if (process.env.CF_STORAGE_INTEGRATION) {
+            return rp(opts);
+        }
+
+        return null;
+    }
+
     static extractStorageConfigFromVar() {
         const usedConfig = process.env.GCS_CONFIG || process.env.STORAGE_INTEGRATION;
         let parsedConfig;

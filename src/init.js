@@ -16,6 +16,12 @@ async function init() {
     let isUpload;
 
     try {
+        const storageIntegrationContext = await storageConfigManager.getStorageConfig();
+
+        if (storageIntegrationContext) {
+            process.env.STORAGE_INTEGRATION = storageIntegrationContext;
+        }
+
         storageConfigManager.validateStorageConfig();
 
         const { type, name: contextName, storageConfig } = storageConfigManager.extractStorageConfigFromVar();
@@ -39,7 +45,7 @@ async function init() {
         }
 
         if (contextName) {
-            await basicTestReporter.setExportVariable('TEST_REPORT_USED_CONTEXT', contextName);
+            await basicTestReporter.setExportVariable('TEST_REPORT_CONTEXT', contextName);
         }
 
         const result = await reporter.start(!process.env.REPORT_DIR);
