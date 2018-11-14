@@ -4,24 +4,27 @@ const _ = require('lodash');
 const rp = require('request-promise');
 
 class StorageConfigManager {
-    static getStorageConfig() {
-        const opts = {
-            uri: `http://${process.env.CF_HOST_NAME}:9007/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
-            headers: {
-                'x-access-token': process.env.CF_API_KEY
-            },
-            method: 'POST'
-        };
+    static async getStorageConfig() {
+        if (!process.env.CF_STORAGE_INTEGRATION) {
+            const protocol = _.get(process.env, 'CF_HOST_NAME', '').includes('local') ? 'http' : 'https';
 
-        if (process.env.CF_STORAGE_INTEGRATION) {
-            return rp(opts);
+            const opts = {
+                uri: `${protocol}://${process.env.CF_HOST_NAME}:9007/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
+                headers: {
+                    'x-access-token': process.env.CF_API_KEY
+                }
+            };
+
+            try {
+                this.storageConfig = await rp(opts);
+            } catch (e) {
+                throw new Error(`Can't get storage integration: ${process.env.CF_STORAGE_INTEGRATION}`);
+            }
         }
-
-        return null;
     }
 
-    static extractStorageConfigFromVar() {
-        const usedConfig = process.env.GCS_CONFIG || process.env.STORAGE_INTEGRATION;
+    static extractStorageConfig() {
+        const usedConfig = process.env.GCS_CONFIG || this.storageConfig;
         let parsedConfig;
 
         try {
@@ -56,11 +59,11 @@ class StorageConfigManager {
     static validateStorageConfig() {
         console.log('Starting validate storage config');
 
-        if (!process.env.GCS_CONFIG && !process.env.STORAGE_INTEGRATION) {
+        if (!process.env.GCS_CONFIG && !this.storageConfig) {
             throw new Error('This service require storage config, you can specify them using GCS_CONFIG variable or specify integration via CF_STORAGE_INTEGRATION'); // eslint-disable-line
         }
 
-        const { type, storageConfig } = this.extractStorageConfigFromVar();
+        const { type, storageConfig } = this.extractStorageConfig();
 
         this.validateStorageConfFields(storageConfig, type);
 

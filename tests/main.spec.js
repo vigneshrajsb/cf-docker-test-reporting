@@ -308,34 +308,32 @@ describe('Test reporting logic', function () {
             }
         });
 
-        it('extractStorageConfigFromVar should throw error when config is not object', () => {
+        it('extractStorageConfig should throw error when config is not object', () => {
             setEnvVariables({ 'STORAGE_INTEGRATION': JSON.stringify('') });
 
             try {
-                storageConfigManager.extractStorageConfigFromVar();
+                storageConfigManager.extractStorageConfig();
                 expect.fail(true, false, 'shod not be here, must throw error');
             } catch (e) {
             }
         });
 
-        it('extractStorageConfigFromVar should extract basic config correct', () => {
-            setEnvVariables({ 'STORAGE_INTEGRATION': JSON.stringify(storageConfBasic) });
-
+        it('extractStorageConfig should extract basic config correct', () => {
             process.env.GCS_CONFIG = '';
+            storageConfigManager.storageConfig = JSON.stringify(storageConfBasic);
 
-            expect(storageConfigManager.extractStorageConfigFromVar()).to.deep.equal({
+            expect(storageConfigManager.extractStorageConfig()).to.deep.equal({
                 type: 'json',
                 name: storageConfBasic.metadata.name,
                 storageConfig: storageConfBasic.spec.data.auth.jsonConfig
             });
         });
 
-        it('extractStorageConfigFromVar should extract auth config correct', () => {
-            setEnvVariables({ 'STORAGE_INTEGRATION': JSON.stringify(storageConfAuth) });
-
+        it('extractStorageConfig should extract auth config correct', () => {
             process.env.GCS_CONFIG = '';
+            storageConfigManager.storageConfig = JSON.stringify(storageConfAuth);
 
-            expect(storageConfigManager.extractStorageConfigFromVar()).to.deep.equal({
+            expect(storageConfigManager.extractStorageConfig()).to.deep.equal({
                 type: 'auth',
                 name: storageConfAuth.metadata.name,
                 storageConfig: storageConfAuth.spec.data.auth

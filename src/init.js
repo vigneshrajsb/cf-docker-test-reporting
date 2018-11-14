@@ -16,15 +16,11 @@ async function init() {
     let isUpload;
 
     try {
-        const storageIntegrationContext = await storageConfigManager.getStorageConfig();
-
-        if (storageIntegrationContext) {
-            process.env.STORAGE_INTEGRATION = storageIntegrationContext;
-        }
+        await storageConfigManager.getStorageConfig();
 
         storageConfigManager.validateStorageConfig();
 
-        const { type, name: contextName, storageConfig } = storageConfigManager.extractStorageConfigFromVar();
+        const { type, name: contextName, storageConfig } = storageConfigManager.extractStorageConfig();
         if (type === 'json') {
             fs.writeFileSync(config.googleStorageConfig.keyFilename, JSON.stringify(storageConfig));
         }
@@ -45,6 +41,7 @@ async function init() {
         }
 
         if (contextName) {
+            console.log(`Using storage integration, name: ${contextName}`);
             await basicTestReporter.setExportVariable('TEST_REPORT_CONTEXT', contextName);
         }
 

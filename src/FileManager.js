@@ -38,7 +38,7 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
 
     static _uploadFileWithRetry({ file, pathToDeploy, bucket, retryCount }) {
         return new Promise(async (resolve, reject) => {
-            const { type, storageConfig: { accessToken } = {} } = storageConfigManager.extractStorageConfigFromVar();
+            const { type, storageConfig: { accessToken } = {} } = storageConfigManager.extractStorageConfig();
             let isUploaded = false;
             let lastUploadErr;
 
