@@ -9,7 +9,7 @@ class StorageConfigManager {
             const protocol = _.get(process.env, 'CF_HOST_NAME', '').includes('local') ? 'http' : 'https';
 
             const opts = {
-                uri: `${protocol}://${process.env.CF_HOST_NAME}:9007/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
+                uri: `${protocol}://${process.env.CF_HOST_NAME}/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
                 headers: {
                     'x-access-token': process.env.CF_API_KEY
                 }
