@@ -5,7 +5,7 @@ const rp = require('request-promise');
 
 class StorageConfigManager {
     static async getStorageConfig() {
-        if (!process.env.CF_STORAGE_INTEGRATION) {
+        if (process.env.CF_STORAGE_INTEGRATION) {
             const protocol = _.get(process.env, 'CF_HOST_NAME', '').includes('local') ? 'http' : 'https';
 
             const opts = {
