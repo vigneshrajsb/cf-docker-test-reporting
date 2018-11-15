@@ -7,7 +7,7 @@ const { productionHost } = require('../config');
 class StorageConfigManager {
     static async getStorageConfig() {
         if (process.env.CF_STORAGE_INTEGRATION) {
-            const isProd = _.get(process.env, 'CF_HOST_NAME', '').includes('local');
+            const isProd = !_.get(process.env, 'CF_HOST_NAME', '').includes('local');
 
             const opts = {
                 uri: `${isProd ? 'https' : 'http'}://${isProd ? productionHost : process.env.CF_HOST_NAME}/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
