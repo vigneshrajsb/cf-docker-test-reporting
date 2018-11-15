@@ -2,14 +2,15 @@
 
 const _ = require('lodash');
 const rp = require('request-promise');
+const { productionHost } = require('../config');
 
 class StorageConfigManager {
     static async getStorageConfig() {
         if (process.env.CF_STORAGE_INTEGRATION) {
-            const protocol = _.get(process.env, 'CF_HOST_NAME', '').includes('local') ? 'http' : 'https';
+            const isProd = !_.get(process.env, 'CF_HOST_NAME', '').includes('local');
 
             const opts = {
-                uri: `${protocol}://${process.env.CF_HOST_NAME}/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
+                uri: `${isProd ? 'https' : 'http'}://${isProd ? productionHost : process.env.CF_HOST_NAME}/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
                 headers: {
                     'x-access-token': process.env.CF_API_KEY
                 }
