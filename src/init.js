@@ -4,25 +4,28 @@
 
 const { removeTestReportDir } = require('./FileManager');
 const BasicTestReporter = require('./BasicTestReporter');
+const storageConfigManager = require('./StorageConfigManager');
 const FileTestReporter = require('./FileTestReporter');
 const AllureTestReporter = require('./AllureTestReporter');
 const config = require('../config');
 const fs = require('fs');
 
-const { isUploadMode } = new BasicTestReporter();
+const basicTestReporter = new BasicTestReporter();
 
 async function init() {
     let isUpload;
 
     try {
-        if (!process.env.GCS_CONFIG) {
-            throw new Error('Environment variable GCS_CONFIG required for this service!');
+        await storageConfigManager.getStorageConfig();
+
+        storageConfigManager.validateStorageConfig();
+
+        const { type, name: contextName, storageConfig } = storageConfigManager.extractStorageConfig();
+        if (type === 'json') {
+            fs.writeFileSync(config.googleStorageConfig.keyFilename, JSON.stringify(storageConfig));
         }
 
-        /* json config wrapped in single quotes we need remove them before use config */
-        fs.writeFileSync(config.googleStorageConfig.keyFilename, process.env.GCS_CONFIG);
-
-        isUpload = isUploadMode(config.requiredVarsForUploadMode);
+        isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 
         if (isUpload) {
             console.log('Using custom upload mode (only upload custom folder or file)');
@@ -35,6 +38,11 @@ async function init() {
             reporter = new FileTestReporter();
         } else {
             reporter = new AllureTestReporter();
+        }
+
+        if (contextName) {
+            console.log(`Using storage integration, name: ${contextName}`);
+            await basicTestReporter.setExportVariable('TEST_REPORT_CONTEXT', contextName);
         }
 
         const result = await reporter.start(!process.env.REPORT_DIR);

@@ -5,6 +5,8 @@
 const chai = require('chai');
 const fs = require('fs');
 const config = require('../config');
+const _ = require('lodash');
+const storageConfigManager = require('../src/StorageConfigManager');
 
 const expect = chai.expect;
 const should = chai.should;
@@ -43,7 +45,7 @@ function clearEnvVariables() {
 
 describe('Test reporting logic', function () {
 
-    this.timeout(10000);
+    this.timeout(20000);
 
     before(() => {
         setEnvVariables({
@@ -167,6 +169,175 @@ describe('Test reporting logic', function () {
             const initReporter = require('../src/init');
             const result = await initReporter();
             result.should.be.true;
+        });
+    });
+
+    describe('Storage config', function () {
+        const storageConfAuth = {
+            'apiVersion': 'v1',
+            'kind': 'context',
+            'owner': 'account',
+            'metadata': {
+                'default': false,
+                'system': false,
+                'name': 'google'
+            },
+            'spec': {
+                'type': 'storage.gc',
+                'data': {
+                    'sharingPolicy': 'AllUsersInAccount',
+                    'auth': {
+                        'type': 'oauth2',
+                        'idpId': '5b7018a3c3567008431464d6',
+                        'accessToken': 'testAccessToken',
+                        'permissions': [
+                            'readWrite'
+                        ],
+                        'refreshToken': 'testRefreshToken',
+                        'expires': 1542020063430
+                    }
+                }
+            }
+        };
+
+        const storageConfAuthExtacted = {
+            'type': 'oauth2',
+            'idpId': '5b7018a3c3567008431464d6',
+            'accessToken': 'testAccessToken',
+            'permissions': [
+                'readWrite'
+            ],
+            'refreshToken': 'testRefreshToken',
+            'expires': 1542020063430
+        };
+
+        const storageConfBasic = {
+            'apiVersion': 'v1',
+            'kind': 'context',
+            'owner': 'account',
+            'metadata': {
+                'default': false,
+                'system': false,
+                'name': 'json'
+            },
+            'spec': {
+                'type': 'storage.gc',
+                'data': {
+                    'sharingPolicy': 'AllUsersInAccount',
+                    'auth': {
+                        'type': 'basic',
+                        'jsonConfig': {
+                            'type': 'service_account',
+                            'project_id': 'local-codefresh',
+                            'private_key_id': 'testPrivateKeyId',
+                            'private_key': 'testPrivateKey',
+                            'client_email': 'testEmail',
+                            'client_id': 'testClientId',
+                            'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
+                            'token_uri': 'https://oauth2.googleapis.com/token',
+                            'auth_provider_x509_cert_url': 'https://www.googleapis.com/oauth2/v1/certs',
+                            'client_x509_cert_url': 'https://www.googleapis.com/robot/v1/metadata/x509/gcs-17%40local-codefresh.iam.gserviceaccount.com'
+                        }
+                    }
+                }
+            }
+        };
+
+        const storageConfBasicExtacted = {
+            'type': 'service_account',
+            'project_id': 'local-codefresh',
+            'private_key_id': 'testPrivateKeyId',
+            'private_key': 'testPrivateKey',
+            'client_email': 'testEmail',
+            'client_id': 'testClientId',
+            'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
+            'token_uri': 'https://oauth2.googleapis.com/token',
+            'auth_provider_x509_cert_url': 'https://www.googleapis.com/oauth2/v1/certs',
+            'client_x509_cert_url': 'https://www.googleapis.com/robot/v1/metadata/x509/gcs-17%40local-codefresh.iam.gserviceaccount.com'
+        };
+
+        it('isStorageJsonConfigUsed return false for auth conf ', () => {
+            expect(storageConfigManager.isStorageJsonConfigUsed(storageConfAuth)).to.equal(false);
+        });
+
+        it('isStorageJsonConfigUsed return true for storage conf ', () => {
+            expect(storageConfigManager.isStorageJsonConfigUsed(storageConfBasic)).to.equal(true);
+        });
+
+        it('validateStorageConfFields should throw error when config not exists', () => {
+            try {
+                storageConfigManager.validateStorageConfFields(null, '');
+                expect.fail(true, false, 'shod not be here, must throw error');
+            } catch (e) {
+            }
+        });
+
+        it('validateStorageConfFields should throw error when not all required fields present in auth conf', () => {
+            try {
+                const clonedConf = _.cloneDeep(storageConfAuthExtacted);
+                delete clonedConf.accessToken;
+                storageConfigManager.validateStorageConfFields(clonedConf, 'auth');
+                expect.fail(true, false, 'shod not be here, must throw error');
+            } catch (e) {
+            }
+        });
+
+        it('validateStorageConfFields should throw error when not all required fields present in basic conf', () => {
+            try {
+                const clonedConf = _.cloneDeep(storageConfBasicExtacted);
+                delete clonedConf.client_email;
+                storageConfigManager.validateStorageConfFields(clonedConf, 'json');
+                expect.fail(true, false, 'shod not be here, must throw error');
+            } catch (e) {
+            }
+        });
+
+        it('validateStorageConfFields should validate basic conf', () => {
+            try {
+                storageConfigManager.validateStorageConfFields(storageConfBasicExtacted, 'json');
+            } catch (e) {
+                expect.fail(true, false, 'shod not be here, must work correct');
+            }
+        });
+
+        it('validateStorageConfFields should validate auth conf', () => {
+            try {
+                storageConfigManager.validateStorageConfFields(storageConfAuthExtacted, 'auth');
+            } catch (e) {
+                expect.fail(true, false, 'shod not be here, must work correct');
+            }
+        });
+
+        it('extractStorageConfig should throw error when config is not object', () => {
+            setEnvVariables({ 'STORAGE_INTEGRATION': JSON.stringify('') });
+
+            try {
+                storageConfigManager.extractStorageConfig();
+                expect.fail(true, false, 'shod not be here, must throw error');
+            } catch (e) {
+            }
+        });
+
+        it('extractStorageConfig should extract basic config correct', () => {
+            process.env.GCS_CONFIG = '';
+            storageConfigManager.storageConfig = JSON.stringify(storageConfBasic);
+
+            expect(storageConfigManager.extractStorageConfig()).to.deep.equal({
+                type: 'json',
+                name: storageConfBasic.metadata.name,
+                storageConfig: storageConfBasic.spec.data.auth.jsonConfig
+            });
+        });
+
+        it('extractStorageConfig should extract auth config correct', () => {
+            process.env.GCS_CONFIG = '';
+            storageConfigManager.storageConfig = JSON.stringify(storageConfAuth);
+
+            expect(storageConfigManager.extractStorageConfig()).to.deep.equal({
+                type: 'auth',
+                name: storageConfAuth.metadata.name,
+                storageConfig: storageConfAuth.spec.data.auth
+            });
         });
     });
 });
