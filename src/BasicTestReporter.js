@@ -43,6 +43,7 @@ class BasicTestReporter {
         console.log(`Working directory: ${process.cwd()}`);
 
         await this.setExportVariable('TEST_REPORT', true);
+        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.bucketName);
     }
 
     isUploadMode(vars) {
