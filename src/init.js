@@ -2,6 +2,8 @@
 
 /* eslint consistent-return: 0 */
 
+validateRequiredVars();
+
 const { removeTestReportDir } = require('./FileManager');
 const BasicTestReporter = require('./BasicTestReporter');
 const storageConfigManager = require('./StorageConfigManager');
@@ -54,6 +56,13 @@ async function init() {
         await removeTestReportDir();
 
         console.error(e.message);
+        process.exit(1);
+    }
+}
+
+function validateRequiredVars() {
+    if (!process.env.BUCKET_NAME) {
+        console.error('This service require BUCKET_NAME variable');
         process.exit(1);
     }
 }
