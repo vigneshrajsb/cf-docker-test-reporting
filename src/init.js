@@ -12,10 +12,18 @@ const fs = require('fs');
 
 const basicTestReporter = new BasicTestReporter();
 
+function validateRequiredVars() {
+    if (!process.env.BUCKET_NAME) {
+        throw new Error('This service require BUCKET_NAME variable');
+    }
+}
+
 async function init() {
     let isUpload;
 
     try {
+        validateRequiredVars();
+
         await storageConfigManager.getStorageConfig();
 
         storageConfigManager.validateStorageConfig();

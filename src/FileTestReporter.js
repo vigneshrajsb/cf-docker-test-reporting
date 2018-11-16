@@ -3,6 +3,7 @@
 const BasicTestReporter = require('./BasicTestReporter');
 const config = require('../config');
 const fileManager = require('./FileManager');
+const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 
 class FileTestReporter extends BasicTestReporter {
     constructor({
@@ -40,7 +41,7 @@ ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
 
         return fileManager.uploadFiles({
             srcDir: this.dirForUpload,
-            bucket: this.bucket,
+            bucket: gcs.bucket(config.bucketName),
             buildId: this.buildId,
             uploadFile: this.uploadIndexFile,
             isUploadFile

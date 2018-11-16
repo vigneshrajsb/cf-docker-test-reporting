@@ -1,7 +1,6 @@
 'use strict';
 
 const config = require('../config');
-const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 const Exec = require('child_process').exec;
 
 class BasicTestReporter {
@@ -12,7 +11,6 @@ class BasicTestReporter {
     ) {
         this.buildId = buildId;
         this.volumePath = volumePath;
-        this.bucket = gcs.bucket(config.bucketName);
     }
 
     setExportVariable(varName, varValue) {
@@ -43,6 +41,7 @@ class BasicTestReporter {
         console.log(`Working directory: ${process.cwd()}`);
 
         await this.setExportVariable('TEST_REPORT', true);
+        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.bucketName);
     }
 
     isUploadMode(vars) {
