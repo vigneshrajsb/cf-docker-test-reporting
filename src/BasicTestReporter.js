@@ -1,7 +1,6 @@
 'use strict';
 
 const config = require('../config');
-const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 const Exec = require('child_process').exec;
 
 class BasicTestReporter {
@@ -12,7 +11,6 @@ class BasicTestReporter {
     ) {
         this.buildId = buildId;
         this.volumePath = volumePath;
-        this.bucket = gcs.bucket(config.bucketName);
     }
 
     setExportVariable(varName, varValue) {
@@ -51,6 +49,12 @@ class BasicTestReporter {
             return false;
         }
         return vars.some(varName => !!process.env[varName]);
+    }
+
+    validateRequiredVars() {
+        if (!process.env.BUCKET_NAME) {
+            throw new Error('This service require BUCKET_NAME variable');
+        }
     }
 }
 

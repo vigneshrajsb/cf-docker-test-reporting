@@ -16,6 +16,8 @@ async function init() {
     let isUpload;
 
     try {
+        basicTestReporter.validateRequiredVars();
+
         await storageConfigManager.getStorageConfig();
 
         storageConfigManager.validateStorageConfig();
