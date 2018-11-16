@@ -50,12 +50,6 @@ class BasicTestReporter {
         }
         return vars.some(varName => !!process.env[varName]);
     }
-
-    validateRequiredVars() {
-        if (!process.env.BUCKET_NAME) {
-            throw new Error('This service require BUCKET_NAME variable');
-        }
-    }
 }
 
 module.exports = BasicTestReporter;
