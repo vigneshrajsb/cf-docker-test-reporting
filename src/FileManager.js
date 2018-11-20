@@ -7,21 +7,14 @@ const fs = require('fs');
 const config = require('../config');
 const path = require('path');
 const rp = require('request-promise');
-const AWS = require('aws-sdk');
 const storageTypes = require('./storage/storageTypes');
 
 const basicTestReporter = new BasicTestReporter();
 
 class FileManager {
-    static async uploadFiles({ srcDir, bucket, buildId, uploadFile, isUploadFile, extractedStorageConfig }) {
+    static async uploadFiles({ srcDir, bucket, buildId, uploadFile, isUploadFile, extractedStorageConfig, s3 }) {
         return new Promise(async (res, rej) => {
             try {
-                let s3;
-                if (extractedStorageConfig.integrationType === storageTypes.amazon) {
-                    AWS.config.loadFromPath(config.amazonKeyFileName);
-                    s3 = new AWS.S3({ signatureVersion: 'v4' });
-                }
-
                 const files = await this._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
 
                 console.log('Start upload report files');

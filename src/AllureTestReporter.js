@@ -5,6 +5,7 @@ const config = require('../config');
 const allureCmd = require('../cf-allure-commandline');
 const fileManager = require('./FileManager');
 const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
+const uploaders = require('./uploaders');
 
 class AllureTestReporter extends  BasicTestReporter {
     generateReport() {
@@ -27,7 +28,9 @@ class AllureTestReporter extends  BasicTestReporter {
                 console.log('Report generation is finished successfully');
 
                 try {
-                    const result = await fileManager.uploadFiles({
+                    const uploader = uploaders[extractedStorageConfig.integrationType];
+
+                    const result = uploader.upload({
                         srcDir: config.resultReportFolderName,
                         bucket: gcs.bucket(config.bucketName),
                         buildId: this.buildId,
