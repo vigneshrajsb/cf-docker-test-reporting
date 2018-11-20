@@ -4,10 +4,11 @@
 
 const { removeTestReportDir } = require('./FileManager');
 const BasicTestReporter = require('./BasicTestReporter');
-const storageConfigManager = require('./StorageConfigManager');
+const storageConfigManager = require('./storage/StorageConfigManager');
 const FileTestReporter = require('./FileTestReporter');
 const AllureTestReporter = require('./AllureTestReporter');
 const config = require('../config');
+const storageTypes = require('./storage/storageTypes');
 const fs = require('fs');
 
 const basicTestReporter = new BasicTestReporter();
@@ -28,10 +29,15 @@ async function init() {
 
         storageConfigManager.validateStorageConfig();
 
-        const { type, name: contextName, storageConfig } = storageConfigManager.extractStorageConfig();
-        if (type === 'json') {
-            fs.writeFileSync(config.googleStorageConfig.keyFilename, JSON.stringify(storageConfig));
+        const extractedStorageConfig = storageConfigManager.getExtractedStorageConfig();
+        if (extractedStorageConfig.type === 'json') {
+            const jsonConfigFileName = extractedStorageConfig.integrationType === storageTypes.google ?
+                config.googleStorageConfig.keyFilename : config.amazonKeyFileName;
+
+            fs.writeFileSync(jsonConfigFileName, JSON.stringify(extractedStorageConfig.storageConfig));
         }
+
+        await basicTestReporter.setExportVariable('TEST_REPORT_INTEGRATION_TYPE', extractedStorageConfig.integrationType);
 
         isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 
@@ -48,12 +54,15 @@ async function init() {
             reporter = new AllureTestReporter();
         }
 
-        if (contextName) {
-            console.log(`Using storage integration, name: ${contextName}`);
-            await basicTestReporter.setExportVariable('TEST_REPORT_CONTEXT', contextName);
+        if (extractedStorageConfig.name) {
+            console.log(`Using storage integration, name: ${extractedStorageConfig.name}`);
+            await basicTestReporter.setExportVariable('TEST_REPORT_CONTEXT', extractedStorageConfig.name);
         }
 
-        const result = await reporter.start(!process.env.REPORT_DIR);
+        const result = await reporter.start({
+            isUploadFile: !process.env.REPORT_DIR,
+            extractedStorageConfig
+        });
 
         await removeTestReportDir();
 

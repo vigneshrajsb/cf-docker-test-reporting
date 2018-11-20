@@ -6,7 +6,7 @@ const chai = require('chai');
 const fs = require('fs');
 const config = require('../config');
 const _ = require('lodash');
-const storageConfigManager = require('../src/StorageConfigManager');
+const storageConfigManager = require('../src/storage/StorageConfigManager');
 
 const expect = chai.expect;
 const should = chai.should;

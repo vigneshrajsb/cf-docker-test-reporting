@@ -15,7 +15,7 @@ class FileTestReporter extends BasicTestReporter {
         this.dirForUpload = typeof dirForUpload === 'string' ? dirForUpload.trim() : dirForUpload;
         this.uploadIndexFile = typeof uploadIndexFile === 'string' ? uploadIndexFile.trim() : uploadIndexFile;
     }
-    async start(isUploadFile) {
+    async start({ isUploadFile, extractedStorageConfig }) {
         console.log('Start upload custom test report (without generating visualization of test report)');
         console.log('REPORT_DIR: ', this.dirForUpload);
         console.log('REPORT_INDEX_FILE: ', this.uploadIndexFile);
@@ -44,7 +44,8 @@ ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
             bucket: gcs.bucket(config.bucketName),
             buildId: this.buildId,
             uploadFile: this.uploadIndexFile,
-            isUploadFile
+            isUploadFile,
+            extractedStorageConfig
         });
     }
 }

@@ -7,6 +7,7 @@ module.exports = {
         projectId: 'local-codefresh',
         keyFilename: path.resolve(__dirname, 'google.storage.config.json')
     },
+    amazonKeyFileName: path.resolve(__dirname, 'amazon.storage.config.json'),
     resultReportFolderName: 'allure-report',
     sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
     bucketName: process.env.BUCKET_NAME,

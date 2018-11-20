@@ -11,7 +11,7 @@ class AllureTestReporter extends  BasicTestReporter {
         return allureCmd(['generate', config.sourceReportFolderName, '--clean']);
     }
 
-    async start() {
+    async start({ extractedStorageConfig }) {
         await this.prepareForGenerateReport();
 
         await fileManager.validateUploadDir(config.sourceReportFolderName);
@@ -30,7 +30,8 @@ class AllureTestReporter extends  BasicTestReporter {
                     const result = await fileManager.uploadFiles({
                         srcDir: config.resultReportFolderName,
                         bucket: gcs.bucket(config.bucketName),
-                        buildId: this.buildId
+                        buildId: this.buildId,
+                        extractedStorageConfig
                     });
                     res(result);
                 } catch (e) {

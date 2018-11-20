@@ -1,20 +1,27 @@
 'use strict';
 
 const BasicTestReporter = require('./BasicTestReporter');
-const storageConfigManager = require('./StorageConfigManager');
 const recursiveReadSync = require('recursive-readdir-sync');
 const Exec = require('child_process').exec;
 const fs = require('fs');
 const config = require('../config');
 const path = require('path');
 const rp = require('request-promise');
+const AWS = require('aws-sdk');
+const storageTypes = require('./storage/storageTypes');
 
 const basicTestReporter = new BasicTestReporter();
 
 class FileManager {
-    static async uploadFiles({ srcDir, bucket, buildId, uploadFile, isUploadFile }) {
+    static async uploadFiles({ srcDir, bucket, buildId, uploadFile, isUploadFile, extractedStorageConfig }) {
         return new Promise(async (res, rej) => {
             try {
+                let s3;
+                if (extractedStorageConfig.integrationType === storageTypes.amazon) {
+                    AWS.config.loadFromPath(config.amazonKeyFileName);
+                    s3 = new AWS.S3({ signatureVersion: 'v4' });
+                }
+
                 const files = await this._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
 
                 console.log('Start upload report files');
@@ -22,7 +29,15 @@ class FileManager {
                 const uploadPromises = files.map((file) => {
                     const pathToDeploy = this._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile });
 
-                    return this._uploadFileWithRetry({ file, pathToDeploy, bucket, retryCount: config.uploadRetryCount });
+                    return this._uploadFileWithRetry({
+                        file,
+                        pathToDeploy,
+                        bucket,
+                        retryCount: config.uploadRetryCount,
+                        extractedStorageConfig,
+                        s3,
+                        uploadHandler: this.getUploadFileHandler(extractedStorageConfig)
+                    });
                 });
 
                 Promise.all(uploadPromises).then(() => {
@@ -36,19 +51,22 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
         });
     }
 
-    static _uploadFileWithRetry({ file, pathToDeploy, bucket, retryCount }) {
+    static _uploadFileWithRetry({ file, pathToDeploy, bucket, retryCount, extractedStorageConfig, uploadHandler, s3 }) {
         return new Promise(async (resolve, reject) => {
-            const { type, storageConfig: { accessToken } = {} } = storageConfigManager.extractStorageConfig();
+            const { storageConfig: { accessToken } = {} } = extractedStorageConfig;
             let isUploaded = false;
             let lastUploadErr;
 
             for (let i = 0; i < retryCount; i += 1) {
                 try {
-                    if (type !== 'auth') {
-                        await this._uploadFile({ file, pathToDeploy, bucket }); // eslint-disable-line no-await-in-loop
-                    } else {
-                        await this._uploadFileUsingOauth({ file, accessToken, pathToDeploy, bucketName: config.bucketName }); // eslint-disable-line
-                    }
+                    await uploadHandler({ // eslint-disable-line no-await-in-loop
+                        file,
+                        pathToDeploy,
+                        bucket,
+                        accessToken,
+                        bucketName: config.bucketName,
+                        s3
+                    });
 
                     isUploaded = true;
                     break;
@@ -68,6 +86,16 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
                 reject(new Error('Fail to upload file'));
             }
         });
+    }
+
+    static getUploadFileHandler(storageConfig) {
+        if (storageConfig.integrationType === storageTypes.amazon) {
+            return this._uploadFileToAmazon;
+        } else if (storageConfig.type !== 'auth') {
+            return this._uploadFile;
+        } else {
+            return this._uploadFileUsingOauth;
+        }
     }
 
     static _uploadFile({ file, pathToDeploy, bucket }) {
@@ -93,6 +121,24 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
         };
 
         return rp(options);
+    }
+
+    static _uploadFileToAmazon({ bucketName, file, pathToDeploy, s3 }) {
+        const params = {
+            Bucket: bucketName,
+            Key: pathToDeploy,
+            Body: fs.createReadStream(file)
+        };
+
+        return new Promise((res, rej) => {
+            s3.upload(params, (err) => {
+                if (err) {
+                    rej(err);
+                } else {
+                    res();
+                }
+            });
+        });
     }
 
     static getDirOrFileSize(pathToResource) {
