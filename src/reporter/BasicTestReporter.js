@@ -1,7 +1,8 @@
 'use strict';
 
-const config = require('../config');
+const config = require('../../config');
 const Exec = require('child_process').exec;
+const _ = require('lodash');
 
 class BasicTestReporter {
     constructor({
@@ -37,11 +38,33 @@ class BasicTestReporter {
         return missingVars;
     }
 
-    async prepareForGenerateReport() {
+    async prepareForGenerateReport({ extractedStorageConfig, uploadIndexFile, isUpload, buildId }) {
         console.log(`Working directory: ${process.cwd()}`);
+
+        if (isUpload) {
+            console.log(`Start upload custom test report for build ${buildId}`);
+            console.log('Using custom upload mode (only upload custom folder or file)');
+        } else {
+            console.log(`Start generating visualization of test report for build ${buildId}`);
+            console.log('Using allure upload mode (generate allure visualization and upload it)');
+        }
 
         await this.setExportVariable('TEST_REPORT', true);
         await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.bucketName);
+
+        await this.setExportVariable(
+            'TEST_REPORT_INTEGRATION_TYPE',
+            this._normalizeIntegrationName(extractedStorageConfig.integrationType)
+        );
+
+        if (extractedStorageConfig.name) {
+            console.log(`Using storage integration, name: ${extractedStorageConfig.name}`);
+            await this.setExportVariable('TEST_REPORT_CONTEXT', extractedStorageConfig.name);
+        }
+
+        if (uploadIndexFile) {
+            await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', uploadIndexFile);
+        }
     }
 
     isUploadMode(vars) {
@@ -49,6 +72,14 @@ class BasicTestReporter {
             return false;
         }
         return vars.some(varName => !!process.env[varName]);
+    }
+
+    _normalizeIntegrationName(name) {
+        if (!_.isString(name)) {
+            return name;
+        }
+
+        return name.split('.')[1];
     }
 }
 

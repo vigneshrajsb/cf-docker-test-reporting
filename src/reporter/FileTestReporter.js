@@ -1,10 +1,9 @@
 'use strict';
 
 const BasicTestReporter = require('./BasicTestReporter');
-const config = require('../config');
-const fileManager = require('./FileManager');
-const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
-const uploaders = require('./uploaders');
+const config = require('../../config');
+const validator = require('../validation');
+const uploader = require('../uploader');
 
 class FileTestReporter extends BasicTestReporter {
     constructor({
@@ -16,14 +15,15 @@ class FileTestReporter extends BasicTestReporter {
         this.dirForUpload = typeof dirForUpload === 'string' ? dirForUpload.trim() : dirForUpload;
         this.uploadIndexFile = typeof uploadIndexFile === 'string' ? uploadIndexFile.trim() : uploadIndexFile;
     }
-    async start({ isUploadFile, extractedStorageConfig }) {
-        console.log('Start upload custom test report (without generating visualization of test report)');
+    async start({ isUploadFile, extractedStorageConfig, isUpload }) {
         console.log('REPORT_DIR: ', this.dirForUpload);
         console.log('REPORT_INDEX_FILE: ', this.uploadIndexFile);
 
-        await this.prepareForGenerateReport();
-
-        await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', this.uploadIndexFile);
+        await this.prepareForGenerateReport({
+            extractedStorageConfig,
+            uploadIndexFile: this.uploadIndexFile,
+            isUpload
+        });
 
         if (!isUploadFile) {
             const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
@@ -33,20 +33,17 @@ ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
             }
         }
 
-        await fileManager.validateUploadResource({
+        await validator.validateUploadResource({
             isUploadFile,
             uploadIndexFile: this.uploadIndexFile,
             dirForUpload: this.dirForUpload
         });
 
-
-        const uploader = uploaders[extractedStorageConfig.integrationType];
-
-        return uploader.upload({
+        return uploader.uploadFiles({
             srcDir: this.dirForUpload,
-            bucket: gcs.bucket(config.bucketName),
             buildId: this.buildId,
             uploadFile: this.uploadIndexFile,
+            bucketName: config.bucketName,
             isUploadFile,
             extractedStorageConfig
         });

@@ -3,8 +3,11 @@
 const _ = require('lodash');
 const rp = require('request-promise');
 const { productionHost } = require('../../config');
-const storageTypes = require('./types');
+const storageTypesMap = require('./types');
+const storageTypes = require('./storageTypes');
 const GoogleStorage = require('./types/googleStorage');
+const fs = require('fs');
+const config = require('../../config');
 
 class StorageConfigManager {
     static async getStorageConfig() {
@@ -30,9 +33,9 @@ class StorageConfigManager {
 
     static getStorageTypeHandler(storageConfig) {
         if (process.env.GCS_CONFIG) {
-            return storageTypes[GoogleStorage.getType()];
+            return storageTypesMap[GoogleStorage.getType()];
         } else {
-            return storageTypes[_.get(storageConfig, 'spec.type')];
+            return storageTypesMap[_.get(storageConfig, 'spec.type')];
         }
     }
 
@@ -85,6 +88,22 @@ class StorageConfigManager {
         storageHandler.validateConfig();
 
         console.log('Storage config valid!');
+    }
+
+    static createStorageConfigFile(extractedStorageConfig) {
+        if (extractedStorageConfig.type === 'json') {
+            let jsonConfigFileName;
+
+            if (storageTypes.google === extractedStorageConfig.integrationType) {
+                jsonConfigFileName = config.googleStorageConfig.keyFilename;
+            } else if (storageTypes.amazon === extractedStorageConfig.integrationType) {
+                jsonConfigFileName = config.amazonKeyFileName;
+            } else {
+                throw new Error(`Unsupported integration type "${extractedStorageConfig.integrationType}"`);
+            }
+
+            fs.writeFileSync(jsonConfigFileName, JSON.stringify(extractedStorageConfig.storageConfig));
+        }
     }
 }
 

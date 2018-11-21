@@ -1,23 +1,25 @@
 'use strict';
 
 const BasicTestReporter = require('./BasicTestReporter');
-const config = require('../config');
-const allureCmd = require('../cf-allure-commandline');
-const fileManager = require('./FileManager');
-const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
-const uploaders = require('./uploaders');
+const config = require('../../config');
+const allureCmd = require('../../cf-allure-commandline/index');
+const validator = require('../validation');
+const uploader = require('../uploader');
 
-class AllureTestReporter extends  BasicTestReporter {
+class AllureTestReporter extends BasicTestReporter {
     generateReport() {
         return allureCmd(['generate', config.sourceReportFolderName, '--clean']);
     }
 
-    async start({ extractedStorageConfig }) {
-        await this.prepareForGenerateReport();
+    async start({ extractedStorageConfig, isUpload }) {
+        await this.prepareForGenerateReport({
+            extractedStorageConfig,
+            isUpload,
+            buildId: this.buildId
+        });
 
-        await fileManager.validateUploadDir(config.sourceReportFolderName);
+        await validator.validateUploadDir(config.sourceReportFolderName);
 
-        console.log(`Start generating visualization of test report for build ${this.buildId}`);
         const generation = this.generateReport();
         return new Promise(async (res, rej) => {
             generation.on('exit', async (exitCode) => {
@@ -28,12 +30,10 @@ class AllureTestReporter extends  BasicTestReporter {
                 console.log('Report generation is finished successfully');
 
                 try {
-                    const uploader = uploaders[extractedStorageConfig.integrationType];
-
-                    const result = uploader.upload({
+                    const result = uploader.uploadFiles({
                         srcDir: config.resultReportFolderName,
-                        bucket: gcs.bucket(config.bucketName),
                         buildId: this.buildId,
+                        bucketName: config.bucketName,
                         extractedStorageConfig
                     });
                     res(result);
