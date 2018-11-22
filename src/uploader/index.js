@@ -28,8 +28,8 @@ class Uploader {
                 });
 
                 Promise.all(uploadPromises).then(() => {
-                    console.log(`All report files was successfully uploaded.
-You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${process.env.REPORT_INDEX_FILE || 'index.html'}`);
+                    console.log('All report files was successfully uploaded \n' +
+                    `You can access it on ${extractedStorageConfig.linkOnReport}`);
                     res(true);
                 }, (err) => { rej(err); });
             } catch (err) {
@@ -45,12 +45,10 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
 
             for (let i = 0; i < retryCount; i += 1) {
                 try {
-                    const fileUploader = this.getUploadFileHandler(extractedStorageConfig);
-                    await fileUploader({ // eslint-disable-line
+                    await this.runUploadFileHandler({ // eslint-disable-line
                         file,
                         bucketName,
                         pathToDeploy,
-                        retryCount,
                         extractedStorageConfig
                     });
 
@@ -75,16 +73,16 @@ You can access it on https://g.codefresh.io/api/testReporting/${buildId}/${proce
         });
     }
 
-    static getUploadFileHandler(extractedStorageConfig) {
-        if (extractedStorageConfig.integrationType === storageTypes.amazon) {
+    static runUploadFileHandler(opts) {
+        if (opts.extractedStorageConfig.integrationType === storageTypes.amazon) {
             const amazonUploader = new AmazonUploader();
-            return amazonUploader.getUploader(extractedStorageConfig);
-        } else if (extractedStorageConfig.integrationType === storageTypes.google) {
-            const gcsUploader = new GCSUploader({ extractedStorageConfig });
-            return gcsUploader.getUploader(extractedStorageConfig);
+            return amazonUploader.upload(opts);
+        } else if (opts.extractedStorageConfig.integrationType === storageTypes.google) {
+            const gcsUploader = new GCSUploader(opts);
+            return gcsUploader.upload(opts);
         }
 
-        throw new Error(`Cant find file uploader for storage config "${extractedStorageConfig.name}"`);
+        throw new Error(`Cant find file uploader for storage config "${opts.extractedStorageConfig.name}"`);
     }
 
 

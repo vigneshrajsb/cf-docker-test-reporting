@@ -4,7 +4,7 @@ const BasicStorage = require('./basicStorage');
 const _ = require('lodash');
 const { amazon } = require('../storageTypes');
 
-class GoogleStorage extends BasicStorage {
+class AmazonStorage extends BasicStorage {
     constructor({ storageConfig }) {
         super(storageConfig);
     }
@@ -16,7 +16,7 @@ class GoogleStorage extends BasicStorage {
     extractStorageConfig() {
         this.extractedConfig = {
             type: 'json',
-            integrationType: GoogleStorage.getType(),
+            integrationType: AmazonStorage.getType(),
             name: _.get(this.storageConfig, 'metadata.name'),
             storageConfig: _.get(this.storageConfig, 'spec.data.auth.jsonConfig')
         };
@@ -47,4 +47,4 @@ class GoogleStorage extends BasicStorage {
     }
 }
 
-module.exports = GoogleStorage;
+module.exports = AmazonStorage;

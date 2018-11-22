@@ -4,12 +4,13 @@
 
 const { removeTestReportDir } = require('./FileManager');
 const BasicTestReporter = require('./reporter/BasicTestReporter');
-const storageConfigManager = require('./storage/StorageConfigManager');
+const StorageConfigProvider = require('./storage/StorageConfigProvider');
 const FileTestReporter = require('./reporter/FileTestReporter');
 const AllureTestReporter = require('./reporter/AllureTestReporter');
 const config = require('../config');
 
 const basicTestReporter = new BasicTestReporter();
+const storageConfigProvider = new StorageConfigProvider();
 
 function validateRequiredVars() {
     if (!process.env.BUCKET_NAME) {
@@ -23,12 +24,7 @@ async function init() {
     try {
         validateRequiredVars();
 
-        await storageConfigManager.getStorageConfig();
-
-        storageConfigManager.validateStorageConfig();
-
-        const extractedStorageConfig = storageConfigManager.getExtractedStorageConfig();
-        storageConfigManager.createStorageConfigFile(extractedStorageConfig);
+        const extractedStorageConfig = await storageConfigProvider.provide();
 
         isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 

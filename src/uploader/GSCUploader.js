@@ -12,12 +12,11 @@ class GCSUploader {
         this.bucket = gcs.bucket(config.bucketName);
     }
 
-    getUploader(storgeConfig) {
-        if (storgeConfig.type !== 'auth') {
-            return this._uploadFileUsingJson.bind(this);
+    upload(opts) {
+        if (opts.extractedStorageConfig.type !== 'auth') {
+            return this._uploadFileUsingJson(opts);
         }
-
-        return this._uploadFileUsingOauth.bind(this);
+        return this._uploadFileUsingOauth(opts);
     }
 
     _uploadFileUsingOauth({ file, pathToDeploy, bucketName }) {

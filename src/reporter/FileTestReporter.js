@@ -22,7 +22,8 @@ class FileTestReporter extends BasicTestReporter {
         await this.prepareForGenerateReport({
             extractedStorageConfig,
             uploadIndexFile: this.uploadIndexFile,
-            isUpload
+            isUpload,
+            buildId: this.buildId
         });
 
         if (!isUploadFile) {

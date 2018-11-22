@@ -10,8 +10,8 @@ class GCSUploader {
         this.s3 = new AWS.S3({ signatureVersion: 'v4' });
     }
 
-    getUploader() {
-        return this._uploadFileToAmazon.bind(this);
+    upload(opts) {
+        return this._uploadFileToAmazon(opts);
     }
 
     _uploadFileToAmazon({ bucketName, file, pathToDeploy }) {

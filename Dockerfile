@@ -8,7 +8,6 @@ RUN apt-get install -y curl \
 WORKDIR /app/
 
 # define variables passed form codefresh
-ARG GCS_CONFIG
 ARG BUCKET_NAME
 ARG REPORT_DIR
 ARG REPORT_INDEX_FILE

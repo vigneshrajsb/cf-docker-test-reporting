@@ -49,6 +49,8 @@ class BasicTestReporter {
             console.log('Using allure upload mode (generate allure visualization and upload it)');
         }
 
+        extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId });
+
         await this.setExportVariable('TEST_REPORT', true);
         await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.bucketName);
 
@@ -80,6 +82,15 @@ class BasicTestReporter {
         }
 
         return name.split('.')[1];
+    }
+
+    _buildLinkOnReport({ extractedStorageConfig, buildId }) {
+        const integType = this._normalizeIntegrationName(extractedStorageConfig.integrationType);
+        const integName = extractedStorageConfig.name;
+        const bucket = config.bucketName;
+        const file = process.env.REPORT_INDEX_FILE || 'index.html';
+
+        return `${config.basicLinkOnReport}${integType}/${integName}/${bucket}/${buildId}/${file}`;
     }
 }
 

@@ -6,18 +6,21 @@ const Exec = require('child_process').exec;
 const config = require('../config');
 
 const basicTestReporter = new BasicTestReporter();
+const FIND_RESOURCE_SIZE = /^[\d.,]+/;
+const KILOBYTES_IN_MEGABYTE = 1024;
+const DECIMAL_SYSTEM = 10;
 
 class FileManager {
     static getDirOrFileSize(pathToResource) {
         return new Promise((res) => {
             Exec(`du -sk ${pathToResource}`, (err, response) => {
-                const match = response.trim().match(/^[\d.,]+/);
+                const match = response.trim().match(FIND_RESOURCE_SIZE);
 
                 if (!match) {
                     res(null);
                 }
 
-                res(parseInt(match.toString().trim(), 10) / 1024);
+                res(parseInt(match.toString().trim(), DECIMAL_SYSTEM) / KILOBYTES_IN_MEGABYTE);
             });
         });
     }

@@ -15,5 +15,6 @@ module.exports = {
     // uploadMaxSize in MB
     uploadMaxSize: 30,
     uploadRetryCount: 3,
-    productionHost: 'g.codefresh.io'
+    productionHost: 'g.codefresh.io',
+    basicLinkOnReport: 'https://g.codefresh.io/api/testReporting/'
 };

@@ -14,13 +14,7 @@ class GoogleStorage extends BasicStorage {
     }
 
     extractStorageConfig() {
-        if (process.env.GCS_CONFIG) {
-            this.extractedConfig = {
-                type: 'json',
-                integrationType: GoogleStorage.getType(),
-                storageConfig: this.storageConfig
-            };
-        } else if (this.isStorageJsonConfigUsed(this.storageConfig)) {
+        if (this.isStorageJsonConfigUsed(this.storageConfig)) {
             this.extractedConfig = {
                 type: 'json',
                 integrationType: GoogleStorage.getType(),
