@@ -7,6 +7,7 @@ module.exports = {
         projectId: 'local-codefresh',
         keyFilename: path.resolve(__dirname, 'google.storage.config.json')
     },
+    amazonKeyFileName: path.resolve(__dirname, 'amazon.storage.config.json'),
     resultReportFolderName: 'allure-report',
     sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
     bucketName: process.env.BUCKET_NAME,
@@ -14,5 +15,6 @@ module.exports = {
     // uploadMaxSize in MB
     uploadMaxSize: 30,
     uploadRetryCount: 3,
-    productionHost: 'g.codefresh.io'
+    productionHost: 'g.codefresh.io',
+    basicLinkOnReport: 'https://g.codefresh.io/api/testReporting/'
 };
