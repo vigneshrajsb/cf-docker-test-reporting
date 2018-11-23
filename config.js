@@ -16,8 +16,8 @@ module.exports = {
     sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
     bucketName: process.env.BUCKET_NAME,
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
-    // uploadMaxSize in MB
-    uploadMaxSize: 30,
+    // uploadMaxSize in MB, this value set by Payments class on init
+    uploadMaxSize: 0,
     uploadRetryCount: 3,
     basicLinkOnReport: `${apiHost}/api/testReporting/`,
     apiHost,
