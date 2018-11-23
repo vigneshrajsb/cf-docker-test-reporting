@@ -51,21 +51,21 @@ class BasicTestReporter {
 
         extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId });
 
-        // await this.setExportVariable('TEST_REPORT', true);
-        // await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.bucketName);
+        await this.setExportVariable('TEST_REPORT', true);
+        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.bucketName);
 
-        /*await this.setExportVariable(
+        await this.setExportVariable(
             'TEST_REPORT_INTEGRATION_TYPE',
             this._normalizeIntegrationName(extractedStorageConfig.integrationType)
-        );*/
+        );
 
         if (extractedStorageConfig.name) {
             console.log(`Using storage integration, name: ${extractedStorageConfig.name}`);
-            // await this.setExportVariable('TEST_REPORT_CONTEXT', extractedStorageConfig.name);
+            await this.setExportVariable('TEST_REPORT_CONTEXT', extractedStorageConfig.name);
         }
 
         if (uploadIndexFile) {
-            // await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', uploadIndexFile);
+            await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', uploadIndexFile);
         }
     }
 
