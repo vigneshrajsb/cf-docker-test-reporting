@@ -163,6 +163,7 @@ describe('Test reporting logic', function () {
             setEnvVariables({ REPORT_INDEX_FILE: 'testUploadDir/test.txt' });
             const initReporter = require('../src/init');
             const result = await initReporter();
+
             expect(result).to.be.true;
         });
     });
