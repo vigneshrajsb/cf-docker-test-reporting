@@ -22,5 +22,11 @@ module.exports = {
     basicLinkOnReport: `${apiHost}/api/testReporting/`,
     apiHost,
     apiKey: process.env.CF_API_KEY,
-    storageIntegration: process.env.CF_STORAGE_INTEGRATION
+    storageIntegration: process.env.CF_STORAGE_INTEGRATION,
+    paymentPlanMap: {
+        FREE: 10,
+        CUSTOM: 10,
+        BASIC: 20,
+        PRO: 30,
+    }
 };
