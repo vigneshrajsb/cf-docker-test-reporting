@@ -3,6 +3,7 @@
 const config = require('../../config');
 const Exec = require('child_process').exec;
 const _ = require('lodash');
+const rp = require('request-promise');
 
 class BasicTestReporter {
     constructor({
@@ -51,6 +52,8 @@ class BasicTestReporter {
 
         extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId });
 
+        await this._setMaxUploadSizeDependingOnPlan();
+
         await this.setExportVariable('TEST_REPORT', true);
         await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.bucketName);
 
@@ -91,6 +94,28 @@ class BasicTestReporter {
         const file = process.env.REPORT_INDEX_FILE || 'index.html';
 
         return `${config.basicLinkOnReport}${integType}/${integName}/${bucket}/${buildId}/${file}`;
+    }
+
+    async _setMaxUploadSizeDependingOnPlan() {
+        const getPlanOpts = {
+            uri: `${config.apiHost}/payments/5bf2872f86fd98155d6d8be6/plan`,
+            headers: {
+                'x-access-token': config.apiKey
+            }
+        };
+
+        try {
+            const { id } = rp(getPlanOpts);
+
+            switch (id) {
+                case 'FREE': config.uploadMaxSize = 10; break;
+                case 'BASIC': config.uploadMaxSize = 20; break;
+                case 'PRO': config.uploadMaxSize = 30; break;
+                default: config.uploadMaxSize = 30;
+            }
+        } catch (e) {
+            console.log('Can`t set upload max size, using default');
+        }
     }
 }
 

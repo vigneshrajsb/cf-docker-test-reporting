@@ -1,6 +1,10 @@
 'use strict';
 
 const path = require('path');
+const _ = require('lodash');
+
+const isProd = !_.get(process.env, 'CF_HOST_NAME', '').includes('local');
+const apiHost = `${isProd ? 'https' : 'http'}://${isProd ? 'g.codefresh.io' : 'local.codefresh.io'}`;
 
 module.exports = {
     googleStorageConfig: {
@@ -15,6 +19,8 @@ module.exports = {
     // uploadMaxSize in MB
     uploadMaxSize: 30,
     uploadRetryCount: 3,
-    productionHost: 'g.codefresh.io',
-    basicLinkOnReport: 'https://g.codefresh.io/api/testReporting/'
+    basicLinkOnReport: `${apiHost}/api/testReporting/`,
+    apiHost,
+    apiKey: process.env.CF_API_KEY,
+    storageIntegration: process.env.CF_STORAGE_INTEGRATION
 };
