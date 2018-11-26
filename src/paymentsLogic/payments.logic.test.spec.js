@@ -1,15 +1,15 @@
 'use strict';
 
 const chai = require('chai');
-const Payments = require('./index');
+const PaymentsLogic = require('./index');
 const config = require('../../config');
 
 const expect = chai.expect;
 
-describe('Payments', () => {
+describe.only('PaymentsLogic', () => {
     it('Should set max upload size', async () => {
         config.uploadMaxSize = 0;
-        await Payments.setMaxUploadSizeDependingOnPlan();
+        await PaymentsLogic.setMaxUploadSizeDependingOnPlan();
 
         expect(config.uploadMaxSize > 0).to.equal(true);
     });

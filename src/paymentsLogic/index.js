@@ -4,8 +4,8 @@ const config = require('../../config');
 const _ = require('lodash');
 const rp = require('request-promise');
 
-class Payments {
-    static async setMaxUploadSizeDependingOnPlan() {
+class PaymentsLogic {
+    static async getPlan() {
         // this query use proxy ability to replace :account_id to currentAccountID
         // this ability use because we don`t know accountId
         const getPlanOpts = {
@@ -24,6 +24,10 @@ class Payments {
             throw new Error('Can`t get user payment plan ');
         }
 
+        return plan;
+    }
+
+    static _setPlanToConfig(plan) {
         const uploadSize = config.paymentPlanMap[_.get(plan, 'id')];
 
         if (_.isNumber(uploadSize)) {
@@ -32,6 +36,11 @@ class Payments {
             throw new Error('Unsupported user payment plan');
         }
     }
+
+    static async setMaxUploadSizeDependingOnPlan() {
+        const plan = await this.getPlan();
+        this._setPlanToConfig(plan);
+    }
 }
 
-module.exports = Payments;
+module.exports = PaymentsLogic;
