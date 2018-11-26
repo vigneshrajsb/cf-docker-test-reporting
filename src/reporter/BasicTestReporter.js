@@ -49,7 +49,7 @@ class BasicTestReporter {
             console.log('Using allure upload mode (generate allure visualization and upload it)');
         }
 
-        console.log(`Max upload size for your account is ${config.uploadMaxSize}`);
+        console.log(`Max upload size for your account is ${config.uploadMaxSize} MB`);
 
         extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId });
 
