@@ -65,7 +65,7 @@ class StorageConfigProvider {
         console.log('Starting validate storage config');
 
         if (!this.integrationName) {
-            throw new Error('This service require integration with some storage, you can specify storage via CF_STORAGE_INTEGRATION'); // eslint-disable-line
+            throw new Error('This service requires integration with some storage, you can specify storage via CF_STORAGE_INTEGRATION'); // eslint-disable-line
         }
 
         const storageConfig = this._parseStorageConfig();

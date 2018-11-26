@@ -1,7 +1,7 @@
-FROM openjdk:latest
+FROM openjdk:11.0.1-jdk-sid
 
 RUN apt-get install -y curl \
-  && curl -sL https://deb.nodesource.com/setup_9.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
   && apt-get install -y nodejs
 
 # Create app directory
@@ -13,9 +13,6 @@ ARG REPORT_DIR
 ARG REPORT_INDEX_FILE
 ARG CLEAR_TEST_REPORT
 ARG ALLURE_DIR
-
-# make available variable in application
-ENV BUCKET_NAME=$BUCKET_NAME
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied

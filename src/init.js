@@ -15,7 +15,7 @@ const storageConfigProvider = new StorageConfigProvider();
 
 function validateRequiredVars() {
     if (!process.env.BUCKET_NAME) {
-        throw new Error('This service require BUCKET_NAME variable');
+        throw new Error('This service requires BUCKET_NAME variable');
     }
 }
 
