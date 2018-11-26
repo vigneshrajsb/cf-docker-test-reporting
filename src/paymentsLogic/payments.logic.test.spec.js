@@ -6,7 +6,7 @@ const config = require('../../config');
 
 const expect = chai.expect;
 
-describe.only('PaymentsLogic', () => {
+describe('PaymentsLogic', () => {
     it('Should set max upload size', async () => {
         config.uploadMaxSize = 0;
         await PaymentsLogic.setMaxUploadSizeDependingOnPlan();
