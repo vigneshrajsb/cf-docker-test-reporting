@@ -7,6 +7,7 @@ const BasicTestReporter = require('./reporter/BasicTestReporter');
 const StorageConfigProvider = require('./storage/StorageConfigProvider');
 const FileTestReporter = require('./reporter/FileTestReporter');
 const AllureTestReporter = require('./reporter/AllureTestReporter');
+const PaymentsLogic = require('./paymentsLogic');
 const config = require('../config');
 
 const basicTestReporter = new BasicTestReporter();
@@ -25,6 +26,8 @@ async function init() {
         validateRequiredVars();
 
         const extractedStorageConfig = await storageConfigProvider.provide();
+
+        await PaymentsLogic.setMaxUploadSizeDependingOnPlan();
 
         isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 

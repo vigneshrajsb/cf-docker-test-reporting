@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const rp = require('request-promise');
-const { productionHost } = require('../../config');
 const storageTypesMap = require('./types');
 const storageTypes = require('./storageTypes');
 const fs = require('fs');
@@ -10,7 +9,7 @@ const config = require('../../config');
 
 class StorageConfigProvider {
     constructor() {
-        this.integrationName = process.env.CF_STORAGE_INTEGRATION;
+        this.integrationName = config.storageIntegration;
     }
 
     async provide() {
@@ -23,12 +22,10 @@ class StorageConfigProvider {
     }
 
     async _getStorageConfig() {
-        const isProd = !_.get(process.env, 'CF_HOST_NAME', '').includes('local');
-
         const opts = {
-            uri: `${isProd ? 'https' : 'http'}://${isProd ? productionHost : process.env.CF_HOST_NAME}/api/contexts/${process.env.CF_STORAGE_INTEGRATION}/prepare`,
+            uri: `${config.apiHost}/api/contexts/${config.storageIntegration}/prepare`,
             headers: {
-                'x-access-token': process.env.CF_API_KEY
+                'x-access-token': config.apiKey
             }
         };
 
