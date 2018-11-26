@@ -6,6 +6,10 @@ const _ = require('lodash');
 const isProd = !_.get(process.env, 'CF_HOST_NAME', '').includes('local');
 const apiHost = `${isProd ? 'https' : 'http'}://${isProd ? 'g.codefresh.io' : 'local.codefresh.io'}`;
 
+/**
+ * field uploadMaxSize set by PaymentsLogic on init, value in MB
+ * @type {object}
+ */
 module.exports = {
     googleStorageConfig: {
         projectId: 'local-codefresh',
@@ -16,17 +20,15 @@ module.exports = {
     sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
     bucketName: process.env.BUCKET_NAME,
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
-    // uploadMaxSize in MB, this value set by Payments class on init
-    uploadMaxSize: 0,
     uploadRetryCount: 3,
     basicLinkOnReport: `${apiHost}/api/testReporting/`,
     apiHost,
     apiKey: process.env.CF_API_KEY,
     storageIntegration: process.env.CF_STORAGE_INTEGRATION,
     paymentPlanMap: {
-        FREE: 10,
-        CUSTOM: 10,
-        BASIC: 20,
+        FREE: 30,
+        CUSTOM: 30,
+        BASIC: 30,
         PRO: 30,
     }
 };
