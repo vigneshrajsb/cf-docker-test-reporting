@@ -54,7 +54,7 @@ class BasicTestReporter {
         extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId });
 
         await this.setExportVariable('TEST_REPORT', true);
-        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.bucketName);
+        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.baseBucketName);
 
         await this.setExportVariable(
             'TEST_REPORT_INTEGRATION_TYPE',
@@ -89,7 +89,7 @@ class BasicTestReporter {
     _buildLinkOnReport({ extractedStorageConfig, buildId }) {
         const integType = this._normalizeIntegrationName(extractedStorageConfig.integrationType);
         const integName = extractedStorageConfig.name;
-        const bucket = config.bucketName;
+        const bucket = encodeURIComponent(config.baseBucketName);
         const file = process.env.REPORT_INDEX_FILE || 'index.html';
 
         return `${config.basicLinkOnReport}${integType}/${integName}/${bucket}/${buildId}/${file}`;

@@ -6,6 +6,9 @@ const _ = require('lodash');
 const isProd = !_.get(process.env, 'CF_HOST_NAME', '').includes('local');
 const apiHost = `${isProd ? 'https' : 'http'}://${isProd ? 'g.codefresh.io' : 'local.codefresh.io'}`;
 
+const bucketNameSplitted = String(process.env.BUCKET_NAME).split('/');
+const bucketName = bucketNameSplitted[0];
+const bucketSubPath = bucketNameSplitted.slice(1).join('/');
 /**
  * field uploadMaxSize set by PaymentsLogic on init, value in MB
  * @type {object}
@@ -18,7 +21,9 @@ module.exports = {
     amazonKeyFileName: path.resolve(__dirname, 'amazon.storage.config.json'),
     resultReportFolderName: 'allure-report',
     sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
-    bucketName: process.env.BUCKET_NAME,
+    bucketName,
+    bucketSubPath,
+    baseBucketName: process.env.BUCKET_NAME,
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
     uploadRetryCount: 3,
     basicLinkOnReport: `${apiHost}/api/testReporting/`,
