@@ -21,9 +21,12 @@ module.exports = {
     amazonKeyFileName: path.resolve(__dirname, 'amazon.storage.config.json'),
     resultReportFolderName: 'allure-report',
     sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
+    // bucketName - only bucket name, with out subdir path
     bucketName,
+    // bucketSubPath - parsed path to sub folder inside bucket
     bucketSubPath,
-    baseBucketName: process.env.BUCKET_NAME,
+    // originBucketName - origin value that can contain subdir need to use it in some cases
+    originBucketName: process.env.BUCKET_NAME,
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
     uploadRetryCount: 3,
     basicLinkOnReport: `${apiHost}/api/testReporting/`,
