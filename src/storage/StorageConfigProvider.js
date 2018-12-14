@@ -9,7 +9,7 @@ const config = require('../../config');
 
 class StorageConfigProvider {
     constructor() {
-        this.integrationName = config.storageIntegration;
+        this.integrationName = config.env.storageIntegration;
     }
 
     async provide() {
@@ -23,9 +23,9 @@ class StorageConfigProvider {
 
     async _getStorageConfig() {
         const opts = {
-            uri: `${config.apiHost}/api/contexts/${config.storageIntegration}/prepare`,
+            uri: `${config.apiHost}/api/contexts/${config.env.storageIntegration}/prepare`,
             headers: {
-                'x-access-token': config.apiKey
+                'x-access-token': config.env.apiKey
             }
         };
 

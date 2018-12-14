@@ -9,7 +9,7 @@ class GCSUploader {
     constructor({ extractedStorageConfig }) {
         const { storageConfig: { accessToken } = {} } = extractedStorageConfig;
         this.accessToken = accessToken;
-        this.bucket = gcs.bucket(config.bucketName);
+        this.bucket = gcs.bucket(config.env.bucketName);
     }
 
     upload(opts) {

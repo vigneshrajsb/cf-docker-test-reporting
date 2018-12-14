@@ -8,7 +8,15 @@ const path = require('path');
 const config = require('../../config');
 
 class Uploader {
-    static async uploadFiles({ srcDir, buildId, bucketName, uploadFile, isUploadFile, extractedStorageConfig }) {
+    static async uploadFiles({
+                                 srcDir,
+                                 buildId,
+                                 bucketName,
+                                 uploadFile,
+                                 isUploadFile,
+                                 extractedStorageConfig,
+                                 extraData
+    }) {
         return new Promise(async (res, rej) => {
             try {
                 const files = await FileManager._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
@@ -16,7 +24,14 @@ class Uploader {
                 console.log('Start upload report files');
 
                 const uploadPromises = files.map((file) => {
-                    const pathToDeploy = this._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile });
+                    const pathToDeploy = this._getFilePathForDeploy({
+                        file,
+                        buildId,
+                        srcDir,
+                        isUploadFile,
+                        uploadFile,
+                        extraData
+                    });
 
                     return this._uploadFileWithRetry({
                         file,
@@ -86,12 +101,12 @@ class Uploader {
     }
 
 
-    static _getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile }) {
+    static _getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile, extraData }) {
         if (!isUploadFile) {
             const pathWithoutSrcDir = file.replace(srcDir, '');
-            return buildId + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
+            return `${extraData.pipelineId}/${extraData.branch}/${buildId}` + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
         } else {
-            return `${buildId}/${path.parse(uploadFile).base}`;
+            return `${extraData.pipelineId}/${extraData.branch}/${buildId}/${path.parse(uploadFile).base}`;
         }
     }
 }

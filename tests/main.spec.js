@@ -112,7 +112,7 @@ describe('Test reporting logic', function () {
             // after test this values must be restored
 
             const customAllureDir = 'allure-results-test';
-            config.sourceReportFolderName = customAllureDir;
+            config.env.sourceReportFolderName = customAllureDir;
 
             fs.renameSync(`${process.cwd()}/allure-results`, `${process.cwd()}/${customAllureDir}`);
 
@@ -120,7 +120,7 @@ describe('Test reporting logic', function () {
             const initReporter = require('../src/init');
             const result = await initReporter();
 
-            config.sourceReportFolderName = 'allure-results';
+            config.env.sourceReportFolderName = 'allure-results';
 
             if (fs.existsSync(customAllureDir)) {
                 deleteFolderRecursive(customAllureDir);

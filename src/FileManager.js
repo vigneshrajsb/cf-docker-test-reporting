@@ -39,7 +39,7 @@ class FileManager {
         const isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 
         if (!isUpload || (process.env.CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
-            folderForRemove = process.env.REPORT_DIR || config.sourceReportFolderName;
+            folderForRemove = process.env.REPORT_DIR || config.env.sourceReportFolderName;
         }
 
         if (folderForRemove) {

@@ -44,7 +44,7 @@ ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
             srcDir: this.dirForUpload,
             buildId: this.buildId,
             uploadFile: this.uploadIndexFile,
-            bucketName: config.bucketName,
+            bucketName: config.env.bucketName,
             isUploadFile,
             extractedStorageConfig
         });

@@ -3,6 +3,7 @@
 const fs = require('fs');
 const config = require('../../config');
 const FileManager = require('../FileManager');
+const _ = require('lodash');
 
 class Validator {
     static async validateUploadDir(pathToDir) {
@@ -42,6 +43,27 @@ class Validator {
         } else {
             return this.validateUploadDir(dirForUpload);
         }
+    }
+
+    static validateExtraData(extraData) {
+        const signature = {
+            pipelineId: { type: 'string', required: true },
+            branch: { type: 'string', required: true },
+        };
+
+        if (!_.isObject(extraData)) {
+            throw new Error('Error, extraData must be object');
+        }
+
+        Object.keys(signature).forEach((key) => {
+            if (extraData[key] && typeof extraData[key] !== signature[key].type) {
+                throw new Error(`Error validate extra data, field ${key} have wrong type`);
+            }
+
+            if (signature[key].required && !extraData[key]) {
+                throw new Error(`Error validate extra data, field ${key} is required`);
+            }
+        });
     }
 }
 

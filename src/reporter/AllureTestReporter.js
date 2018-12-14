@@ -8,7 +8,7 @@ const uploader = require('../uploader');
 
 class AllureTestReporter extends BasicTestReporter {
     generateReport() {
-        return allureCmd(['generate', config.sourceReportFolderName, '--clean']);
+        return allureCmd(['generate', config.env.sourceReportFolderName, '--clean']);
     }
 
     async start({ extractedStorageConfig, isUpload }) {
@@ -18,7 +18,10 @@ class AllureTestReporter extends BasicTestReporter {
             buildId: this.buildId
         });
 
-        await validator.validateUploadDir(config.sourceReportFolderName);
+        await validator.validateUploadDir(config.env.sourceReportFolderName);
+
+        const extraData = await this.getExtraData();
+        validator.validateExtraData(extraData);
 
         const generation = this.generateReport();
         return new Promise(async (res, rej) => {
@@ -33,8 +36,9 @@ class AllureTestReporter extends BasicTestReporter {
                     const result = uploader.uploadFiles({
                         srcDir: config.resultReportFolderName,
                         buildId: this.buildId,
-                        bucketName: config.bucketName,
-                        extractedStorageConfig
+                        bucketName: config.env.bucketName,
+                        extractedStorageConfig,
+                        extraData
                     });
                     res(result);
                 } catch (e) {

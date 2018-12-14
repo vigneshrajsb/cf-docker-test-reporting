@@ -17,18 +17,23 @@ module.exports = {
     },
     amazonKeyFileName: path.resolve(__dirname, 'amazon.storage.config.json'),
     resultReportFolderName: 'allure-report',
-    sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
-    bucketName: process.env.BUCKET_NAME,
     requiredVarsForUploadMode: ['REPORT_DIR', 'REPORT_INDEX_FILE'],
     uploadRetryCount: 3,
     basicLinkOnReport: `${apiHost}/api/testReporting/`,
     apiHost,
-    apiKey: process.env.CF_API_KEY,
-    storageIntegration: process.env.CF_STORAGE_INTEGRATION,
     paymentPlanMap: {
         FREE: 30,
         CUSTOM: 30,
         BASIC: 30,
         PRO: 30,
+    },
+    env: {
+        apiKey: process.env.CF_API_KEY,
+        bucketName: process.env.BUCKET_NAME,
+        buildId: process.env.CF_BUILD_ID,
+        volumePath: process.env.CF_VOLUME_PATH,
+        branchNormalized: process.env.CF_BRANCH_TAG_NORMALIZED,
+        storageIntegration: process.env.CF_STORAGE_INTEGRATION,
+        sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
     }
 };
