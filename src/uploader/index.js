@@ -87,12 +87,20 @@ class Uploader {
 
 
     static _getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile }) {
+        let resultPath;
+
         if (!isUploadFile) {
             const pathWithoutSrcDir = file.replace(srcDir, '');
-            return buildId + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
+            resultPath = buildId + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
         } else {
-            return `${buildId}/${path.parse(uploadFile).base}`;
+            resultPath = `${buildId}/${path.parse(uploadFile).base}`;
         }
+
+        if (config.bucketSubPath) {
+            resultPath = `${config.bucketSubPath}/${resultPath}`;
+        }
+
+        return resultPath;
     }
 }
 
