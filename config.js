@@ -6,6 +6,9 @@ const _ = require('lodash');
 const isProd = !_.get(process.env, 'CF_HOST_NAME', '').includes('local');
 const apiHost = `${isProd ? 'https' : 'http'}://${isProd ? 'g.codefresh.io' : 'local.codefresh.io'}`;
 
+const bucketNameSplitted = String(process.env.BUCKET_NAME).split('/');
+const bucketName = bucketNameSplitted[0];
+const bucketSubPath = bucketNameSplitted.slice(1).join('/');
 /**
  * field uploadMaxSize set by PaymentsLogic on init, value in MB
  * @type {object}
@@ -28,8 +31,13 @@ module.exports = {
         PRO: 30,
     },
     env: {
+        // bucketName - only bucket name, with out subdir path
+        bucketName,
+        // bucketSubPath - parsed path to sub folder inside bucket
+        bucketSubPath,
+        // originBucketName - origin value that can contain subdir need to use it in some cases
+        originBucketName: process.env.BUCKET_NAME,
         apiKey: process.env.CF_API_KEY,
-        bucketName: process.env.BUCKET_NAME,
         buildId: process.env.CF_BUILD_ID,
         volumePath: process.env.CF_VOLUME_PATH,
         branchNormalized: process.env.CF_BRANCH_TAG_NORMALIZED,

@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<ns2:test-suite xmlns:ns2='urn:model.allure.qatools.yandex.ru' start='1544521244175' stop='1544521245845'>
+    <name>sanity tests</name>
+    <title>sanity tests</title>
+    <test-cases>
+        <test-case start='1544521244175' status='passed' stop='1544521245842'>
+            <name>test mongo connection</name>
+            <title>test mongo connection</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+        </test-case>
+    </test-cases>
+</ns2:test-suite>

@@ -102,12 +102,20 @@ class Uploader {
 
 
     static _getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile, extraData }) {
+        let resultPath;
+
         if (!isUploadFile) {
             const pathWithoutSrcDir = file.replace(srcDir, '');
-            return `${extraData.pipelineId}/${extraData.branch}/${buildId}` + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
+            resultPath = `${extraData.pipelineId}/${extraData.branch}/${buildId}` + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
         } else {
-            return `${extraData.pipelineId}/${extraData.branch}/${buildId}/${path.parse(uploadFile).base}`;
+            resultPath = `${extraData.pipelineId}/${extraData.branch}/${buildId}/${path.parse(uploadFile).base}`;
         }
+
+        if (config.bucketSubPath) {
+            resultPath = `${config.bucketSubPath}/${resultPath}`;
+        }
+
+        return resultPath;
     }
 }
 
