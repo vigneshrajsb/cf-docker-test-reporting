@@ -4,7 +4,7 @@
 
 const { removeTestReportDir } = require('./FileManager');
 const BasicTestReporter = require('./reporter/BasicTestReporter');
-const StorageConfigProvider = require('./storage/StorageConfigProvider');
+const StorageConfigProvider = require('./storageConfig/StorageConfigProvider');
 const FileTestReporter = require('./reporter/FileTestReporter');
 const AllureTestReporter = require('./reporter/AllureTestReporter');
 const PaymentsLogic = require('./paymentsLogic');

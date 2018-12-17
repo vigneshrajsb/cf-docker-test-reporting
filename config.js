@@ -8,7 +8,8 @@ const apiHost = `${isProd ? 'https' : 'http'}://${isProd ? 'g.codefresh.io' : 'l
 
 const bucketNameSplitted = String(process.env.BUCKET_NAME).split('/');
 const bucketName = bucketNameSplitted[0];
-const bucketSubPath = bucketNameSplitted.slice(1).join('/');
+let bucketSubPath = bucketNameSplitted.slice(1).join('/');
+bucketSubPath = bucketSubPath ? `${bucketSubPath}/` : bucketSubPath;
 /**
  * field uploadMaxSize set by PaymentsLogic on init, value in MB
  * @type {object}
@@ -24,6 +25,7 @@ module.exports = {
     uploadRetryCount: 3,
     basicLinkOnReport: `${apiHost}/api/testReporting/`,
     apiHost,
+    allureHistoryDir: 'history',
     paymentPlanMap: {
         FREE: 30,
         CUSTOM: 30,
@@ -43,5 +45,13 @@ module.exports = {
         branchNormalized: process.env.CF_BRANCH_TAG_NORMALIZED,
         storageIntegration: process.env.CF_STORAGE_INTEGRATION,
         sourceReportFolderName: process.env.ALLURE_DIR || 'allure-results',
+    },
+    buildDataSignature: {
+        pipelineId: { type: 'string', required: true },
+        branch: { type: 'string', required: true },
+    },
+    colors: {
+        aqua: '\x1b[36m',
+        none: '\x1b[0m'
     }
 };

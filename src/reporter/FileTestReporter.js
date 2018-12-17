@@ -19,11 +19,15 @@ class FileTestReporter extends BasicTestReporter {
         console.log('REPORT_DIR: ', this.dirForUpload);
         console.log('REPORT_INDEX_FILE: ', this.uploadIndexFile);
 
+        const buildData = await this.getBuildData();
+        validator.validateBuildData(buildData);
+
         await this.prepareForGenerateReport({
             extractedStorageConfig,
             uploadIndexFile: this.uploadIndexFile,
             isUpload,
-            buildId: this.buildId
+            buildId: this.buildId,
+            buildData
         });
 
         if (!isUploadFile) {
@@ -46,7 +50,8 @@ ${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
             uploadFile: this.uploadIndexFile,
             bucketName: config.env.bucketName,
             isUploadFile,
-            extractedStorageConfig
+            extractedStorageConfig,
+            buildData
         });
     }
 }

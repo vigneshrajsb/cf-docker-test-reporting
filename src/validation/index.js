@@ -45,22 +45,18 @@ class Validator {
         }
     }
 
-    static validateExtraData(extraData) {
-        const signature = {
-            pipelineId: { type: 'string', required: true },
-            branch: { type: 'string', required: true },
-        };
-
-        if (!_.isObject(extraData)) {
-            throw new Error('Error, extraData must be object');
+    static validateBuildData(buildData) {
+        const signature = config.buildDataSignature;
+        if (!_.isObject(buildData)) {
+            throw new Error('Error, buildData must be object');
         }
 
         Object.keys(signature).forEach((key) => {
-            if (extraData[key] && typeof extraData[key] !== signature[key].type) {
+            if (buildData[key] && typeof buildData[key] !== signature[key].type) { // eslint-disable-line
                 throw new Error(`Error validate extra data, field ${key} have wrong type`);
             }
 
-            if (signature[key].required && !extraData[key]) {
+            if (signature[key].required && !buildData[key]) {
                 throw new Error(`Error validate extra data, field ${key} is required`);
             }
         });

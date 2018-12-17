@@ -1,11 +1,11 @@
 'use strict';
 
-const storageTypes = require('../storage/storageTypes');
-const GCSUploader = require('./GSCUploader');
-const AmazonUploader = require('./AmazonUploader');
 const FileManager = require('../FileManager');
 const path = require('path');
 const config = require('../../config');
+const StorageApi = require('../storageApi');
+
+const FORBIDDEN_STATUS = 403;
 
 class Uploader {
     static async uploadFiles({
@@ -15,13 +15,13 @@ class Uploader {
                                  uploadFile,
                                  isUploadFile,
                                  extractedStorageConfig,
-                                 extraData
+                                 buildData,
+                                 isUploadHistory
     }) {
+        Uploader._logStartUploadFiles({ isUploadHistory });
         return new Promise(async (res, rej) => {
             try {
                 const files = await FileManager._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
-
-                console.log('Start upload report files');
 
                 const uploadPromises = files.map((file) => {
                     const pathToDeploy = this._getFilePathForDeploy({
@@ -30,7 +30,8 @@ class Uploader {
                         srcDir,
                         isUploadFile,
                         uploadFile,
-                        extraData
+                        buildData,
+                        isUploadHistory
                     });
 
                     return this._uploadFileWithRetry({
@@ -38,13 +39,13 @@ class Uploader {
                         pathToDeploy,
                         bucketName,
                         retryCount: config.uploadRetryCount,
-                        extractedStorageConfig
+                        extractedStorageConfig,
+                        isUploadHistory
                     });
                 });
 
                 Promise.all(uploadPromises).then(() => {
-                    console.log('All report files was successfully uploaded \n' +
-                    `You can access it on ${extractedStorageConfig.linkOnReport}`);
+                    Uploader._logSuccessUploadFiles({ extractedStorageConfig, isUploadHistory });
                     res(true);
                 }, (err) => { rej(err); });
             } catch (err) {
@@ -53,7 +54,7 @@ class Uploader {
         });
     }
 
-    static _uploadFileWithRetry({ file, pathToDeploy, bucketName, retryCount, extractedStorageConfig }) {
+    static _uploadFileWithRetry({ file, pathToDeploy, bucketName, retryCount, extractedStorageConfig, isUploadHistory }) {
         return new Promise(async (resolve, reject) => {
             let isUploaded = false;
             let lastUploadErr;
@@ -82,40 +83,74 @@ class Uploader {
                 console.log(`File ${pathToDeploy} successful uploaded`);
                 resolve(true);
             } else {
-                console.error(`Fail to upload file ${pathToDeploy}, error: `, lastUploadErr.message ? lastUploadErr.message : lastUploadErr); // eslint-disable-line
+                Uploader._logFailRetryUpload({ pathToDeploy, lastUploadErr, isUploadHistory, bucketName });
                 reject(new Error('Fail to upload file'));
             }
         });
     }
 
     static runUploadFileHandler(opts) {
-        if (opts.extractedStorageConfig.integrationType === storageTypes.amazon) {
-            const amazonUploader = new AmazonUploader();
-            return amazonUploader.upload(opts);
-        } else if (opts.extractedStorageConfig.integrationType === storageTypes.google) {
-            const gcsUploader = new GCSUploader(opts);
-            return gcsUploader.upload(opts);
-        }
-
-        throw new Error(`Cant find file uploader for storage config "${opts.extractedStorageConfig.name}"`);
+        return StorageApi.getApi(opts).upload(opts);
     }
 
-
-    static _getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, uploadFile, extraData }) {
+    static _getFilePathForDeployReport({ file, buildId, srcDir, isUploadFile, uploadFile, buildData }) {
         let resultPath;
+        const subPath = config.env.bucketSubPath;
 
         if (!isUploadFile) {
             const pathWithoutSrcDir = file.replace(srcDir, '');
-            resultPath = `${extraData.pipelineId}/${extraData.branch}/${buildId}` + (pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`);
+            const pathToFile = pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`;
+            resultPath = `${buildData.pipelineId}/${buildData.branch}/${subPath}${buildId}${pathToFile}`;
         } else {
-            resultPath = `${extraData.pipelineId}/${extraData.branch}/${buildId}/${path.parse(uploadFile).base}`;
-        }
-
-        if (config.bucketSubPath) {
-            resultPath = `${config.bucketSubPath}/${resultPath}`;
+            resultPath = `${buildData.pipelineId}/${buildData.branch}/${subPath}${buildId}/${path.parse(uploadFile).base}`;
         }
 
         return resultPath;
+    }
+
+    static _getFilePathForDeployHistory({ file, buildData }) {
+        return `${buildData.pipelineId}/${buildData.branch}/${config.allureHistoryDir}/${path.parse(file).base}`;
+    }
+
+    static _getFilePathForDeploy(opts) {
+        if (opts.isUploadHistory) {
+            return Uploader._getFilePathForDeployHistory(opts);
+        }
+
+        return Uploader._getFilePathForDeployReport(opts);
+    }
+
+    static _logStartUploadFiles({ isUploadHistory }) {
+        const msg = `Start upload ${isUploadHistory ? 'allure history' : 'report'} files`;
+        console.log('-'.repeat(msg.length + 1));
+        console.log(config.colors.aqua, msg, config.colors.none);
+        console.log('-'.repeat(msg.length + 1));
+    }
+
+    static _logSuccessUploadFiles({ extractedStorageConfig, isUploadHistory }) {
+        if (isUploadHistory) {
+            console.log(config.colors.aqua, 'Allure history was successfully uploaded', config.colors.none);
+        } else {
+            console.log(config.colors.aqua, 'All report files was successfully uploaded', config.colors.none);
+            console.log(`You can access report on ${extractedStorageConfig.linkOnReport}`);
+        }
+    }
+
+    static _logFailRetryUpload({ pathToDeploy, lastUploadErr, isUploadHistory, bucketName }) {
+        if (isUploadHistory) {
+            if (lastUploadErr.statusCode === FORBIDDEN_STATUS) {
+                console.log(
+                    config.colors.aqua,
+                    `Cant upload allure history, you must have delete permission to you bucket "${bucketName}"`,
+                    config.colors.none
+                );
+            }
+        }
+
+        console.error(
+            `Fail to upload file ${pathToDeploy}, error: `,
+            lastUploadErr.message ? lastUploadErr.message : lastUploadErr
+        );
     }
 }
 

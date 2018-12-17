@@ -5,7 +5,7 @@
 const chai = require('chai');
 const fs = require('fs');
 const config = require('../config');
-const StorageConfigProvider = require('../src/storage/StorageConfigProvider');
+const StorageConfigProvider = require('../src/storageConfig/StorageConfigProvider');
 
 const expect = chai.expect;
 
