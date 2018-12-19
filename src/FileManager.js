@@ -39,10 +39,9 @@ class FileManager {
 
     static removeTestReportDir() {
         let folderForRemove;
-        const CLEAR_TEST_REPORT = process.env.CLEAR_TEST_REPORT;
         const isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 
-        if ((!isUpload && CLEAR_TEST_REPORT !== 'false') || (CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
+        if (!isUpload || (process.env.CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
             folderForRemove = process.env.REPORT_DIR || config.env.sourceReportFolderName;
         }
 

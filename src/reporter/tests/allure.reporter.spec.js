@@ -6,6 +6,7 @@ const expect = require('chai').expect;
 const FileManager = require('../../FileManager');
 const fs = require('fs');
 const ReporterTestUtils = require('./ReporterTestUtils');
+const proxyquire = require('proxyquire');
 
 describe('Allure Reporter', function () {
     const customAllureResults = 'test_allure_results';
@@ -88,8 +89,7 @@ describe('Allure Reporter', function () {
     it('should add history to test results', async () => {
         await ReporterTestUtils.clearAll({ reporter: 'allure' });
         ReporterTestUtils.setEnvVariables({
-            CF_VOLUME_PATH: fakeVolumeName,
-            CLEAR_TEST_REPORT: false
+            CF_VOLUME_PATH: fakeVolumeName
         });
         await ReporterTestUtils.initVolume();
 
@@ -97,7 +97,11 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
 
-        const initReporter = require('../../init');
+        const initReporter = proxyquire('../../init', {
+            './FileManager': {
+                removeTestReportDir: () => Promise.resolve()
+            }
+        });
         const result = await initReporter();
         expect(result).to.equal(true);
         expect(fs.existsSync(`${conf.env.sourceReportFolderName}/${conf.allureHistoryDir}`)).to.equal(true);
