@@ -3,15 +3,13 @@
 const config = require('../../config');
 const Exec = require('child_process').exec;
 const _ = require('lodash');
+const Workflow = require('../api/workflow');
 
 class BasicTestReporter {
-    constructor({
-                    buildId = process.env.CF_BUILD_ID,
-                    volumePath = process.env.CF_VOLUME_PATH
-                } = {}
-    ) {
-        this.buildId = buildId;
-        this.volumePath = volumePath;
+    constructor() {
+        this.buildId = config.env.buildId;
+        this.volumePath = config.env.volumePath;
+        this.branch = config.env.branchNormalized;
     }
 
     setExportVariable(varName, varValue) {
@@ -38,7 +36,16 @@ class BasicTestReporter {
         return missingVars;
     }
 
-    async prepareForGenerateReport({ extractedStorageConfig, uploadIndexFile, isUpload, buildId }) {
+    async getBuildData() {
+        const process = await Workflow.getProcessById(this.buildId);
+
+        return {
+            pipelineId: _.get(process, 'pipeline'),
+            branch: this.branch
+        };
+    }
+
+    async exportVariables({ extractedStorageConfig, uploadIndexFile, isUpload, buildId, buildData }) {
         console.log(`Working directory: ${process.cwd()}`);
 
         if (isUpload) {
@@ -51,10 +58,12 @@ class BasicTestReporter {
 
         console.log(`Max upload size for your account is ${config.uploadMaxSize} MB`);
 
-        extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId });
+        extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId, buildData });
 
         await this.setExportVariable('TEST_REPORT', true);
-        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.originBucketName);
+        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.env.originBucketName);
+        await this.setExportVariable('TEST_REPORT_PIPELINE_ID', buildData.pipelineId);
+        await this.setExportVariable('TEST_REPORT_BRANCH', buildData.branch);
 
         await this.setExportVariable(
             'TEST_REPORT_INTEGRATION_TYPE',
@@ -86,13 +95,15 @@ class BasicTestReporter {
         return name.split('.')[1];
     }
 
-    _buildLinkOnReport({ extractedStorageConfig, buildId }) {
+    _buildLinkOnReport({ extractedStorageConfig, buildId, buildData }) {
         const integType = this._normalizeIntegrationName(extractedStorageConfig.integrationType);
         const integName = extractedStorageConfig.name;
-        const bucket = encodeURIComponent(config.originBucketName);
+        const bucket = encodeURIComponent(config.env.originBucketName);
         const file = process.env.REPORT_INDEX_FILE || 'index.html';
+        const pipeline = buildData.pipelineId;
+        const branch = buildData.branch;
 
-        return `${config.basicLinkOnReport}${integType}/${integName}/${bucket}/${buildId}/${file}`;
+        return `${config.basicLinkOnReport}v2/${pipeline}/${branch}/${integType}/${integName}/${bucket}/${buildId}/${file}`;
     }
 }
 

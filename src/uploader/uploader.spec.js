@@ -23,10 +23,12 @@ describe('Uploader', function () {
         const buildId = 'fakeBuildId';
         const srcDir = 'fakeSrcDir';
         const isUploadFile = false;
+        const buildData = { pipelineId: 'fakePipeline', branch: 'fakeBranch' };
         const Uploader = await proxyquireUploader({ config: { bucketSubPath } });
 
-        const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile });
-        expect(deployPath).to.equal('fakeSubPath/fakeBuildId/fakeFile');
+        const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, buildData });
+        console.log(deployPath);
+        expect(deployPath).to.equal('fakePipeline/fakeBranch/fakeBuildId/fakeFile');
     });
 
     it('_getFilePathForDeploy should build correct link with out subdir path', async () => {
@@ -35,9 +37,10 @@ describe('Uploader', function () {
         const buildId = 'fakeBuildId';
         const srcDir = 'fakeSrcDir';
         const isUploadFile = false;
+        const buildData = { pipelineId: 'fakePipeline', branch: 'fakeBranch' };
         const Uploader = await proxyquireUploader({ config: { bucketSubPath } });
 
-        const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile });
-        expect(deployPath).to.equal('fakeBuildId/fakeFile');
+        const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, buildData });
+        expect(deployPath).to.equal('fakePipeline/fakeBranch/fakeBuildId/fakeFile');
     });
 });
