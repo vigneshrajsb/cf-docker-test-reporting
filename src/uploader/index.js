@@ -4,6 +4,7 @@ const FileManager = require('../FileManager');
 const path = require('path');
 const config = require('../../config');
 const StorageApi = require('../storageApi');
+const Logger = require('../logger');
 
 const FORBIDDEN_STATUS = 403;
 
@@ -16,9 +17,9 @@ class Uploader {
                                  isUploadFile,
                                  extractedStorageConfig,
                                  buildData,
-                                 isUploadHistory
+                                 uploadHistory
     }) {
-        Uploader._logStartUploadFiles({ isUploadHistory });
+        Uploader._logStartUploadFiles({ uploadHistory });
         return new Promise(async (res, rej) => {
             try {
                 const files = await FileManager._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
@@ -31,7 +32,7 @@ class Uploader {
                         isUploadFile,
                         uploadFile,
                         buildData,
-                        isUploadHistory
+                        uploadHistory
                     });
 
                     return this._uploadFileWithRetry({
@@ -40,12 +41,12 @@ class Uploader {
                         bucketName,
                         retryCount: config.uploadRetryCount,
                         extractedStorageConfig,
-                        isUploadHistory
+                        uploadHistory
                     });
                 });
 
                 Promise.all(uploadPromises).then(() => {
-                    Uploader._logSuccessUploadFiles({ extractedStorageConfig, isUploadHistory });
+                    Uploader._logSuccessUploadFiles({ extractedStorageConfig, uploadHistory });
                     res(true);
                 }, (err) => { rej(err); });
             } catch (err) {
@@ -54,7 +55,7 @@ class Uploader {
         });
     }
 
-    static _uploadFileWithRetry({ file, pathToDeploy, bucketName, retryCount, extractedStorageConfig, isUploadHistory }) {
+    static _uploadFileWithRetry({ file, pathToDeploy, bucketName, retryCount, extractedStorageConfig, uploadHistory }) {
         return new Promise(async (resolve, reject) => {
             let isUploaded = false;
             let lastUploadErr;
@@ -83,7 +84,7 @@ class Uploader {
                 console.log(`File ${pathToDeploy} successful uploaded`);
                 resolve(true);
             } else {
-                Uploader._logFailRetryUpload({ pathToDeploy, lastUploadErr, isUploadHistory, bucketName });
+                Uploader._logFailRetryUpload({ pathToDeploy, lastUploadErr, uploadHistory, bucketName });
                 reject(new Error('Fail to upload file'));
             }
         });
@@ -113,37 +114,34 @@ class Uploader {
     }
 
     static _getFilePathForDeploy(opts) {
-        if (opts.isUploadHistory) {
+        if (opts.uploadHistory) {
             return Uploader._getFilePathForDeployHistory(opts);
         }
 
         return Uploader._getFilePathForDeployReport(opts);
     }
 
-    static _logStartUploadFiles({ isUploadHistory }) {
-        const msg = `Start upload ${isUploadHistory ? 'allure history' : 'report'} files`;
+    static _logStartUploadFiles({ uploadHistory }) {
+        const msg = `Start upload ${uploadHistory ? 'allure history' : 'report'} files`;
         console.log('-'.repeat(msg.length + 1));
-        console.log(config.colors.aqua, msg, config.colors.none);
+        Logger.log(msg);
         console.log('-'.repeat(msg.length + 1));
     }
 
-    static _logSuccessUploadFiles({ extractedStorageConfig, isUploadHistory }) {
-        if (isUploadHistory) {
-            console.log(config.colors.aqua, 'Allure history was successfully uploaded', config.colors.none);
+    static _logSuccessUploadFiles({ extractedStorageConfig, uploadHistory }) {
+        if (uploadHistory) {
+            Logger.log('Allure history was successfully uploaded');
         } else {
-            console.log(config.colors.aqua, 'All report files was successfully uploaded', config.colors.none);
-            console.log(`You can access report on ${extractedStorageConfig.linkOnReport}`);
+            Logger.log('All report files was successfully uploaded');
+            console.log('You can access report on: ');
+            Logger.log(extractedStorageConfig.linkOnReport);
         }
     }
 
-    static _logFailRetryUpload({ pathToDeploy, lastUploadErr, isUploadHistory, bucketName }) {
-        if (isUploadHistory) {
+    static _logFailRetryUpload({ pathToDeploy, lastUploadErr, uploadHistory, bucketName }) {
+        if (uploadHistory) {
             if (lastUploadErr.statusCode === FORBIDDEN_STATUS) {
-                console.log(
-                    config.colors.aqua,
-                    `Cant upload allure history, you must have delete permission to you bucket "${bucketName}"`,
-                    config.colors.none
-                );
+                Logger.log(`Cant upload allure history, you must have delete permission to you bucket "${bucketName}"`);
             }
         }
 

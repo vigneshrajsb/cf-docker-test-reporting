@@ -4,14 +4,12 @@ const StorageApi = require('../storageApi');
 const FileManager = require('../FileManager');
 const path = require('path');
 const config = require('../../config');
+const Logger = require('../logger');
 
 class History {
     static async addHistoryToTestResults(opts) {
-        console.log(
-            config.colors.aqua,
-            'Start add allure history to test results',
-            config.colors.none
-        );
+        Logger.log('Start add allure history to test results');
+
         /**
          * download history files to tmp dir and after success rename tmp history dir
          * this need for make sure that history will be correct
@@ -24,17 +22,9 @@ class History {
             await StorageApi.getApi(opts).downloadHistory(Object.assign(opts, { historyDir: tmpHistoryFullPath }));
             await FileManager.renameDir(tmpHistoryFullPath, `${historyDirBase}/${config.allureHistoryDir}`, { force: true });
 
-            console.log(
-                config.colors.aqua,
-                'Successfuly add allure history to test results',
-                config.colors.none
-            );
+            Logger.log('Successfuly add allure history to test results');
         } catch (e) {
-            console.log(
-                config.colors.aqua,
-                `Error during adding allure history to test report, cause: ${e.message}`,
-                config.colors.none
-            );
+            console.error(`Error during adding allure history to test report, cause: ${e.message}`);
         }
     }
 }

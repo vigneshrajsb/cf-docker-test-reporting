@@ -39,10 +39,10 @@ class FileManager {
 
     static removeTestReportDir() {
         let folderForRemove;
-
+        const CLEAR_TEST_REPORT = process.env.CLEAR_TEST_REPORT;
         const isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 
-        if (!isUpload || (process.env.CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
+        if ((!isUpload && CLEAR_TEST_REPORT !== 'false') || (CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
             folderForRemove = process.env.REPORT_DIR || config.env.sourceReportFolderName;
         }
 
@@ -61,11 +61,9 @@ class FileManager {
                 });
             });
         }
-
-        return Promise.resolve();
     }
 
-    static removeDir(path) {
+    static removeResource(path) {
         return new Promise((res, rej) => {
             Exec(`rm -rf ${path}`, (err) => {
                 if (err) {
@@ -81,7 +79,7 @@ class FileManager {
         return Promise.resolve()
             .then(() => {
                 if (opts.force) {
-                    return FileManager.removeDir(path);
+                    return FileManager.removeResource(path);
                 }
             })
             .then(() => {
@@ -101,7 +99,7 @@ class FileManager {
         return Promise.resolve()
             .then(() => {
                 if (opts.force) {
-                    return FileManager.removeDir(to);
+                    return FileManager.removeResource(to);
                 }
             })
             .then(() => {
@@ -112,6 +110,26 @@ class FileManager {
                         }
 
                         res(to);
+                    });
+                });
+            });
+    }
+
+    static createFile({ filePath, fileData, opts, flags }) {
+        return Promise.resolve()
+            .then(() => {
+                if (opts.force) {
+                    return FileManager.removeResource(filePath);
+                }
+            })
+            .then(() => {
+                return new Promise((res, rej) => {
+                    fs.writeFile(filePath, fileData, Object.assign({ mode: FULL_USER_PERMISSION }, flags), (err) => {
+                        if (err) {
+                            rej(err);
+                        }
+
+                        res(filePath);
                     });
                 });
             });

@@ -22,7 +22,7 @@ class FileTestReporter extends BasicTestReporter {
         const buildData = await this.getBuildData();
         validator.validateBuildData(buildData);
 
-        await this.prepareForGenerateReport({
+        await this.exportVariables({
             extractedStorageConfig,
             uploadIndexFile: this.uploadIndexFile,
             isUpload,

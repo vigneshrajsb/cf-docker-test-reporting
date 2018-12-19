@@ -6,6 +6,7 @@ const allureCmd = require('../../cf-allure-commandline/index');
 const validator = require('../validation');
 const uploader = require('../uploader');
 const History = require('../history');
+const Logger = require('../logger');
 
 class AllureTestReporter extends BasicTestReporter {
     generateReport() {
@@ -16,7 +17,7 @@ class AllureTestReporter extends BasicTestReporter {
         const buildData = await this.getBuildData();
         validator.validateBuildData(buildData);
 
-        await this.prepareForGenerateReport({
+        await this.exportVariables({
             extractedStorageConfig,
             isUpload,
             buildId: this.buildId,
@@ -53,13 +54,11 @@ class AllureTestReporter extends BasicTestReporter {
                         bucketName: config.env.bucketName,
                         extractedStorageConfig,
                         buildData,
-                        isUploadHistory: true
+                        uploadHistory: true
                     }).catch((e) => {
-                        console.log(
-                            config.colors.aqua,
+                        Logger.log(
                             'Allure history has not been uploaded, current test build wouldn`t be available in the report \n' +
-                            `cause: ${e.message}`,
-                            config.colors.none
+                            `cause: ${e.message}`
                         );
                     });
 

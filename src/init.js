@@ -9,6 +9,7 @@ const FileTestReporter = require('./reporter/FileTestReporter');
 const AllureTestReporter = require('./reporter/AllureTestReporter');
 const PaymentsLogic = require('./paymentsLogic');
 const config = require('../config');
+const Logger = require('./logger');
 
 const basicTestReporter = new BasicTestReporter();
 const storageConfigProvider = new StorageConfigProvider();
@@ -21,6 +22,8 @@ function validateRequiredVars() {
 
 async function init() {
     let isUpload;
+
+    Logger.log('START REPORTER');
 
     try {
         validateRequiredVars();

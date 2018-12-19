@@ -45,7 +45,7 @@ class BasicTestReporter {
         };
     }
 
-    async prepareForGenerateReport({ extractedStorageConfig, uploadIndexFile, isUpload, buildId, buildData }) {
+    async exportVariables({ extractedStorageConfig, uploadIndexFile, isUpload, buildId, buildData }) {
         console.log(`Working directory: ${process.cwd()}`);
 
         if (isUpload) {
@@ -103,7 +103,7 @@ class BasicTestReporter {
         const pipeline = buildData.pipelineId;
         const branch = buildData.branch;
 
-        return `${config.basicLinkOnReport}${pipeline}/${branch}/${integType}/${integName}/${bucket}/${buildId}/${file}`;
+        return `${config.basicLinkOnReport}v2/${pipeline}/${branch}/${integType}/${integName}/${bucket}/${buildId}/${file}`;
     }
 }
 

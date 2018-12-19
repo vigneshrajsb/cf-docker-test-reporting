@@ -26,7 +26,7 @@ class Validator {
     // invokes only when user want to upload one file
     static async validateUploadFile(pathToFile) {
         if (!fs.existsSync(pathToFile)) {
-            throw new Error('Error: FIle for upload does not exist. \n' +
+            throw new Error('Error: File for upload does not exist. \n' +
             'Ensure that "working_directory" was specified for this step and it contains the file for upload');
         }
 
