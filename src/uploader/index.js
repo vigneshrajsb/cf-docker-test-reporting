@@ -19,7 +19,7 @@ class Uploader {
                                  buildData,
                                  uploadHistory
     }) {
-        Uploader._logStartUploadFiles({ uploadHistory });
+        logStartUploadFiles({ uploadHistory });
         return new Promise(async (res, rej) => {
             try {
                 const files = await FileManager._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
@@ -46,7 +46,7 @@ class Uploader {
                 });
 
                 Promise.all(uploadPromises).then(() => {
-                    Uploader._logSuccessUploadFiles({ extractedStorageConfig, uploadHistory });
+                    logSuccessUploadFiles({ extractedStorageConfig, uploadHistory });
                     res(true);
                 }, (err) => { rej(err); });
             } catch (err) {
@@ -84,7 +84,7 @@ class Uploader {
                 console.log(`File ${pathToDeploy} successful uploaded`);
                 resolve(true);
             } else {
-                Uploader._logFailRetryUpload({ pathToDeploy, lastUploadErr, uploadHistory, bucketName });
+                logFailRetryUpload({ pathToDeploy, lastUploadErr, uploadHistory, bucketName });
                 reject(new Error('Fail to upload file'));
             }
         });
@@ -120,36 +120,36 @@ class Uploader {
 
         return Uploader._getFilePathForDeployReport(opts);
     }
+}
 
-    static _logStartUploadFiles({ uploadHistory }) {
-        const msg = `Start upload ${uploadHistory ? 'allure history' : 'report'} files`;
-        console.log('-'.repeat(msg.length + 1));
-        Logger.log(msg);
-        console.log('-'.repeat(msg.length + 1));
+function logStartUploadFiles({ uploadHistory }) {
+    const msg = `Start upload ${uploadHistory ? 'allure history' : 'report'} files`;
+    console.log('-'.repeat(msg.length + 1));
+    Logger.log(msg);
+    console.log('-'.repeat(msg.length + 1));
+}
+
+function logSuccessUploadFiles({ extractedStorageConfig, uploadHistory }) {
+    if (uploadHistory) {
+        Logger.log('Allure history was successfully uploaded');
+    } else {
+        Logger.log('All report files was successfully uploaded');
+        console.log('You can access report on: ');
+        Logger.log(extractedStorageConfig.linkOnReport);
     }
+}
 
-    static _logSuccessUploadFiles({ extractedStorageConfig, uploadHistory }) {
-        if (uploadHistory) {
-            Logger.log('Allure history was successfully uploaded');
-        } else {
-            Logger.log('All report files was successfully uploaded');
-            console.log('You can access report on: ');
-            Logger.log(extractedStorageConfig.linkOnReport);
+function logFailRetryUpload({ pathToDeploy, lastUploadErr, uploadHistory, bucketName }) {
+    if (uploadHistory) {
+        if (lastUploadErr.statusCode === FORBIDDEN_STATUS) {
+            Logger.log(`Cant upload allure history, you must have delete permission to you bucket "${bucketName}"`);
         }
     }
 
-    static _logFailRetryUpload({ pathToDeploy, lastUploadErr, uploadHistory, bucketName }) {
-        if (uploadHistory) {
-            if (lastUploadErr.statusCode === FORBIDDEN_STATUS) {
-                Logger.log(`Cant upload allure history, you must have delete permission to you bucket "${bucketName}"`);
-            }
-        }
-
-        console.error(
-            `Fail to upload file ${pathToDeploy}, error: `,
-            lastUploadErr.message ? lastUploadErr.message : lastUploadErr
-        );
-    }
+    console.error(
+        `Fail to upload file ${pathToDeploy}, error: `,
+        lastUploadErr.message ? lastUploadErr.message : lastUploadErr
+    );
 }
 
 module.exports = Uploader;
