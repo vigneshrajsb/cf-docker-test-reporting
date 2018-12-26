@@ -97,13 +97,16 @@ class Uploader {
     static _getFilePathForDeployReport({ file, buildId, srcDir, isUploadFile, uploadFile, buildData }) {
         let resultPath;
         const subPath = config.env.bucketSubPath;
+        let reportWrapDir = config.env.reportWrapDir;
 
         if (!isUploadFile) {
             const pathWithoutSrcDir = file.replace(srcDir, '');
             const pathToFile = pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`;
-            resultPath = `${buildData.pipelineId}/${buildData.branch}/${subPath}${buildId}${pathToFile}`;
+            reportWrapDir = reportWrapDir ? `/${reportWrapDir}` : '';
+            resultPath = `${buildData.pipelineId}/${buildData.branch}/${subPath}${buildId}${reportWrapDir}${pathToFile}`;
         } else {
-            resultPath = `${buildData.pipelineId}/${buildData.branch}/${subPath}${buildId}/${path.parse(uploadFile).base}`;
+            reportWrapDir = reportWrapDir ? `${reportWrapDir}/` : '';
+            resultPath = `${buildData.pipelineId}/${buildData.branch}/${subPath}${buildId}/${reportWrapDir}${path.parse(uploadFile).base}`;
         }
 
         return resultPath;

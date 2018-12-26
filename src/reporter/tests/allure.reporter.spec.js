@@ -1,12 +1,9 @@
 'use strict';
 
-/* eslint global-require: 0 */
-
 const expect = require('chai').expect;
 const FileManager = require('../../FileManager');
 const fs = require('fs');
 const ReporterTestUtils = require('./ReporterTestUtils');
-const proxyquire = require('proxyquire');
 
 describe('Allure Reporter', function () {
     const customAllureResults = 'test_allure_results';
@@ -30,8 +27,8 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
         expect(result).to.equal(true);
     });
 
@@ -47,8 +44,8 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
         expect(result).to.equal(true);
     });
 
@@ -63,8 +60,8 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
         expect(result).to.equal(true);
         expect(fs.existsSync(conf.env.sourceReportFolderName)).to.equal(false);
     });
@@ -80,8 +77,8 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
         expect(result).to.equal(true);
         expect(fs.existsSync(conf.env.sourceReportFolderName)).to.equal(false);
     });
@@ -97,12 +94,18 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
 
-        const initReporter = proxyquire('../../init', {
-            './FileManager': {
-                removeTestReportDir: () => Promise.resolve()
-            }
-        });
-        const result = await initReporter();
+        /**
+         * Mock method by rewrite require cache
+         */
+        const FileMan = require('../../FileManager');
+        FileMan.removeTestReportDir = () => {
+            Promise.resolve();
+        };
+
+        require.cache[require.resolve('../../FileManager')].exports = FileMan;
+
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
         expect(result).to.equal(true);
         expect(fs.existsSync(`${conf.env.sourceReportFolderName}/${conf.allureHistoryDir}`)).to.equal(true);
         expect(fs.readdirSync(`${conf.env.sourceReportFolderName}/${conf.allureHistoryDir}`).length > 0).to.equal(true);

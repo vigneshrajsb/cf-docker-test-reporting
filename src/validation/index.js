@@ -61,6 +61,25 @@ class Validator {
             }
         });
     }
+
+    static validateRequiredVars(requiredVars) {
+        const missingVars = findMissingVars(requiredVars);
+        if (missingVars.length) {
+            throw new Error(`Error, missing required variable${missingVars.length > 1 ? 's' : ''}:${missingVars.join(', ')}`);
+        }
+    }
+}
+
+function findMissingVars(requiredVars) {
+    const missingVars = [];
+
+    requiredVars.forEach((varName) => {
+        if (!process.env[varName]) {
+            missingVars.push(varName);
+        }
+    });
+
+    return missingVars;
 }
 
 module.exports = Validator;

@@ -41,8 +41,8 @@ class FileManager {
         let folderForRemove;
         const isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 
-        if (!isUpload || (process.env.CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
-            folderForRemove = process.env.REPORT_DIR || config.env.sourceReportFolderName;
+        if (!isUpload || (process.env.CLEAR_TEST_REPORT && config.env.reportDir)) {
+            folderForRemove = config.env.reportDir || config.env.sourceReportFolderName;
         }
 
         if (folderForRemove) {
@@ -114,7 +114,7 @@ class FileManager {
             });
     }
 
-    static createFile({ filePath, fileData, opts, flags }) {
+    static createFile({ filePath, fileData, opts = {}, flags }) {
         return Promise.resolve()
             .then(() => {
                 if (opts.force) {

@@ -3,7 +3,7 @@
 const BasicTestReporter = require('./BasicTestReporter');
 const config = require('../../config');
 const allureCmd = require('../../cf-allure-commandline/index');
-const validator = require('../validation');
+const Validator = require('../validation');
 const uploader = require('../uploader');
 const History = require('../history');
 const Logger = require('../logger');
@@ -15,16 +15,18 @@ class AllureTestReporter extends BasicTestReporter {
 
     async start({ extractedStorageConfig, isUpload }) {
         const buildData = await this.getBuildData();
-        validator.validateBuildData(buildData);
+        Validator.validateBuildData(buildData);
+
+        this.showStartLogs({ buildId: this.buildId, isUpload });
+        extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId: this.buildId, buildData });
 
         await this.exportVariables({
             extractedStorageConfig,
-            isUpload,
             buildId: this.buildId,
             buildData
         });
 
-        await validator.validateUploadDir(config.env.sourceReportFolderName);
+        await Validator.validateUploadDir(config.env.sourceReportFolderName);
 
         /**
          * download allure history from storage and insert it to test results dir
@@ -62,7 +64,7 @@ class AllureTestReporter extends BasicTestReporter {
                         );
                     });
 
-                    const result = uploader.uploadFiles({
+                    const result = await uploader.uploadFiles({
                         srcDir: config.resultReportFolderName,
                         buildId: this.buildId,
                         bucketName: config.env.bucketName,
@@ -70,7 +72,12 @@ class AllureTestReporter extends BasicTestReporter {
                         buildData
                     });
 
-                    res(result);
+                    res({
+                        reportLink: extractedStorageConfig.linkOnReport,
+                        uploadedResource: config.resultReportFolderName,
+                        uploadResult: result,
+                        type: config.env.reportType
+                    });
                 } catch (e) {
                     rej(e);
                 }

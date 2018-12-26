@@ -1,6 +1,5 @@
 'use strict';
 
-/* eslint global-require: 0 */
 /* eslint no-empty: 0 */
 
 const expect = require('chai').expect;

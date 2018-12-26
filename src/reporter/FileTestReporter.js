@@ -2,56 +2,48 @@
 
 const BasicTestReporter = require('./BasicTestReporter');
 const config = require('../../config');
-const validator = require('../validation');
+const Validator = require('../validation');
 const uploader = require('../uploader');
 
 class FileTestReporter extends BasicTestReporter {
-    constructor({
-                    dirForUpload = process.env.REPORT_DIR,
-                    uploadIndexFile = process.env.REPORT_INDEX_FILE,
-                } = {}
-                ) {
-        super();
-        this.dirForUpload = typeof dirForUpload === 'string' ? dirForUpload.trim() : dirForUpload;
-        this.uploadIndexFile = typeof uploadIndexFile === 'string' ? uploadIndexFile.trim() : uploadIndexFile;
-    }
     async start({ isUploadFile, extractedStorageConfig, isUpload }) {
-        console.log('REPORT_DIR: ', this.dirForUpload);
-        console.log('REPORT_INDEX_FILE: ', this.uploadIndexFile);
-
         const buildData = await this.getBuildData();
-        validator.validateBuildData(buildData);
+        Validator.validateBuildData(buildData);
 
+        this.showStartLogs({ buildId: this.buildId, isUpload, fileReporter: true });
+        extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId: this.buildId, buildData });
         await this.exportVariables({
             extractedStorageConfig,
-            uploadIndexFile: this.uploadIndexFile,
-            isUpload,
+            uploadIndexFile: config.env.reportIndexFile,
             buildId: this.buildId,
             buildData
         });
 
         if (!isUploadFile) {
-            const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
-            if (missingVars.length) {
-                throw new Error(`For upload custom test report you must specify:
-${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
-            }
+            Validator.validateRequiredVars(config.requiredVarsForUploadMode);
         }
 
-        await validator.validateUploadResource({
+        await Validator.validateUploadResource({
             isUploadFile,
-            uploadIndexFile: this.uploadIndexFile,
-            dirForUpload: this.dirForUpload
+            uploadIndexFile: config.env.reportIndexFile,
+            dirForUpload: config.env.reportDir
         });
 
-        return uploader.uploadFiles({
-            srcDir: this.dirForUpload,
+        const result = await uploader.uploadFiles({
+            srcDir: config.env.reportDir,
             buildId: this.buildId,
-            uploadFile: this.uploadIndexFile,
+            uploadFile: config.env.reportIndexFile,
             bucketName: config.env.bucketName,
             isUploadFile,
             extractedStorageConfig,
             buildData
+        });
+
+        return Promise.resolve({
+            reportLink: extractedStorageConfig.linkOnReport,
+            uploadedResource: isUploadFile ? config.env.reportIndexFile : config.env.reportDir,
+            uploadResult: result,
+            type: config.env.reportType
         });
     }
 }

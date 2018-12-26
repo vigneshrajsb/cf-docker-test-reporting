@@ -27,9 +27,14 @@ class ReporterTestUtils {
     }
 
     static clearEnvVariables() {
-        delete process.env.CLEAR_TEST_REPORT;
-        delete process.env.REPORT_DIR;
-        delete process.env.REPORT_INDEX_FILE;
+        /**
+         * clear all env variables which contain data about what resources and how they must be uploaded
+         */
+        config.uploadArrayVars.forEach((varName) => {
+            delete process.env[varName];
+        });
+
+        delete process.env.REPORT_WRAP_DIR;
     }
 
     static async clearAll({ customReportDir, reporter, volume } = {}) {
@@ -63,12 +68,11 @@ class ReporterTestUtils {
          * and he must be refresh in other modules which use it
          */
 
-        delete require.cache[require.resolve('../../../config')];
-        delete require.cache[require.resolve('../BasicTestReporter.js')];
-        delete require.cache[require.resolve('../AllureTestReporter.js')];
-        delete require.cache[require.resolve('../../init')];
-        delete require.cache[require.resolve('../../FileManager.js')];
-        delete require.cache[require.resolve('../../history/index.js')];
+        Object.keys(require.cache).forEach((path) => {
+            if (!path.includes('node_modules')) {
+                delete require.cache[path];
+            }
+        });
     }
 
     static initAllureTestResults(resultsDir) {

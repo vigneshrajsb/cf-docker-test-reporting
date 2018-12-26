@@ -1,7 +1,5 @@
 'use strict';
 
-/* eslint global-require: 0 */
-
 const expect = require('chai').expect;
 const fs = require('fs');
 const ReporterTestUtils = require('./ReporterTestUtils');
@@ -27,8 +25,8 @@ describe('File reporter', function () {
 
         await ReporterTestUtils.initCustomTestResults({ customReportDir, indexFile });
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
         expect(result).to.equal(true);
     });
 
@@ -37,7 +35,6 @@ describe('File reporter', function () {
         ReporterTestUtils.setEnvVariables({
             CF_VOLUME_PATH: fakeVolumeName,
             REPORT_INDEX_FILE: indexFile,
-            REPORT_DIR: customReportDir
         });
         await ReporterTestUtils.initVolume();
 
@@ -47,12 +44,10 @@ describe('File reporter', function () {
             REPORT_INDEX_FILE: `${customReportDir}/${indexFile}`,
         });
 
-        delete process.env.REPORT_DIR;
-
         ReporterTestUtils.clearRequireCache();
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
         expect(result).to.equal(true);
     });
 
@@ -68,8 +63,8 @@ describe('File reporter', function () {
 
         await ReporterTestUtils.initCustomTestResults({ customReportDir, indexFile });
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
         expect(result).to.equal(true);
         expect(fs.existsSync(customReportDir)).to.equal(false);
     });

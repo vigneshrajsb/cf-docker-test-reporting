@@ -24,18 +24,6 @@ class BasicTestReporter {
         });
     }
 
-    findMissingVars(requiredVars) {
-        const missingVars = [];
-
-        requiredVars.forEach((varName) => {
-            if (!process.env[varName]) {
-                missingVars.push(varName);
-            }
-        });
-
-        return missingVars;
-    }
-
     async getBuildData() {
         const process = await Workflow.getProcessById(this.buildId);
 
@@ -45,20 +33,15 @@ class BasicTestReporter {
         };
     }
 
-    async exportVariables({ extractedStorageConfig, uploadIndexFile, isUpload, buildId, buildData }) {
-        console.log(`Working directory: ${process.cwd()}`);
-
-        if (isUpload) {
-            console.log(`Start upload custom test report for build ${buildId}`);
-            console.log('Using custom upload mode (only upload custom folder or file)');
-        } else {
-            console.log(`Start generating visualization of test report for build ${buildId}`);
-            console.log('Using allure upload mode (generate allure visualization and upload it)');
+    async exportVariables({ extractedStorageConfig, uploadIndexFile, buildId, buildData }) {
+        /**
+         * reportWrapDir - exists only when multiple reports uploads
+         * not need export variables on upload each of multiple reports,
+         * because this vars will be exported when reportsIndexDir will be uploads
+         */
+        if (config.env.reportWrapDir) {
+            return;
         }
-
-        console.log(`Max upload size for your account is ${config.uploadMaxSize} MB`);
-
-        extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId, buildData });
 
         await this.setExportVariable('TEST_REPORT', true);
         await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.env.originBucketName);
@@ -80,6 +63,25 @@ class BasicTestReporter {
         }
     }
 
+    showStartLogs({ buildId, isUpload, fileReporter }){
+        console.log(`Working directory: ${process.cwd()}`);
+
+        if (fileReporter) {
+            console.log('REPORT_DIR: ', config.env.reportDir);
+            console.log('REPORT_INDEX_FILE: ', config.env.reportIndexFile);
+        }
+
+        if (isUpload) {
+            console.log(`Start upload custom test report for build ${buildId}`);
+            console.log('Using custom upload mode (only upload custom folder or file)');
+        } else {
+            console.log(`Start generating visualization of test report for build ${buildId}`);
+            console.log('Using allure upload mode (generate allure visualization and upload it)');
+        }
+
+        console.log(`Max upload size for your account is ${config.uploadMaxSize} MB`);
+    }
+
     isUploadMode(vars) {
         if (process.env.AllURE_DIR) {
             return false;
@@ -99,11 +101,13 @@ class BasicTestReporter {
         const integType = this._normalizeIntegrationName(extractedStorageConfig.integrationType);
         const integName = extractedStorageConfig.name;
         const bucket = encodeURIComponent(config.env.originBucketName);
-        const file = process.env.REPORT_INDEX_FILE || 'index.html';
+        const file = config.env.reportIndexFile;
         const pipeline = buildData.pipelineId;
         const branch = buildData.branch;
+        let reportWrap = config.env.reportWrapDir;
+        reportWrap = reportWrap ? `${reportWrap}/` : '';
 
-        return `${config.basicLinkOnReport}v2/${pipeline}/${branch}/${integType}/${integName}/${bucket}/${buildId}/${file}`;
+        return `${config.basicLinkOnReport}v2/${pipeline}/${branch}/${integType}/${integName}/${bucket}/${buildId}/${reportWrap}${file}`; // eslint-disable-line
     }
 }
 
