@@ -70,7 +70,17 @@ class ConfigUtils {
             });
         });
 
-        return resultVars.length ? _.compact(resultVars) : undefined;
+        const compactResultVars = _.compact(resultVars);
+
+        compactResultVars.forEach((env, index) => {
+            /**
+             * REPORT_WRAP_DIR - name of folder in which will be uploaded files
+             * by existing this var reporter know that multireports uploads now
+             */
+            env.REPORT_WRAP_DIR = index;
+        });
+
+        return compactResultVars.length ? compactResultVars : undefined;
     }
 }
 

@@ -1,12 +1,8 @@
 'use strict';
 
-const ReporterTestUtils = require('../reporter/tests/ReporterTestUtils');
 const FileManager = require('../FileManager');
 const Config = require('../../config');
-const _ = require('lodash');
 const Logger = require('../logger');
-
-const config = Config.getConfig();
 
 class MultiReportRunner {
     static async run(reporterData) {
@@ -15,23 +11,10 @@ class MultiReportRunner {
 
         Logger.log('START UPLOAD MULTIPLE REPORTS');
 
-        config.env.multiReportUpload.forEach(async (uploadVars, index) => {
+        reporterData.config.forEach(async (config) => {
             uploadReportPromise = uploadReportPromise.then(async () => {
-                /**
-                 * since we use single runner for handle each report we must clear all modules cache and env vars
-                 * related to upload specific report before start handle report
-                 */
-                ReporterTestUtils.clearEnvVariables({ config });
-
-                /**
-                 * REPORT_WRAP_DIR - name of folder in which will be uploaded files
-                 * by existing this var reporter know that multireports uploads now
-                 */
-                uploadVars.REPORT_WRAP_DIR = index;
-                MultiReportRunner.setUploadVars(uploadVars);
-
                 const SingleReportRunner = require('./SingleReportRunner.js');
-                const result = await SingleReportRunner.run(reporterData);
+                const result = await SingleReportRunner.run({ ...reporterData, config  });
 
                 uploadedReports.push(result);
 
@@ -49,25 +32,13 @@ class MultiReportRunner {
         return true;
     }
 
-    static setUploadVars(uploadVars) {
-        const posibleVarsForUpload = config.uploadArrayVars;
-        const varsToSet = {};
-
-        posibleVarsForUpload.forEach((varName) => {
-            if (uploadVars[varName]) {
-                varsToSet[varName] = uploadVars[varName];
-            }
+    static async uploadReportsIndexDir({ uploadedReports, reporterData }) {
+        const config = Config.getConfig({
+            reportDir: reporterData.config[0].reportsIndexDir,
+            reportIndexFile: 'index.html',
         });
 
-        if (_.isNumber(uploadVars.REPORT_WRAP_DIR)) {
-            varsToSet.REPORT_WRAP_DIR = uploadVars.REPORT_WRAP_DIR;
-        }
-
-        ReporterTestUtils.setEnvVariables(varsToSet);
-    }
-
-    static async uploadReportsIndexDir({ uploadedReports, reporterData }) {
-        const indexDirPath = `${process.cwd()}/${config.reportsIndexDir}`;
+        const indexDirPath = config.reportsIndexDir;
 
         await FileManager.createFile({
             filePath: `${indexDirPath}/reports.js`,
@@ -75,15 +46,8 @@ class MultiReportRunner {
             opts: { force: true }
         });
 
-        ReporterTestUtils.clearEnvVariables({ config });
-
-        MultiReportRunner.setUploadVars({
-            REPORT_INDEX_FILE: 'index.html',
-            REPORT_DIR: config.reportsIndexDir
-        });
-
         const SingleReportRunner = require('./SingleReportRunner.js');
-        const { reportLink } = await SingleReportRunner.run(reporterData);
+        const { reportLink } = await SingleReportRunner.run({ ...reporterData, config });
 
         Logger.log('All reports was uploaded, you can access it on');
         Logger.log(reportLink);

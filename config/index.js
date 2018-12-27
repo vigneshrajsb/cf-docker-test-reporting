@@ -4,13 +4,55 @@ const path = require('path');
 const _ = require('lodash');
 const ConfigUtils = require('./ConfigUtils');
 
+/**
+ * arrayVars - customer can define array of this vars for upload multiple reports, for example REPORT_DIR.0
+ */
+const UPLOAD_ARRAY_VARS = ['REPORT_DIR', 'REPORT_INDEX_FILE', 'ALLURE_DIR', 'CLEAR_TEST_REPORT', 'REPORT_TYPE'];
+
 class Config {
-    static getConfig() {
+    static getSingleConfig() {
+
+        const normalisedEnv = {};
+
+        UPLOAD_ARRAY_VARS.forEach((uploadVar) => {
+            if (process.env[uploadVar]) {
+                normalisedEnv[_.camelCase(uploadVar)] = process.env[uploadVar];
+            }
+        });
+
+        return this.getConfig(normalisedEnv);
+    }
+
+    static getMultipleConfig() {
+        const environments = ConfigUtils.getMultiReportUpload(UPLOAD_ARRAY_VARS);
+
+        const result = environments.map((env) => {
+            const normalisedEnv = {};
+
+            Object.keys(env).forEach((varName) => {
+                normalisedEnv[_.camelCase(varName)] = env[varName];
+            });
+
+            return Config.getConfig(normalisedEnv);
+        });
+
+        return result;
+    }
+
+    static isMultiUpload() {
+        return !!ConfigUtils.getMultiReportUpload(UPLOAD_ARRAY_VARS);
+    }
+
+    static getConfig(env = {}) {
+        const {
+            reportDir,
+            reportIndexFile,
+            allureDir,
+            clearTestReport,
+            reportType,
+            reportWrapDir
+        } = env;
         const apiHost = ConfigUtils.buildApiHost();
-        /**
-         * arrayVars - customer can define array of this vars for upload multiple reports, for example REPORT_DIR.0
-         */
-        const uploadArrayVars = ['REPORT_DIR', 'REPORT_INDEX_FILE', 'ALLURE_DIR', 'CLEAR_TEST_REPORT', 'REPORT_TYPE'];
 
         /**
          * field uploadMaxSize set by SingleReportRunner, value in MB
@@ -23,15 +65,15 @@ class Config {
             amazonKeyFileName: path.resolve(__dirname, 'amazon.storage.config.json'),
             resultReportFolderName: 'allure-report',
             requiredVarsForUploadMode: {
-                REPORT_DIR: process.env.REPORT_DIR,
-                REPORT_INDEX_FILE: process.env.REPORT_INDEX_FILE
+                REPORT_DIR: reportDir,
+                REPORT_INDEX_FILE: reportIndexFile
             },
             uploadRetryCount: 3,
             basicLinkOnReport: `${apiHost}/api/testReporting/`,
             apiHost,
             allureHistoryDir: 'history',
-            reportsIndexDir: '_reportsIndex_',
-            uploadArrayVars,
+            reportsIndexDir: `${path.dirname(require.resolve('../_reportsIndex_'))}`,
+            uploadArrayVars: UPLOAD_ARRAY_VARS,
             paymentPlanMap: {
                 FREE: 30,
                 CUSTOM: 30,
@@ -50,21 +92,16 @@ class Config {
                 volumePath: process.env.CF_VOLUME_PATH,
                 branchNormalized: process.env.CF_BRANCH_TAG_NORMALIZED,
                 storageIntegration: process.env.CF_STORAGE_INTEGRATION,
-                sourceReportFolderName: _.get(process.env, 'ALLURE_DIR', 'allure-results').trim(),
-                reportDir: _.get(process.env, 'REPORT_DIR', '').trim(),
-                reportIndexFile: (_.get(process.env, 'REPORT_INDEX_FILE', '').trim()) || undefined,
-                reportWrapDir: ConfigUtils.getReportWrapDir(),
-                multiReportUpload: ConfigUtils.getMultiReportUpload(uploadArrayVars),
-                reportType: process.env.REPORT_TYPE || 'default',
-                allureDir: process.env.ALLURE_DIR,
-                clearTestReport: process.env.CLEAR_TEST_REPORT
+                sourceReportFolderName: (allureDir || 'allure-results').trim(),
+                reportDir: ((reportDir || '').trim()) || undefined,
+                reportIndexFile: ((reportIndexFile || '').trim()) || undefined,
+                reportWrapDir: String(reportWrapDir),
+                reportType: reportType || 'default',
+                allureDir,
+                clearTestReport
             },
             buildDataSignature: {
                 pipelineId: { type: 'string', required: true }
-            },
-            colors: {
-                aqua: '\x1b[36m',
-                none: '\x1b[0m'
             }
         };
     }

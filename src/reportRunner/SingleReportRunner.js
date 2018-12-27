@@ -5,7 +5,6 @@
 const { removeTestReportDir } = require('../FileManager');
 const FileTestReporter = require('../reporter/FileTestReporter');
 const AllureTestReporter = require('../reporter/AllureTestReporter');
-const Config = require('../../config');
 
 class SingleReportRunner {
     static async run(reporterData) {
@@ -13,16 +12,13 @@ class SingleReportRunner {
          * From this point all execute flow get config from state, its because we need execute single runner few times
          * with different config
          */
-        const config = Config.getConfig();
-        config.uploadMaxSize = reporterData.uploadMaxSize;
-
         const state = {
-            config,
-            isUpload: SingleReportRunner.isUploadMode({ config }),
+            isUpload: SingleReportRunner.isUploadMode({ config: reporterData.config }),
             ...reporterData,
         };
 
-        state.isUploadFile = state.isUpload && !config.env.reportDir;
+        state.isUploadFile = state.isUpload && !reporterData.config.env.reportDir;
+        state.config.uploadMaxSize = reporterData.uploadMaxSize;
 
         try {
             let reporter;

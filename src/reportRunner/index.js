@@ -6,21 +6,29 @@ const SingleReportRunner = require('./SingleReportRunner');
 const StorageConfigProvider = require('../storageConfig/StorageConfigProvider');
 const Logger = require('../logger');
 const PaymentsLogic = require('../paymentsLogic');
-
-const config = Config.getConfig();
-const storageConfigProvider = new StorageConfigProvider({ config });
+const _ = require('lodash');
 
 class Runner {
     static async run() {
         try {
-            const reporterData = await Runner.prepareForRun();
             let runner;
+            let config;
 
-            if (config.env.multiReportUpload) {
+            if (Config.isMultiUpload()) {
+                config = Config.getMultipleConfig();
                 runner = MultiReportRunner;
             } else {
+                config = Config.getSingleConfig();
                 runner = SingleReportRunner;
             }
+
+            const storageConfigProvider = new StorageConfigProvider({ config: _.isArray(config) ? config[0] : config });
+            const reporterData = await Runner.prepareForRun({
+                config: _.isArray(config) ? config[0] : config,
+                storageConfigProvider
+            });
+
+            reporterData.config = config;
 
             return await runner.run(reporterData);
         } catch (e) {
@@ -29,10 +37,10 @@ class Runner {
         }
     }
 
-    static async prepareForRun() {
+    static async prepareForRun({ config, storageConfigProvider }) {
         Logger.log('START REPORTER');
 
-        Runner.validateRequiredVars();
+        Runner.validateRequiredVars({ config });
 
         const uploadSize = await PaymentsLogic.getMaxUploadSizeDependingOnPlan({ config });
         const extractedStorageConfig = await storageConfigProvider.provide({ config });
@@ -40,7 +48,7 @@ class Runner {
         return { extractedStorageConfig, uploadSize };
     }
 
-    static validateRequiredVars() {
+    static validateRequiredVars({ config }) {
         if (!config.env.originBucketName) {
             throw new Error('Test reporter requires BUCKET_NAME variable for upload files');
         }
