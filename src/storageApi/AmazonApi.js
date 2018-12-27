@@ -38,12 +38,12 @@ class AmazonApi {
         return this._downloadHistoryFromAmazon(opts);
     }
 
-    async _downloadHistoryFromAmazon({ historyDir, config }) {
+    async _downloadHistoryFromAmazon({ historyDir, config, buildData }) {
         const bucketName = config.env.bucketName;
 
         const getListOpts = {
             Bucket: bucketName,
-            Prefix: `${config.buildData.pipelineId}/${config.env.branchNormalized}/${this.config.allureHistoryDir}`,
+            Prefix: `${buildData.pipelineId}/${config.env.branchNormalized}/${config.allureHistoryDir}`,
         };
 
         const { Contents } = await new Promise((res, rej) => {
