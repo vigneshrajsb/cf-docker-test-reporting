@@ -2,15 +2,14 @@
 
 const chai = require('chai');
 const PaymentsLogic = require('./index');
-const config = require('../../config');
+const Config = require('../../config');
 
 const expect = chai.expect;
 
 describe('PaymentsLogic', () => {
-    it('Should set max upload size', async () => {
-        config.uploadMaxSize = 0;
-        await PaymentsLogic.setMaxUploadSizeDependingOnPlan();
+    it('Should return max upload size', async () => {
+        const result = await PaymentsLogic.getMaxUploadSizeDependingOnPlan({ config: Config.getConfig() });
 
-        expect(config.uploadMaxSize > 0).to.equal(true);
+        expect(result > 0).to.equal(true);
     });
 });

@@ -9,7 +9,7 @@ const PaymentsLogic = require('../paymentsLogic');
 const _ = require('lodash');
 
 class Runner {
-    static async run() {
+    static async run() { // eslint-disable-line
         try {
             let runner;
             let config;

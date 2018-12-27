@@ -44,7 +44,7 @@ class ReporterTestUtils {
          * volume - name of fake volume name to be clear
          */
 
-        ReporterTestUtils.clearEnvVariables();
+        ReporterTestUtils.clearEnvVariables({ config });
         ReporterTestUtils.clearRequireCache();
 
         if (reporter === 'allure') {
@@ -61,7 +61,7 @@ class ReporterTestUtils {
         }
     }
 
-    static clearRequireCache({ config }) {
+    static clearRequireCache() {
         /**
          * need to clear modules cache before each test, because in each test we redefine config module
          * and he must be refresh in other modules which use it

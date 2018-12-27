@@ -3,6 +3,7 @@
 const FileManager = require('../FileManager');
 const Config = require('../../config');
 const Logger = require('../logger');
+const SingleReportRunner = require('./SingleReportRunner.js');
 
 class MultiReportRunner {
     static async run(reporterData) {
@@ -11,9 +12,11 @@ class MultiReportRunner {
 
         Logger.log('START UPLOAD MULTIPLE REPORTS');
 
+        /**
+         * Now reports uploaded one after one, in feature this can be parallel
+         */
         reporterData.config.forEach(async (config) => {
             uploadReportPromise = uploadReportPromise.then(async () => {
-                const SingleReportRunner = require('./SingleReportRunner.js');
                 const result = await SingleReportRunner.run({ ...reporterData, config  });
 
                 uploadedReports.push(result);
@@ -46,7 +49,6 @@ class MultiReportRunner {
             opts: { force: true }
         });
 
-        const SingleReportRunner = require('./SingleReportRunner.js');
         const { reportLink } = await SingleReportRunner.run({ ...reporterData, config });
 
         Logger.log('All reports was uploaded, you can access it on');

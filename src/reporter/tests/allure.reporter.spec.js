@@ -4,6 +4,9 @@ const expect = require('chai').expect;
 const FileManager = require('../../FileManager');
 const fs = require('fs');
 const ReporterTestUtils = require('./ReporterTestUtils');
+const Config = require('../../../config');
+
+const config = Config.getConfig();
 
 describe('Allure Reporter', function () {
     const customAllureResults = 'test_allure_results';
@@ -12,87 +15,62 @@ describe('Allure Reporter', function () {
     this.timeout(30000);
 
     after(async () => {
-        await ReporterTestUtils.clearAll({ reporter: 'allure', volume: fakeVolumeName });
+        await ReporterTestUtils.clearAll({ reporter: 'allure', volume: fakeVolumeName, config });
         await FileManager.removeResource(customAllureResults);
     });
 
     it('should generate and upload allure report', async () => {
-        await ReporterTestUtils.clearAll({ reporter: 'allure' });
+        await ReporterTestUtils.clearAll({ reporter: 'allure', config });
         ReporterTestUtils.setEnvVariables({
             CF_VOLUME_PATH: fakeVolumeName,
         });
         await ReporterTestUtils.initVolume();
 
-        const conf = require('../../../config');
-
-        await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
+        await ReporterTestUtils.initAllureTestResults(config.env.sourceReportFolderName);
 
         const reporterRunner = require('../../reportRunner');
         const result = await reporterRunner.run();
-        expect(result).to.equal(true);
+        expect(result.uploadResult).to.equal(true);
     });
 
     it('should generate and upload allure report with custom name', async () => {
-        await ReporterTestUtils.clearAll({ reporter: 'allure' });
+        await ReporterTestUtils.clearAll({ reporter: 'allure', config });
         ReporterTestUtils.setEnvVariables({
             CF_VOLUME_PATH: fakeVolumeName,
             ALLURE_DIR: customAllureResults
         });
-        const conf = require('../../../config');
 
         await ReporterTestUtils.initVolume();
 
-        await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
+        await ReporterTestUtils.initAllureTestResults(customAllureResults);
 
         const reporterRunner = require('../../reportRunner');
         const result = await reporterRunner.run();
-        expect(result).to.equal(true);
+        expect(result.uploadResult).to.equal(true);
     });
 
     it('should remove test dir after upload', async () => {
-        await ReporterTestUtils.clearAll({ reporter: 'allure' });
+        await ReporterTestUtils.clearAll({ reporter: 'allure', config });
         ReporterTestUtils.setEnvVariables({
             CF_VOLUME_PATH: fakeVolumeName,
         });
         await ReporterTestUtils.initVolume();
 
-        const conf = require('../../../config');
-
-        await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
+        await ReporterTestUtils.initAllureTestResults(config.env.sourceReportFolderName);
 
         const reporterRunner = require('../../reportRunner');
-        const result = await reporterRunner.run();
-        expect(result).to.equal(true);
-        expect(fs.existsSync(conf.env.sourceReportFolderName)).to.equal(false);
-    });
-
-    it('should remove test dir after upload', async () => {
-        await ReporterTestUtils.clearAll({ reporter: 'allure' });
-        ReporterTestUtils.setEnvVariables({
-            CF_VOLUME_PATH: fakeVolumeName,
-        });
-        await ReporterTestUtils.initVolume();
-
-        const conf = require('../../../config');
-
-        await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
-
-        const reporterRunner = require('../../reportRunner');
-        const result = await reporterRunner.run();
-        expect(result).to.equal(true);
-        expect(fs.existsSync(conf.env.sourceReportFolderName)).to.equal(false);
+        await reporterRunner.run();
+        expect(fs.existsSync(config.env.sourceReportFolderName)).to.equal(false);
     });
 
     it('should add history to test results', async () => {
-        await ReporterTestUtils.clearAll({ reporter: 'allure' });
+        await ReporterTestUtils.clearAll({ reporter: 'allure', config });
         ReporterTestUtils.setEnvVariables({
             CF_VOLUME_PATH: fakeVolumeName
         });
         await ReporterTestUtils.initVolume();
 
-        const conf = require('../../../config');
-
-        await ReporterTestUtils.initAllureTestResults(conf.env.sourceReportFolderName);
+        await ReporterTestUtils.initAllureTestResults(config.env.sourceReportFolderName);
 
         /**
          * Mock method by rewrite require cache
@@ -102,12 +80,16 @@ describe('Allure Reporter', function () {
             Promise.resolve();
         };
 
-        require.cache[require.resolve('../../FileManager')].exports = FileMan;
+        ReporterTestUtils.clearRequireCache();
+
+        require('../../FileManager.js');
+
+        require.cache[require.resolve('../../FileManager.js')].exports = FileMan;
 
         const reporterRunner = require('../../reportRunner');
-        const result = await reporterRunner.run();
-        expect(result).to.equal(true);
-        expect(fs.existsSync(`${conf.env.sourceReportFolderName}/${conf.allureHistoryDir}`)).to.equal(true);
-        expect(fs.readdirSync(`${conf.env.sourceReportFolderName}/${conf.allureHistoryDir}`).length > 0).to.equal(true);
+        await reporterRunner.run();
+
+        expect(fs.existsSync(`${config.env.sourceReportFolderName}/${config.allureHistoryDir}`)).to.equal(true);
+        expect(fs.readdirSync(`${config.env.sourceReportFolderName}/${config.allureHistoryDir}`).length > 0).to.equal(true);
     });
 });

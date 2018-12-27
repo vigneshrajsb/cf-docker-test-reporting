@@ -29,21 +29,6 @@ class ConfigUtils {
         return bucketSubPath ? `${bucketSubPath}/` : bucketSubPath;
     }
 
-    static getReportWrapDir() {
-        /**
-         * during multiupload we need to put each report inside individual folder,
-         * REPORT_WRAP_DIR - name of folder in which will be uploaded files
-         * exists only when multireports uploads
-         */
-
-        let reportWrapDir = '';
-        if (process.env.REPORT_WRAP_DIR) {
-            reportWrapDir = process.env.REPORT_WRAP_DIR;
-        }
-
-        return reportWrapDir;
-    }
-
     static getMultiReportUpload(uploadVars) {
         /**
          * getMultiReportUpload - must return array of objects if array vars exists or undefined

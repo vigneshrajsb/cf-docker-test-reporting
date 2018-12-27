@@ -5,7 +5,9 @@
 const expect = require('chai').expect;
 const StorageConfigProvider = require('../StorageConfigProvider');
 const FileManager = require('../../FileManager');
-const config = require('../../../config');
+const Config = require('../../../config');
+
+const config = Config.getConfig();
 
 
 describe('Storage provider', () => {
@@ -131,11 +133,11 @@ describe('Storage provider', () => {
     };
 
     it('provide config for gcs auth storage', async () => {
-        const storageConfigProvider = new StorageConfigProvider();
+        const storageConfigProvider = new StorageConfigProvider({ config });
         storageConfigProvider.__proto__._getStorageConfig = function () {
             this.storageConfig = JSON.stringify(storageConfAuth);
         };
-        expect(await storageConfigProvider.provide()).to.deep.equal({
+        expect(await storageConfigProvider.provide({ config })).to.deep.equal({
             integrationType: 'storage.gc',
             name: 'google',
             storageConfig: storageConfAuthExtacted,
@@ -144,11 +146,11 @@ describe('Storage provider', () => {
     });
 
     it('provide config for gcs basic storage', async () => {
-        const storageConfigProvider = new StorageConfigProvider();
+        const storageConfigProvider = new StorageConfigProvider({ config });
         storageConfigProvider.__proto__._getStorageConfig = function () {
             this.storageConfig = JSON.stringify(storageConfBasic);
         };
-        expect(await storageConfigProvider.provide()).to.deep.equal({
+        expect(await storageConfigProvider.provide({ config })).to.deep.equal({
             integrationType: 'storage.gc',
             name: 'json',
             storageConfig: storageConfBasicExtacted,
@@ -157,11 +159,11 @@ describe('Storage provider', () => {
     });
 
     it('provide config for amazon basic storage', async () => {
-        const storageConfigProvider = new StorageConfigProvider();
+        const storageConfigProvider = new StorageConfigProvider({ config });
         storageConfigProvider.__proto__._getStorageConfig = function () {
             this.storageConfig = JSON.stringify(storageConfAmazonBasic);
         };
-        expect(await storageConfigProvider.provide()).to.deep.equal({
+        expect(await storageConfigProvider.provide({ config })).to.deep.equal({
             integrationType: 'storage.s3',
             name: 's3Test',
             storageConfig: storageConfAmazonBasicExtracted,

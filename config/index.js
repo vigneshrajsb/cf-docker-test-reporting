@@ -95,8 +95,8 @@ class Config {
                 sourceReportFolderName: (allureDir || 'allure-results').trim(),
                 reportDir: ((reportDir || '').trim()) || undefined,
                 reportIndexFile: ((reportIndexFile || '').trim()) || undefined,
-                reportWrapDir: String(reportWrapDir),
-                reportType: reportType || 'default',
+                reportWrapDir: _.isNumber(reportWrapDir) ? String(reportWrapDir) : '',
+                reportType: _.isString(reportType) ? reportType.replace(/[<>]/g, 'hackDetected') : 'default',
                 allureDir,
                 clearTestReport
             },

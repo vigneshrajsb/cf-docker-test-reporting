@@ -18,17 +18,26 @@ describe('Uploader', function () {
     this.timeout(20000);
 
     it('_getFilePathForDeploy should build correct link with subdir path', async () => {
-        const bucketSubPath = 'fakeSubPath';
+        const bucketSubPath = 'fakeSubPath/';
         const file = 'fakeFile';
         const buildId = 'fakeBuildId';
         const srcDir = 'fakeSrcDir';
         const isUploadFile = false;
-        const buildData = { pipelineId: 'fakePipeline', branch: 'fakeBranch' };
+        const branchNormalized = 'fakeBranch';
+        const buildData = { pipelineId: 'fakePipeline' };
         const Uploader = await proxyquireUploader({ config: { bucketSubPath } });
 
-        const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, buildData });
+        const fakeConf = {
+            env: {
+                buildId,
+                bucketSubPath,
+                branchNormalized
+            }
+        };
+
+        const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, buildData, config: fakeConf });
         console.log(deployPath);
-        expect(deployPath).to.equal('fakePipeline/fakeBranch/fakeBuildId/fakeFile');
+        expect(deployPath).to.equal('fakePipeline/fakeBranch/fakeSubPath/fakeBuildId/fakeFile');
     });
 
     it('_getFilePathForDeploy should build correct link with out subdir path', async () => {
@@ -37,10 +46,19 @@ describe('Uploader', function () {
         const buildId = 'fakeBuildId';
         const srcDir = 'fakeSrcDir';
         const isUploadFile = false;
-        const buildData = { pipelineId: 'fakePipeline', branch: 'fakeBranch' };
+        const branchNormalized = 'fakeBranch';
+        const buildData = { pipelineId: 'fakePipeline' };
         const Uploader = await proxyquireUploader({ config: { bucketSubPath } });
 
-        const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, buildData });
+        const fakeConf = {
+            env: {
+                buildId,
+                bucketSubPath,
+                branchNormalized
+            }
+        };
+
+        const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, buildData, config: fakeConf });
         expect(deployPath).to.equal('fakePipeline/fakeBranch/fakeBuildId/fakeFile');
     });
 });
