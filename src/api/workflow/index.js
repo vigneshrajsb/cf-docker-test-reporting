@@ -1,10 +1,9 @@
 'use strict';
 
-const config = require('../../../config');
 const rp = require('request-promise');
 
 class Workflow {
-    static async getProcessById(id) {
+    static async getProcessById({ id, config }) {
         const opts = {
             uri: `${config.apiHost}/api/workflow/${id}/process`,
             headers: {

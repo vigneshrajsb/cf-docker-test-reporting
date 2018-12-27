@@ -1,7 +1,6 @@
 'use strict';
 
 const FileManager = require('../../FileManager');
-const config = require('../../../config');
 
 class ReporterTestUtils {
     static setEnvVariables(varsObj) {
@@ -26,7 +25,7 @@ class ReporterTestUtils {
             });
     }
 
-    static clearEnvVariables() {
+    static clearEnvVariables({ config }) {
         /**
          * clear all env variables which contain data about what resources and how they must be uploaded
          */
@@ -37,7 +36,7 @@ class ReporterTestUtils {
         delete process.env.REPORT_WRAP_DIR;
     }
 
-    static async clearAll({ customReportDir, reporter, volume } = {}) {
+    static async clearAll({ customReportDir, reporter, volume, config } = {}) {
         /**
          * sourceReportDir - custom name for allure-results
          * customReportDir - name of custom upload directory
@@ -62,7 +61,7 @@ class ReporterTestUtils {
         }
     }
 
-    static clearRequireCache() {
+    static clearRequireCache({ config }) {
         /**
          * need to clear modules cache before each test, because in each test we redefine config module
          * and he must be refresh in other modules which use it
@@ -106,7 +105,7 @@ class ReporterTestUtils {
 
     static initCustomTestResults({ customReportDir, indexFile }) {
         /**
-         * create cutsom dir for upload
+         * create custom dir for upload
          */
         return FileManager.createDir(customReportDir, { force: true })
             .then(() => {

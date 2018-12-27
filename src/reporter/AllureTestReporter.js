@@ -1,7 +1,6 @@
 'use strict';
 
 const BasicTestReporter = require('./BasicTestReporter');
-const config = require('../../config');
 const allureCmd = require('../../cf-allure-commandline/index');
 const Validator = require('../validation');
 const uploader = require('../uploader');
@@ -9,36 +8,30 @@ const History = require('../history');
 const Logger = require('../logger');
 
 class AllureTestReporter extends BasicTestReporter {
-    generateReport() {
+
+    generateReport({ config }) {
         return allureCmd(['generate', config.env.sourceReportFolderName, '--clean']);
     }
 
-    async start({ extractedStorageConfig, isUpload }) {
-        const buildData = await this.getBuildData();
-        Validator.validateBuildData(buildData);
+    async start(state) {
+        const { config } = state;
+        await this.addBuildData(state);
+        Validator.validateBuildData(state);
 
-        this.showStartLogs({ buildId: this.buildId, isUpload });
-        extractedStorageConfig.linkOnReport = this._buildLinkOnReport({ extractedStorageConfig, buildId: this.buildId, buildData });
+        this.showStartLogs(state);
+        state.linkOnReport = this._buildLinkOnReport(state);
 
-        await this.exportVariables({
-            extractedStorageConfig,
-            buildId: this.buildId,
-            buildData
-        });
+        await this.exportVariables(state);
 
-        await Validator.validateUploadDir(config.env.sourceReportFolderName);
+        await Validator.validateUploadDir(state, config.env.sourceReportFolderName);
 
         /**
          * download allure history from storage and insert it to test results dir
          * for make available history view in test report
          */
-        await History.addHistoryToTestResults({
-            extractedStorageConfig,
-            bucketName: config.env.bucketName,
-            buildData
-        });
+        await History.addHistoryToTestResults(state);
 
-        const generation = this.generateReport();
+        const generation = this.generateReport(state);
         return new Promise(async (res, rej) => {
             generation.on('exit', async (exitCode) => {
                 if (exitCode !== 0) {
@@ -51,11 +44,8 @@ class AllureTestReporter extends BasicTestReporter {
                     /**
                      * upload allure history to storage for use it before next report generation
                      */
-                    await uploader.uploadFiles({
+                    await uploader.uploadFiles(state, {
                         srcDir: `${config.resultReportFolderName}/${config.allureHistoryDir}`,
-                        bucketName: config.env.bucketName,
-                        extractedStorageConfig,
-                        buildData,
                         uploadHistory: true
                     }).catch((e) => {
                         Logger.log(
@@ -64,16 +54,12 @@ class AllureTestReporter extends BasicTestReporter {
                         );
                     });
 
-                    const result = await uploader.uploadFiles({
+                    const result = await uploader.uploadFiles(state, {
                         srcDir: config.resultReportFolderName,
-                        buildId: this.buildId,
-                        bucketName: config.env.bucketName,
-                        extractedStorageConfig,
-                        buildData
                     });
 
                     res({
-                        reportLink: extractedStorageConfig.linkOnReport,
+                        reportLink: state.linkOnReport,
                         uploadedResource: config.resultReportFolderName,
                         uploadResult: result,
                         type: config.env.reportType

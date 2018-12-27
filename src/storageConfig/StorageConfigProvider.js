@@ -5,23 +5,22 @@ const rp = require('request-promise');
 const storageTypesMap = require('./types');
 const storageTypes = require('./storageTypes');
 const fs = require('fs');
-const config = require('../../config');
 
 class StorageConfigProvider {
-    constructor() {
+    constructor({ config }) {
         this.integrationName = config.env.storageIntegration;
     }
 
-    async provide() {
-        await this._getStorageConfig();
+    async provide({ config }) {
+        await this._getStorageConfig({ config });
         await this._validateStorageConfig();
         await this._extractStorageConfig();
-        await this._createStorageConfigFile();
+        await this._createStorageConfigFile({ config });
 
         return this.extractedStorageConfig;
     }
 
-    async _getStorageConfig() {
+    async _getStorageConfig({ config }) {
         const opts = {
             uri: `${config.apiHost}/api/contexts/${config.env.storageIntegration}/prepare`,
             headers: {
@@ -85,7 +84,7 @@ class StorageConfigProvider {
         console.log('Storage config valid!');
     }
 
-    _createStorageConfigFile() {
+    _createStorageConfigFile({ config }) {
         if (this.extractedStorageConfig.type === 'json') {
             let jsonConfigFileName;
 

@@ -2,14 +2,18 @@
 
 const ReporterTestUtils = require('../reporter/tests/ReporterTestUtils');
 const FileManager = require('../FileManager');
-const config = require('../../config');
+const Config = require('../../config');
 const _ = require('lodash');
 const Logger = require('../logger');
+
+const config = Config.getConfig();
 
 class MultiReportRunner {
     static async run(reporterData) {
         let uploadReportPromise = Promise.resolve();
         const uploadedReports = [];
+
+        Logger.log('START UPLOAD MULTIPLE REPORTS');
 
         config.env.multiReportUpload.forEach(async (uploadVars, index) => {
             uploadReportPromise = uploadReportPromise.then(async () => {
@@ -17,8 +21,7 @@ class MultiReportRunner {
                  * since we use single runner for handle each report we must clear all modules cache and env vars
                  * related to upload specific report before start handle report
                  */
-                ReporterTestUtils.clearEnvVariables();
-                ReporterTestUtils.clearRequireCache();
+                ReporterTestUtils.clearEnvVariables({ config });
 
                 /**
                  * REPORT_WRAP_DIR - name of folder in which will be uploaded files
@@ -72,8 +75,8 @@ class MultiReportRunner {
             opts: { force: true }
         });
 
-        ReporterTestUtils.clearEnvVariables();
-        ReporterTestUtils.clearRequireCache();
+        ReporterTestUtils.clearEnvVariables({ config });
+
         MultiReportRunner.setUploadVars({
             REPORT_INDEX_FILE: 'index.html',
             REPORT_DIR: config.reportsIndexDir

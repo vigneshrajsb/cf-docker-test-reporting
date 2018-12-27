@@ -2,14 +2,13 @@
 
 const rp = require('request-promise');
 const fs = require('fs');
-const config = require('../../config');
-const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
 const path = require('path');
 
 const FULL_USER_PERMISSION = '0744';
 
-class GCSUploader {
-    constructor({ extractedStorageConfig }) {
+class GCSApi {
+    constructor({ extractedStorageConfig, config }) {
+        const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
         const { storageConfig: { accessToken } = {} } = extractedStorageConfig;
         this.accessToken = accessToken;
         this.bucket = gcs.bucket(config.env.bucketName);
@@ -47,14 +46,17 @@ class GCSUploader {
         });
     }
 
-    downloadHistory(opts) {
-        if (opts.extractedStorageConfig.type !== 'auth') {
-            return this._downloadHistoryUsingJson(opts);
+    downloadHistory(state) {
+        if (state.extractedStorageConfig.type !== 'auth') {
+            return this._downloadHistoryUsingJson(state);
         }
-        return this._downloadHistoryUsingOauth(opts);
+        return this._downloadHistoryUsingOauth(state);
     }
 
-    async _downloadHistoryUsingOauth({ historyDir, bucketName, buildData: { pipelineId, branch } }) {
+    async _downloadHistoryUsingOauth({ historyDir, config, buildData: { pipelineId } }) {
+        const bucketName = config.env.bucketName;
+        const branch = config.env.branchNormalized;
+
         const getFilesOpts = {
             uri: `https://www.googleapis.com/storage/v1/b/${bucketName}/o?prefix=${pipelineId}/${branch}/${config.allureHistoryDir}`,
             method: 'GET',
@@ -94,9 +96,9 @@ class GCSUploader {
         return Promise.all(promises);
     }
 
-    async _downloadHistoryUsingJson({ historyDir, buildData: { pipelineId, branch } }) {
+    async _downloadHistoryUsingJson({ historyDir, config, buildData: { pipelineId } }) {
         const [files] = await this.bucket.getFiles({
-            prefix: `${pipelineId}/${branch}/${config.allureHistoryDir}`
+            prefix: `${pipelineId}/${config.env.branchNormalized}/${config.allureHistoryDir}`
         });
 
         const promises = files.map(({ name }) => {
@@ -118,4 +120,4 @@ class GCSUploader {
     }
 }
 
-module.exports = GCSUploader;
+module.exports = GCSApi;

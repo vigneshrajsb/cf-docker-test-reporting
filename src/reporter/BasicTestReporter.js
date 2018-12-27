@@ -1,17 +1,11 @@
 'use strict';
 
-const config = require('../../config');
 const Exec = require('child_process').exec;
 const _ = require('lodash');
 const Workflow = require('../api/workflow');
+const Logger = require('../logger');
 
 class BasicTestReporter {
-    constructor() {
-        this.buildId = config.env.buildId;
-        this.volumePath = config.env.volumePath;
-        this.branch = config.env.branchNormalized;
-    }
-
     setExportVariable(varName, varValue) {
         return new Promise((res, rej) => {
             Exec(`echo ${varName}=${varValue} >> ${this.volumePath}/env_vars_to_export`, (err) => {
@@ -24,16 +18,12 @@ class BasicTestReporter {
         });
     }
 
-    async getBuildData() {
-        const process = await Workflow.getProcessById(this.buildId);
-
-        return {
-            pipelineId: _.get(process, 'pipeline'),
-            branch: this.branch
-        };
+    async addBuildData(state) {
+        const process = await Workflow.getProcessById({ id: state.config.env.buildId, config: state.config });
+        state.buildData = { pipelineId: _.get(process, 'pipeline') };
     }
 
-    async exportVariables({ extractedStorageConfig, uploadIndexFile, buildId, buildData }) {
+    async exportVariables({ extractedStorageConfig, config, buildData }) {
         /**
          * reportWrapDir - exists only when multiple reports uploads
          * not need export variables on upload each of multiple reports,
@@ -46,7 +36,7 @@ class BasicTestReporter {
         await this.setExportVariable('TEST_REPORT', true);
         await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.env.originBucketName);
         await this.setExportVariable('TEST_REPORT_PIPELINE_ID', buildData.pipelineId);
-        await this.setExportVariable('TEST_REPORT_BRANCH', buildData.branch);
+        await this.setExportVariable('TEST_REPORT_BRANCH', config.env.branchNormalized);
 
         await this.setExportVariable(
             'TEST_REPORT_INTEGRATION_TYPE',
@@ -58,12 +48,13 @@ class BasicTestReporter {
             await this.setExportVariable('TEST_REPORT_CONTEXT', extractedStorageConfig.name);
         }
 
-        if (uploadIndexFile) {
-            await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', uploadIndexFile);
+        if (config.env.reportIndexFile) {
+            await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', config.env.reportIndexFile);
         }
     }
 
-    showStartLogs({ buildId, isUpload, fileReporter }){
+    showStartLogs({ config, isUpload }, fileReporter) {
+        Logger.log('Start upload report');
         console.log(`Working directory: ${process.cwd()}`);
 
         if (fileReporter) {
@@ -72,21 +63,14 @@ class BasicTestReporter {
         }
 
         if (isUpload) {
-            console.log(`Start upload custom test report for build ${buildId}`);
+            console.log(`Start upload custom test report for build ${config.env.buildId}`);
             console.log('Using custom upload mode (only upload custom folder or file)');
         } else {
-            console.log(`Start generating visualization of test report for build ${buildId}`);
+            console.log(`Start generating visualization of test report for build ${config.env.buildId}`);
             console.log('Using allure upload mode (generate allure visualization and upload it)');
         }
 
         console.log(`Max upload size for your account is ${config.uploadMaxSize} MB`);
-    }
-
-    isUploadMode(vars) {
-        if (process.env.AllURE_DIR) {
-            return false;
-        }
-        return vars.some(varName => !!process.env[varName]);
     }
 
     _normalizeIntegrationName(name) {
@@ -97,13 +81,14 @@ class BasicTestReporter {
         return name.split('.')[1];
     }
 
-    _buildLinkOnReport({ extractedStorageConfig, buildId, buildData }) {
+    _buildLinkOnReport({ extractedStorageConfig, buildData, config }) {
         const integType = this._normalizeIntegrationName(extractedStorageConfig.integrationType);
         const integName = extractedStorageConfig.name;
         const bucket = encodeURIComponent(config.env.originBucketName);
-        const file = config.env.reportIndexFile;
+        const file = config.env.reportIndexFile || 'index.html';
         const pipeline = buildData.pipelineId;
-        const branch = buildData.branch;
+        const branch = config.env.branchNormalized;
+        const buildId = config.env.buildId;
         let reportWrap = config.env.reportWrapDir;
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 

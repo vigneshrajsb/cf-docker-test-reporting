@@ -1,13 +1,14 @@
 'use strict';
 
-const config = require('../../config');
+const Config = require('../../config');
 const MultiReportRunner = require('./MultiReportRunner');
 const SingleReportRunner = require('./SingleReportRunner');
 const StorageConfigProvider = require('../storageConfig/StorageConfigProvider');
 const Logger = require('../logger');
 const PaymentsLogic = require('../paymentsLogic');
 
-const storageConfigProvider = new StorageConfigProvider();
+const config = Config.getConfig();
+const storageConfigProvider = new StorageConfigProvider({ config });
 
 class Runner {
     static async run() {
@@ -32,16 +33,20 @@ class Runner {
         Logger.log('START REPORTER');
 
         Runner.validateRequiredVars();
-        await PaymentsLogic.setMaxUploadSizeDependingOnPlan();
 
-        const extractedStorageConfig = await storageConfigProvider.provide();
+        const uploadSize = await PaymentsLogic.getMaxUploadSizeDependingOnPlan({ config });
+        const extractedStorageConfig = await storageConfigProvider.provide({ config });
 
-        return { extractedStorageConfig };
+        return { extractedStorageConfig, uploadSize };
     }
 
     static validateRequiredVars() {
         if (!config.env.originBucketName) {
             throw new Error('Test reporter requires BUCKET_NAME variable for upload files');
+        }
+
+        if (!config.env.branchNormalized) {
+            throw new Error('Test reporter requires CF_BRANCH_TAG_NORMALIZED variable for upload files');
         }
     }
 }
