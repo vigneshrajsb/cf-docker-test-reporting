@@ -2,23 +2,23 @@
 
 const FileManager = require('../FileManager');
 const path = require('path');
-const config = require('../../config');
 const StorageApi = require('../storageApi');
 const Logger = require('../logger');
 
 const FORBIDDEN_STATUS = 403;
 
 class Uploader {
-    static async uploadFiles({
-                                 srcDir,
-                                 buildId,
-                                 bucketName,
-                                 uploadFile,
-                                 isUploadFile,
-                                 extractedStorageConfig,
-                                 buildData,
-                                 uploadHistory
-    }) {
+    static async uploadFiles(state, opts) {
+        const { config, isUploadFile, extractedStorageConfig, buildData } = state;
+        const { srcDir, uploadHistory } = opts;
+
+        const {
+            env: {
+                bucketName,
+                reportIndexFile: uploadFile
+            }
+        } = config;
+
         logStartUploadFiles({ uploadHistory });
         return new Promise(async (res, rej) => {
             try {
@@ -27,7 +27,7 @@ class Uploader {
                 const uploadPromises = files.map((file) => {
                     const pathToDeploy = this._getFilePathForDeploy({
                         file,
-                        buildId,
+                        config,
                         srcDir,
                         isUploadFile,
                         uploadFile,
@@ -37,16 +37,16 @@ class Uploader {
 
                     return this._uploadFileWithRetry({
                         file,
+                        config,
                         pathToDeploy,
                         bucketName,
-                        retryCount: config.uploadRetryCount,
                         extractedStorageConfig,
                         uploadHistory
                     });
                 });
 
                 Promise.all(uploadPromises).then(() => {
-                    logSuccessUploadFiles({ extractedStorageConfig, uploadHistory });
+                    logSuccessUploadFiles(state, uploadHistory);
                     res(true);
                 }, (err) => { rej(err); });
             } catch (err) {
@@ -55,15 +55,16 @@ class Uploader {
         });
     }
 
-    static _uploadFileWithRetry({ file, pathToDeploy, bucketName, retryCount, extractedStorageConfig, uploadHistory }) {
+    static _uploadFileWithRetry({ file, pathToDeploy, config, bucketName, extractedStorageConfig, uploadHistory }) {
         return new Promise(async (resolve, reject) => {
             let isUploaded = false;
             let lastUploadErr;
 
-            for (let i = 0; i < retryCount; i += 1) {
+            for (let i = 0; i < config.uploadRetryCount; i += 1) {
                 try {
                     await this.runUploadFileHandler({ // eslint-disable-line
                         file,
+                        config,
                         bucketName,
                         pathToDeploy,
                         extractedStorageConfig
@@ -72,7 +73,7 @@ class Uploader {
                     isUploaded = true;
                     break;
                 } catch (e) {
-                    if (i < retryCount) {
+                    if (i < config.uploadRetryCount) {
                         console.log(`Fail to upload file "${pathToDeploy}", retry to upload`);
                     }
 
@@ -94,23 +95,28 @@ class Uploader {
         return StorageApi.getApi(opts).upload(opts);
     }
 
-    static _getFilePathForDeployReport({ file, buildId, srcDir, isUploadFile, uploadFile, buildData }) {
+    static _getFilePathForDeployReport({ file, config, srcDir, isUploadFile, uploadFile, buildData }) {
         let resultPath;
+        const branch = config.env.branchNormalized;
+        const buildId = config.env.buildId;
         const subPath = config.env.bucketSubPath;
+        let reportWrapDir = config.env.reportWrapDir;
 
         if (!isUploadFile) {
             const pathWithoutSrcDir = file.replace(srcDir, '');
             const pathToFile = pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`;
-            resultPath = `${buildData.pipelineId}/${buildData.branch}/${subPath}${buildId}${pathToFile}`;
+            reportWrapDir = reportWrapDir ? `/${reportWrapDir}` : '';
+            resultPath = `${buildData.pipelineId}/${branch}/${subPath}${buildId}${reportWrapDir}${pathToFile}`;
         } else {
-            resultPath = `${buildData.pipelineId}/${buildData.branch}/${subPath}${buildId}/${path.parse(uploadFile).base}`;
+            reportWrapDir = reportWrapDir ? `${reportWrapDir}/` : '';
+            resultPath = `${buildData.pipelineId}/${branch}/${subPath}${buildId}/${reportWrapDir}${path.parse(uploadFile).base}`;
         }
 
         return resultPath;
     }
 
-    static _getFilePathForDeployHistory({ file, buildData }) {
-        return `${buildData.pipelineId}/${buildData.branch}/${config.allureHistoryDir}/${path.parse(file).base}`;
+    static _getFilePathForDeployHistory({ file, config, buildData }) {
+        return `${buildData.pipelineId}/${config.env.branchNormalized}/${config.allureHistoryDir}/${path.parse(file).base}`;
     }
 
     static _getFilePathForDeploy(opts) {
@@ -129,13 +135,13 @@ function logStartUploadFiles({ uploadHistory }) {
     console.log('-'.repeat(msg.length + 1));
 }
 
-function logSuccessUploadFiles({ extractedStorageConfig, uploadHistory }) {
+function logSuccessUploadFiles({ linkOnReport }, uploadHistory) {
     if (uploadHistory) {
         Logger.log('Allure history was successfully uploaded');
     } else {
         Logger.log('All report files was successfully uploaded');
         console.log('You can access report on: ');
-        Logger.log(extractedStorageConfig.linkOnReport);
+        Logger.log(linkOnReport);
     }
 }
 

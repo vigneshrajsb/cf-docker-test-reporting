@@ -1,11 +1,10 @@
 'use strict';
 
-const config = require('../../config');
 const _ = require('lodash');
 const rp = require('request-promise');
 
 class PaymentsLogic {
-    static async getPlan() {
+    static async getPlan({ config }) {
         // this query use proxy ability to replace :account_id to currentAccountID
         // this ability use because we don`t know accountId
         const getPlanOpts = {
@@ -27,19 +26,15 @@ class PaymentsLogic {
         return plan;
     }
 
-    static _setPlanToConfig(plan) {
+    static async getMaxUploadSizeDependingOnPlan({ config }) {
+        const plan = await this.getPlan({ config });
         const uploadSize = config.paymentPlanMap[_.get(plan, 'id')];
 
         if (_.isNumber(uploadSize)) {
-            config.uploadMaxSize = uploadSize;
+            return uploadSize;
         } else {
             throw new Error('Unsupported user payment plan');
         }
-    }
-
-    static async setMaxUploadSizeDependingOnPlan() {
-        const plan = await this.getPlan();
-        this._setPlanToConfig(plan);
     }
 }
 

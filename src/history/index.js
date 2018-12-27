@@ -3,11 +3,11 @@
 const StorageApi = require('../storageApi');
 const FileManager = require('../FileManager');
 const path = require('path');
-const config = require('../../config');
 const Logger = require('../logger');
 
 class History {
-    static async addHistoryToTestResults(opts) {
+    static async addHistoryToTestResults(state) {
+        const config = state.config;
         Logger.log('Start add allure history to test results');
 
         /**
@@ -19,7 +19,7 @@ class History {
 
         try {
             await FileManager.createDir(tmpHistoryFullPath, { force: true });
-            await StorageApi.getApi(opts).downloadHistory(Object.assign(opts, { historyDir: tmpHistoryFullPath }));
+            await StorageApi.getApi(state).downloadHistory(Object.assign({}, state, { historyDir: tmpHistoryFullPath }));
             await FileManager.renameDir(tmpHistoryFullPath, `${historyDirBase}/${config.allureHistoryDir}`, { force: true });
 
             Logger.log('Successfuly add allure history to test results');

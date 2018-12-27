@@ -2,7 +2,10 @@
 
 /* eslint prefer-rest-params: 0 */
 
-const { colors } = require('../../config');
+const colors = {
+    aqua: '\x1b[36m',
+    none: '\x1b[0m'
+};
 
 class Logger {
     static log(color, ...msgs) {

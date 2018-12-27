@@ -1,57 +1,34 @@
 'use strict';
 
 const BasicTestReporter = require('./BasicTestReporter');
-const config = require('../../config');
-const validator = require('../validation');
+const Validator = require('../validation');
 const uploader = require('../uploader');
 
 class FileTestReporter extends BasicTestReporter {
-    constructor({
-                    dirForUpload = process.env.REPORT_DIR,
-                    uploadIndexFile = process.env.REPORT_INDEX_FILE,
-                } = {}
-                ) {
-        super();
-        this.dirForUpload = typeof dirForUpload === 'string' ? dirForUpload.trim() : dirForUpload;
-        this.uploadIndexFile = typeof uploadIndexFile === 'string' ? uploadIndexFile.trim() : uploadIndexFile;
-    }
-    async start({ isUploadFile, extractedStorageConfig, isUpload }) {
-        console.log('REPORT_DIR: ', this.dirForUpload);
-        console.log('REPORT_INDEX_FILE: ', this.uploadIndexFile);
+    async start(state) {
+        const { isUploadFile, config } = state;
+        await this.addBuildData(state);
+        Validator.validateBuildData(state);
 
-        const buildData = await this.getBuildData();
-        validator.validateBuildData(buildData);
-
-        await this.exportVariables({
-            extractedStorageConfig,
-            uploadIndexFile: this.uploadIndexFile,
-            isUpload,
-            buildId: this.buildId,
-            buildData
-        });
+        this.showStartLogs(state, true);
+        state.linkOnReport = this._buildLinkOnReport(state);
+        await this.exportVariables(state);
 
         if (!isUploadFile) {
-            const missingVars = this.findMissingVars(config.requiredVarsForUploadMode);
-            if (missingVars.length) {
-                throw new Error(`For upload custom test report you must specify:
-${missingVars.join(', ')} variable${missingVars.length > 1 ? 's' : ''}`);
-            }
+            Validator.validateRequiredVars(state);
         }
 
-        await validator.validateUploadResource({
-            isUploadFile,
-            uploadIndexFile: this.uploadIndexFile,
-            dirForUpload: this.dirForUpload
+        await Validator.validateUploadResource(state, config.env.reportDir);
+
+        const result = await uploader.uploadFiles(state, {
+            srcDir: config.env.reportDir,
         });
 
-        return uploader.uploadFiles({
-            srcDir: this.dirForUpload,
-            buildId: this.buildId,
-            uploadFile: this.uploadIndexFile,
-            bucketName: config.env.bucketName,
-            isUploadFile,
-            extractedStorageConfig,
-            buildData
+        return Promise.resolve({
+            reportLink: state.linkOnReport,
+            uploadedResource: isUploadFile ? config.env.reportIndexFile : config.env.reportDir,
+            uploadResult: result,
+            type: config.env.reportType
         });
     }
 }

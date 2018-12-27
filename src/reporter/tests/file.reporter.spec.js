@@ -1,10 +1,11 @@
 'use strict';
 
-/* eslint global-require: 0 */
-
 const expect = require('chai').expect;
 const fs = require('fs');
 const ReporterTestUtils = require('./ReporterTestUtils');
+const Config = require('../../../config');
+
+const config = Config.getConfig();
 
 describe('File reporter', function () {
     this.timeout(30000);
@@ -13,11 +14,11 @@ describe('File reporter', function () {
     const fakeVolumeName = 'fakeVolume';
 
     after(async () => {
-        ReporterTestUtils.clearAll({ customReportDir, reporter: 'file', volume: fakeVolumeName });
+        ReporterTestUtils.clearAll({ customReportDir, reporter: 'file', volume: fakeVolumeName, config });
     });
 
     it('should upload custom test report', async () => {
-        await ReporterTestUtils.clearAll({ customReportDir, reporter: 'file' });
+        await ReporterTestUtils.clearAll({ customReportDir, reporter: 'file', config });
         ReporterTestUtils.setEnvVariables({
             CF_VOLUME_PATH: fakeVolumeName,
             REPORT_INDEX_FILE: indexFile,
@@ -27,17 +28,16 @@ describe('File reporter', function () {
 
         await ReporterTestUtils.initCustomTestResults({ customReportDir, indexFile });
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
-        expect(result).to.equal(true);
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
+        expect(result.uploadResult).to.equal(true);
     });
 
     it('should upload one file', async () => {
-        await ReporterTestUtils.clearAll({ customReportDir, reporter: 'file' });
+        await ReporterTestUtils.clearAll({ customReportDir, reporter: 'file', config });
         ReporterTestUtils.setEnvVariables({
             CF_VOLUME_PATH: fakeVolumeName,
             REPORT_INDEX_FILE: indexFile,
-            REPORT_DIR: customReportDir
         });
         await ReporterTestUtils.initVolume();
 
@@ -47,17 +47,13 @@ describe('File reporter', function () {
             REPORT_INDEX_FILE: `${customReportDir}/${indexFile}`,
         });
 
-        delete process.env.REPORT_DIR;
-
-        ReporterTestUtils.clearRequireCache();
-
-        const initReporter = require('../../init');
-        const result = await initReporter();
-        expect(result).to.equal(true);
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
+        expect(result.uploadResult).to.equal(true);
     });
 
     it('should remove test dir after upload', async () => {
-        await ReporterTestUtils.clearAll({ customReportDir, reporter: 'file' });
+        await ReporterTestUtils.clearAll({ customReportDir, reporter: 'file', config });
         ReporterTestUtils.setEnvVariables({
             CF_VOLUME_PATH: fakeVolumeName,
             REPORT_INDEX_FILE: indexFile,
@@ -68,9 +64,9 @@ describe('File reporter', function () {
 
         await ReporterTestUtils.initCustomTestResults({ customReportDir, indexFile });
 
-        const initReporter = require('../../init');
-        const result = await initReporter();
-        expect(result).to.equal(true);
+        const reporterRunner = require('../../reportRunner');
+        const result = await reporterRunner.run();
+        expect(result.uploadResult).to.equal(true);
         expect(fs.existsSync(customReportDir)).to.equal(false);
     });
 });

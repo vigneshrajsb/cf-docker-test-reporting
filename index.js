@@ -1,5 +1,5 @@
 'use strict';
 
-const init = require('./src/init');
+const Runner = require('./src/reportRunner');
 
-init();
+Runner.run();

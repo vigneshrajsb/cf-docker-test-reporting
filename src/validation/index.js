@@ -1,12 +1,11 @@
 'use strict';
 
 const fs = require('fs');
-const config = require('../../config');
 const FileManager = require('../FileManager');
 const _ = require('lodash');
 
 class Validator {
-    static async validateUploadDir(pathToDir) {
+    static async validateUploadDir({ config }, pathToDir) {
         if (!fs.existsSync(pathToDir)) {
             throw new Error('Error: Directory for upload does not exist. \n' +
             'Ensure that "working_directory" was specified for this step and it contains the directory for upload');
@@ -24,7 +23,9 @@ class Validator {
     }
 
     // invokes only when user want to upload one file
-    static async validateUploadFile(pathToFile) {
+    static async validateUploadFile({ config }) {
+        const pathToFile = config.env.reportIndexFile;
+
         if (!fs.existsSync(pathToFile)) {
             throw new Error('Error: File for upload does not exist. \n' +
             'Ensure that "working_directory" was specified for this step and it contains the file for upload');
@@ -37,15 +38,15 @@ class Validator {
         return true;
     }
 
-    static validateUploadResource({ isUploadFile, uploadIndexFile, dirForUpload }) {
+    static validateUploadResource({ isUploadFile, config }, pathToDir) {
         if (isUploadFile) {
-            return this.validateUploadFile(uploadIndexFile);
+            return this.validateUploadFile({ config });
         } else {
-            return this.validateUploadDir(dirForUpload);
+            return this.validateUploadDir({ config }, pathToDir);
         }
     }
 
-    static validateBuildData(buildData) {
+    static validateBuildData({ buildData, config }) {
         const signature = config.buildDataSignature;
         if (!_.isObject(buildData)) {
             throw new Error('Error, buildData must be object');
@@ -60,6 +61,21 @@ class Validator {
                 throw new Error(`Error validate extra data, field ${key} is required`);
             }
         });
+    }
+
+    static validateRequiredVars({ config }) {
+        const requiredVars = config.requiredVarsForUploadMode;
+        const missingVars = [];
+
+        Object.keys(requiredVars).forEach((varName) => {
+            if (!requiredVars[varName]) {
+                missingVars.push(varName);
+            }
+        });
+
+        if (missingVars.length) {
+            throw new Error(`Error, missing required variable${missingVars.length > 1 ? 's' : ''}:${missingVars.join(', ')}`);
+        }
     }
 }
 

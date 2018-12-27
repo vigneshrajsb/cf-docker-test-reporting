@@ -1,10 +1,12 @@
 'use strict';
 
-/* eslint global-require: 0 */
 /* eslint no-empty: 0 */
 
 const expect = require('chai').expect;
 const Validator = require('./index');
+const Config = require('../../config');
+
+const config = Config.getConfig();
 
 
 describe('Validation', () => {
@@ -45,7 +47,7 @@ describe('Validation', () => {
 
         it('should pass when build data valid', () => {
             try {
-                validateBuildData(getBuildData());
+                validateBuildData({ buildData: getBuildData(), config  });
             } catch (e) {
                 expect.fail(false, false, 'Should pass on valid data');
             }
@@ -55,7 +57,6 @@ describe('Validation', () => {
     describe('validateUploadDir', () => {
         const FileManager = require('../FileManager');
         const validateUploadDir = Validator.validateUploadDir;
-        const proxyquire = require('proxyquire');
         const fs = require('fs');
 
         it('should throw err when dir not exists', async () => {
@@ -72,7 +73,7 @@ describe('Validation', () => {
             await FileManager.createDir(pathToDir, { force: true });
 
             try {
-                await validateUploadDir(pathToDir);
+                await validateUploadDir({ config }, pathToDir);
                 expect.fali(false, false, 'must throw err when dir is empty');
             } catch (e) {
                 expect(e.message.includes('Directory for upload is empty')).to.equal(true);
@@ -82,17 +83,14 @@ describe('Validation', () => {
         });
 
         it('should throw err when dir is more than uploadMaxSize', async () => {
-            const ValidatorMock = proxyquire('./index.js', {
-                '../../config': { uploadMaxSize: 0.0001 }
-            });
-
+            const Vld = require('./index');
             const pathToDir = './testDir1';
 
             await FileManager.createDir(pathToDir, { force: true });
             fs.writeFileSync(`${pathToDir}/test.txt`, 'test'.repeat(100));
 
             try {
-                await ValidatorMock.validateUploadDir(pathToDir);
+                await Vld.validateUploadDir({ config: { ...config, uploadMaxSize: 0.0001 } }, pathToDir);
                 expect.fali(false, false, 'must throw err when dir more than uploadMaxSize');
             } catch (e) {
                 expect(e.message.includes('Directory for upload is to large')).to.equal(true);
@@ -102,17 +100,14 @@ describe('Validation', () => {
         });
 
         it('should pass when dir is valid', async () => {
-            const ValidatorMock = proxyquire('./index.js', {
-                '../../config': { uploadMaxSize: 1 }
-            });
-
+            const Vld = require('./index');
             const pathToDir = './testDir2';
 
             await FileManager.createDir(pathToDir, { force: true });
             fs.writeFileSync(`${pathToDir}/test.txt`, 'test'.repeat(100));
 
             try {
-                const result = await ValidatorMock.validateUploadDir(pathToDir);
+                const result = await Vld.validateUploadDir({ config }, pathToDir);
                 expect(result).to.equal(true);
             } catch (e) {
                 expect.fali(false, false, 'must pass when dir valid');
@@ -124,12 +119,11 @@ describe('Validation', () => {
 
     describe('validateUploadFile', () => {
         const validateUploadFile = Validator.validateUploadFile;
-        const proxyquire = require('proxyquire');
         const fs = require('fs');
 
         it('should throw err when file not exists', async () => {
             try {
-                await validateUploadFile('./notExists.file');
+                await validateUploadFile({ config });
                 expect.fali(false, false, 'must throw err when file not exists');
             } catch (e) {
                 expect(e.message.includes('File for upload does not exist')).to.equal(true);
@@ -137,16 +131,15 @@ describe('Validation', () => {
         });
 
         it('should throw err when file bigger then uploadMaxSize', async () => {
-            const ValidatorMock = proxyquire('./index.js', {
-                '../../config': { uploadMaxSize: 0.0001 }
-            });
-
+            const Vld = require('./index');
             const pathToFile = `${__dirname}/testFile.txt`;
 
             fs.writeFileSync(pathToFile, 'test'.repeat(100));
 
             try {
-                await ValidatorMock.validateUploadFile(pathToFile);
+                await Vld.validateUploadFile({
+                    config: { ...config, uploadMaxSize: 0.001, env: { reportIndexFile: pathToFile } }
+                });
                 expect.fali(false, false, 'must throw err when file more than uploadMaxSize');
             } catch (e) {
                 expect(e.message.includes('File for upload is to large')).to.equal(true);
@@ -156,16 +149,15 @@ describe('Validation', () => {
         });
 
         it('should pass when file is valid', async () => {
-            const ValidatorMock = proxyquire('./index.js', {
-                '../../config': { uploadMaxSize: 1 }
-            });
-
+            const Vld = require('./index');
             const pathToFile = `${__dirname}/testFile1.txt`;
 
             fs.writeFileSync(pathToFile, 'test'.repeat(100));
 
             try {
-                const result = await ValidatorMock.validateUploadFile(pathToFile);
+                const result = await Vld.validateUploadFile({
+                    config: { ...config, uploadMaxSize: 1, env: { reportIndexFile: pathToFile } }
+                });
                 expect(result).to.equal(true);
             } catch (e) {
                 expect.fali(false, false, 'must pass without errors when file is valid');

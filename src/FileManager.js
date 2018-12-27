@@ -2,13 +2,10 @@
 
 /* eslint consistent-return: 0 */
 
-const BasicTestReporter = require('./reporter/BasicTestReporter');
 const recursiveReadSync = require('recursive-readdir-sync');
 const Exec = require('child_process').exec;
-const config = require('../config');
 const fs = require('fs');
 
-const basicTestReporter = new BasicTestReporter();
 const FIND_RESOURCE_SIZE = /^[\d.,]+/;
 const KILOBYTES_IN_MEGABYTE = 1024;
 const DECIMAL_SYSTEM = 10;
@@ -37,12 +34,11 @@ class FileManager {
         }
     }
 
-    static removeTestReportDir() {
+    static removeTestReportDir({ isUpload, config }) {
         let folderForRemove;
-        const isUpload = basicTestReporter.isUploadMode(config.requiredVarsForUploadMode);
 
-        if (!isUpload || (process.env.CLEAR_TEST_REPORT && process.env.REPORT_DIR)) {
-            folderForRemove = process.env.REPORT_DIR || config.env.sourceReportFolderName;
+        if (!isUpload || (config.env.clearTestReport && config.env.reportDir)) {
+            folderForRemove = config.env.reportDir || config.env.sourceReportFolderName;
         }
 
         if (folderForRemove) {
@@ -114,7 +110,7 @@ class FileManager {
             });
     }
 
-    static createFile({ filePath, fileData, opts, flags }) {
+    static createFile({ filePath, fileData, opts = {}, flags }) {
         return Promise.resolve()
             .then(() => {
                 if (opts.force) {

@@ -1,14 +1,13 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const config = require('../../config');
 const fs = require('fs');
 const path = require('path');
 
 const FULL_USER_PERMISSION = '0744';
 
-class GCSUploader {
-    constructor() {
+class AmazonApi {
+    constructor({ config }) {
         AWS.config.loadFromPath(config.amazonKeyFileName);
         this.s3 = new AWS.S3({ signatureVersion: 'v4' });
     }
@@ -39,10 +38,12 @@ class GCSUploader {
         return this._downloadHistoryFromAmazon(opts);
     }
 
-    async _downloadHistoryFromAmazon({ historyDir, bucketName, buildData: { pipelineId, branch } }) {
+    async _downloadHistoryFromAmazon({ historyDir, config }) {
+        const bucketName = config.env.bucketName;
+
         const getListOpts = {
             Bucket: bucketName,
-            Prefix: `${pipelineId}/${branch}/${config.allureHistoryDir}`,
+            Prefix: `${config.buildData.pipelineId}/${config.env.branchNormalized}/${this.config.allureHistoryDir}`,
         };
 
         const { Contents } = await new Promise((res, rej) => {
@@ -84,4 +85,4 @@ class GCSUploader {
     }
 }
 
-module.exports = GCSUploader;
+module.exports = AmazonApi;

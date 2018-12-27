@@ -1,7 +1,6 @@
 'use strict';
 
 const FileManager = require('../../FileManager');
-const config = require('../../../config');
 
 class ReporterTestUtils {
     static setEnvVariables(varsObj) {
@@ -26,13 +25,18 @@ class ReporterTestUtils {
             });
     }
 
-    static clearEnvVariables() {
-        delete process.env.CLEAR_TEST_REPORT;
-        delete process.env.REPORT_DIR;
-        delete process.env.REPORT_INDEX_FILE;
+    static clearEnvVariables({ config }) {
+        /**
+         * clear all env variables which contain data about what resources and how they must be uploaded
+         */
+        config.uploadArrayVars.forEach((varName) => {
+            delete process.env[varName];
+        });
+
+        delete process.env.REPORT_WRAP_DIR;
     }
 
-    static async clearAll({ customReportDir, reporter, volume } = {}) {
+    static async clearAll({ customReportDir, reporter, volume, config } = {}) {
         /**
          * sourceReportDir - custom name for allure-results
          * customReportDir - name of custom upload directory
@@ -40,7 +44,7 @@ class ReporterTestUtils {
          * volume - name of fake volume name to be clear
          */
 
-        ReporterTestUtils.clearEnvVariables();
+        ReporterTestUtils.clearEnvVariables({ config });
         ReporterTestUtils.clearRequireCache();
 
         if (reporter === 'allure') {
@@ -63,12 +67,11 @@ class ReporterTestUtils {
          * and he must be refresh in other modules which use it
          */
 
-        delete require.cache[require.resolve('../../../config')];
-        delete require.cache[require.resolve('../BasicTestReporter.js')];
-        delete require.cache[require.resolve('../AllureTestReporter.js')];
-        delete require.cache[require.resolve('../../init')];
-        delete require.cache[require.resolve('../../FileManager.js')];
-        delete require.cache[require.resolve('../../history/index.js')];
+        Object.keys(require.cache).forEach((path) => {
+            if (!path.includes('node_modules')) {
+                delete require.cache[path];
+            }
+        });
     }
 
     static initAllureTestResults(resultsDir) {
@@ -102,7 +105,7 @@ class ReporterTestUtils {
 
     static initCustomTestResults({ customReportDir, indexFile }) {
         /**
-         * create cutsom dir for upload
+         * create custom dir for upload
          */
         return FileManager.createDir(customReportDir, { force: true })
             .then(() => {
