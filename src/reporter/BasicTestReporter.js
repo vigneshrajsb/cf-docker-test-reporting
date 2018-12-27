@@ -6,9 +6,9 @@ const Workflow = require('../api/workflow');
 const Logger = require('../logger');
 
 class BasicTestReporter {
-    setExportVariable(varName, varValue) {
+    setExportVariable(varName, varValue, config) {
         return new Promise((res, rej) => {
-            Exec(`echo ${varName}=${varValue} >> ${this.volumePath}/env_vars_to_export`, (err) => {
+            Exec(`echo ${varName}=${varValue} >> ${config.env.volumePath}/env_vars_to_export`, (err) => {
                 if (err) {
                     rej(new Error(`Fail to set export variable, cause: ${err.message}`));
                 }
@@ -33,23 +33,24 @@ class BasicTestReporter {
             return;
         }
 
-        await this.setExportVariable('TEST_REPORT', true);
-        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.env.originBucketName);
-        await this.setExportVariable('TEST_REPORT_PIPELINE_ID', buildData.pipelineId);
-        await this.setExportVariable('TEST_REPORT_BRANCH', config.env.branchNormalized);
+        await this.setExportVariable('TEST_REPORT', true, config);
+        await this.setExportVariable('TEST_REPORT_BUCKET_NAME', config.env.originBucketName, config);
+        await this.setExportVariable('TEST_REPORT_PIPELINE_ID', buildData.pipelineId, config);
+        await this.setExportVariable('TEST_REPORT_BRANCH', config.env.branchNormalized, config);
 
         await this.setExportVariable(
             'TEST_REPORT_INTEGRATION_TYPE',
-            this._normalizeIntegrationName(extractedStorageConfig.integrationType)
+            this._normalizeIntegrationName(extractedStorageConfig.integrationType),
+            config
         );
 
         if (extractedStorageConfig.name) {
             console.log(`Using storage integration, name: ${extractedStorageConfig.name}`);
-            await this.setExportVariable('TEST_REPORT_CONTEXT', extractedStorageConfig.name);
+            await this.setExportVariable('TEST_REPORT_CONTEXT', extractedStorageConfig.name, config);
         }
 
         if (config.env.reportIndexFile) {
-            await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', config.env.reportIndexFile);
+            await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', config.env.reportIndexFile, config);
         }
     }
 
