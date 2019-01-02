@@ -1,0 +1,69 @@
+.plugin{
+    font-family: 'Lato', sans-serif;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    overflow: hidden;
+    width: 30%;
+    height: 250px;
+    position: relative;
+    margin: 1.5rem;
+    color: #333;
+    border: solid 1px #dbdbdb;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+    transition: border 0.1s, box-shadow 0.1s, transform 0.1s;
+    cursor: pointer;
+    &:hover{
+         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+         border: solid 1px #c2c2c2;
+        .plugin__image{
+            background-size: 35%;
+        }
+    }
+    h1{
+        font-size: 1.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin: 0;
+        padding: 0.5rem 0.7rem;
+        text-transform: capitalize;
+    }
+    p{
+        font-size: 0.8125rem;
+        margin: 0;
+        padding: 0.5rem 0.7rem;
+        line-height: 1.2rem;
+        height: 3.1rem;
+        overflow: hidden;
+    }
+    a{
+        font-family: 'Lato', sans-serif;
+        font-size: 0.8rem;
+        color: #333;
+        text-transform: uppercase;
+        padding: 0.7rem 0.7rem;
+        display: block;
+        text-align: right;
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        box-sizing: border-box;
+        text-decoration: underline;
+        :hover{
+            text-decoration: none;
+        }
+    }
+    &__image{
+        background-color: #dbdbdb;
+        box-sizing: border-box;
+        width: 100%;
+        height: 160px;
+        top: 0;
+        left: 0;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: 30%;
+        box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.01);
+        transition: background-size ease-in-out 200ms;
+    }
+}
