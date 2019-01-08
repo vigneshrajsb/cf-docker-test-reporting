@@ -69,6 +69,7 @@ class Config {
                 REPORT_INDEX_FILE: reportIndexFile
             },
             uploadRetryCount: 3,
+            uploadParallelLimit: 200,
             basicLinkOnReport: `${apiHost}/api/testReporting/`,
             apiHost,
             allureHistoryDir: 'history',

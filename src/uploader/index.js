@@ -23,32 +23,40 @@ class Uploader {
         return new Promise(async (res, rej) => {
             try {
                 const files = await FileManager._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
+                let start = 0;
+                let end = config.uploadParallelLimit;
+                let filesChunk;
 
-                const uploadPromises = files.map((file) => {
-                    const pathToDeploy = this._getFilePathForDeploy({
-                        file,
-                        config,
-                        srcDir,
-                        isUploadFile,
-                        uploadFile,
-                        buildData,
-                        uploadHistory
+                while ((filesChunk = files.slice(start, end)).length) { // eslint-disable-line
+                    const uploadPromises = filesChunk.map((file) => {
+                        const pathToDeploy = this._getFilePathForDeploy({
+                            file,
+                            config,
+                            srcDir,
+                            isUploadFile,
+                            uploadFile,
+                            buildData,
+                            uploadHistory
+                        });
+
+                        return this._uploadFileWithRetry({
+                            file,
+                            config,
+                            pathToDeploy,
+                            bucketName,
+                            extractedStorageConfig,
+                            uploadHistory
+                        });
                     });
 
-                    return this._uploadFileWithRetry({
-                        file,
-                        config,
-                        pathToDeploy,
-                        bucketName,
-                        extractedStorageConfig,
-                        uploadHistory
-                    });
-                });
+                    await Promise.all(uploadPromises); // eslint-disable-line
 
-                Promise.all(uploadPromises).then(() => {
-                    logSuccessUploadFiles(state, uploadHistory);
-                    res(true);
-                }, (err) => { rej(err); });
+                    start += config.uploadParallelLimit;
+                    end += config.uploadParallelLimit;
+                }
+
+                logSuccessUploadFiles(state, uploadHistory);
+                res(true);
             } catch (err) {
                 rej(new Error(`Error while uploading files: ${err.message || 'Unknown error'}`));
             }
@@ -82,7 +90,8 @@ class Uploader {
             }
 
             if (isUploaded) {
-                console.log(`File ${pathToDeploy} successful uploaded`);
+                const pathSplitted = pathToDeploy.split('/');
+                console.log(`${pathSplitted[pathSplitted.length - 1]} uploaded`);
                 resolve(true);
             } else {
                 logFailRetryUpload({ pathToDeploy, lastUploadErr, uploadHistory, bucketName });
