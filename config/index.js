@@ -88,7 +88,7 @@ class Config {
                 bucketSubPath: ConfigUtils.getBucketSubPath(),
                 // originBucketName - origin value that can contain subdir need to use it in some cases
                 originBucketName: process.env.BUCKET_NAME,
-                apiKey: process.env.CF_API_KEY,
+                apiKey: '5c367d315854090100b5d834.094cd57eb85c908215b313293e9ee48e',
                 buildId: process.env.CF_BUILD_ID,
                 volumePath: process.env.CF_VOLUME_PATH,
                 branchNormalized: process.env.CF_BRANCH_TAG_NORMALIZED,
