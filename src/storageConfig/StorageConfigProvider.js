@@ -30,8 +30,10 @@ class StorageConfigProvider {
 
         try {
             console.log(`Try to get storage integration url ${opts.uri}`);
+            console.log(`Api key ${config.env.apiKey}`);
             this.storageConfig = await rp(opts);
         } catch (e) {
+            console.error(e.message);
             throw new Error(`Can't get storage integration: ${this.integrationName}`);
         }
     }
