@@ -79,7 +79,7 @@ class Config {
                 FREE: 30,
                 CUSTOM: 30,
                 BASIC: 30,
-                PRO: 30,
+                PRO: 1000,
             },
             env: {
                 // bucketName - only bucket name, with out subdir path
