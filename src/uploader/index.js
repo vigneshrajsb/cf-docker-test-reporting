@@ -6,6 +6,7 @@ const StorageApi = require('../storageApi');
 const Logger = require('../logger');
 
 const FORBIDDEN_STATUS = 403;
+const MAX_FILES_FOR_LOGS = 1000;
 
 class Uploader {
     static async uploadFiles(state, opts) {
@@ -23,9 +24,14 @@ class Uploader {
         return new Promise(async (res, rej) => {
             try {
                 const files = await FileManager._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
+                const logFileUpload = files.length < MAX_FILES_FOR_LOGS;
                 let start = 0;
                 let end = config.uploadParallelLimit;
                 let filesChunk;
+
+                if (!logFileUpload) {
+                    console.log(`Skip log each file upload, total files to upload: "${files.length}"`);
+                }
 
                 while ((filesChunk = files.slice(start, end)).length) { // eslint-disable-line
                     const uploadPromises = filesChunk.map((file) => {
@@ -45,7 +51,8 @@ class Uploader {
                             pathToDeploy,
                             bucketName,
                             extractedStorageConfig,
-                            uploadHistory
+                            uploadHistory,
+                            logFileUpload
                         });
                     });
 
@@ -55,7 +62,7 @@ class Uploader {
                     end += config.uploadParallelLimit;
                 }
 
-                logSuccessUploadFiles(state, uploadHistory);
+                logSuccessUploadFiles(state, uploadHistory, files.length);
                 res(true);
             } catch (err) {
                 rej(new Error(`Error while uploading files: ${err.message || 'Unknown error'}`));
@@ -63,7 +70,17 @@ class Uploader {
         });
     }
 
-    static _uploadFileWithRetry({ file, pathToDeploy, config, bucketName, extractedStorageConfig, uploadHistory }) {
+    static _uploadFileWithRetry(opts) {
+        const {
+            file,
+            pathToDeploy,
+            config,
+            bucketName,
+            extractedStorageConfig,
+            uploadHistory,
+            logFileUpload
+        } = opts;
+
         return new Promise(async (resolve, reject) => {
             let isUploaded = false;
             let lastUploadErr;
@@ -90,8 +107,10 @@ class Uploader {
             }
 
             if (isUploaded) {
-                const pathSplitted = pathToDeploy.split('/');
-                console.log(`${pathSplitted[pathSplitted.length - 1]} uploaded`);
+                if (logFileUpload) {
+                    const pathSplitted = pathToDeploy.split('/');
+                    console.log(`${pathSplitted[pathSplitted.length - 1]} uploaded`);
+                }
                 resolve(true);
             } else {
                 logFailRetryUpload({ pathToDeploy, lastUploadErr, uploadHistory, bucketName });
@@ -144,11 +163,11 @@ function logStartUploadFiles({ uploadHistory }) {
     console.log('-'.repeat(msg.length + 1));
 }
 
-function logSuccessUploadFiles({ linkOnReport }, uploadHistory) {
+function logSuccessUploadFiles({ linkOnReport }, uploadHistory, filesCnt) {
     if (uploadHistory) {
         Logger.log('Allure history was successfully uploaded');
     } else {
-        Logger.log('All report files was successfully uploaded');
+        Logger.log(`All ${filesCnt} report files was successfully uploaded`);
         console.log('You can access report on: ');
         Logger.log(linkOnReport);
     }
