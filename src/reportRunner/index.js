@@ -42,10 +42,10 @@ class Runner {
 
         Runner.validateRequiredVars({ config });
 
-        const uploadSize = await PaymentsLogic.getMaxUploadSizeDependingOnPlan({ config });
+        const uploadMaxSize = await PaymentsLogic.getMaxUploadSizeDependingOnPlan({ config });
         const extractedStorageConfig = await storageConfigProvider.provide({ config });
 
-        return { extractedStorageConfig, uploadSize };
+        return { extractedStorageConfig, uploadMaxSize };
     }
 
     static validateRequiredVars({ config }) {
