@@ -27,8 +27,8 @@ class PaymentsLogic {
     }
 
     static async getMaxUploadSizeDependingOnPlan({ config }) {
-        const plan = await this.getPlan({ config });
-        const uploadSize = config.paymentPlanMap[_.get(plan, 'id')];
+        // remove temporary payment api call
+        const uploadSize = config.paymentPlanMap.PRO;
 
         if (_.isNumber(uploadSize)) {
             return uploadSize;
