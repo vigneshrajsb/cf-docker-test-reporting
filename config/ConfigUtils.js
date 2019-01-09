@@ -8,7 +8,7 @@ const FIND_VAR_INDEX_WITH_DOT = /\.\d{1,2}$/;
 class ConfigUtils {
     static buildApiHost() {
         const isProd = !_.get(process.env, 'CF_HOST_NAME', '').includes('local');
-        return `${isProd ? 'https' : 'http'}://${isProd ? 'g.codefresh.io' : 'local.codefresh.io'}`;
+        return `${isProd ? 'https' : 'http'}://${isProd ? 'sec.codefresh.io' : 'local.codefresh.io'}`;
     }
 
     static getBucketName() {
