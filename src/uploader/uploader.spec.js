@@ -2,16 +2,7 @@
 
 const expect = require('chai').expect;
 const proxyquire = require('proxyquire');
-
-function proxyquireUploader(opts) {
-    const replaceObj = {};
-
-    if (opts.config) {
-        replaceObj['../../config'] = opts.config;
-    }
-
-    return proxyquire('./index.js', replaceObj);
-}
+const sinon = require('sinon');
 
 describe('Uploader', function () {
 
@@ -25,7 +16,7 @@ describe('Uploader', function () {
         const isUploadFile = false;
         const branchNormalized = 'fakeBranch';
         const buildData = { pipelineId: 'fakePipeline' };
-        const Uploader = await proxyquireUploader({ config: { bucketSubPath } });
+        const Uploader = require('./index');
 
         const fakeConf = {
             env: {
@@ -48,7 +39,7 @@ describe('Uploader', function () {
         const isUploadFile = false;
         const branchNormalized = 'fakeBranch';
         const buildData = { pipelineId: 'fakePipeline' };
-        const Uploader = await proxyquireUploader({ config: { bucketSubPath } });
+        const Uploader = require('./index');
 
         const fakeConf = {
             env: {
@@ -60,5 +51,36 @@ describe('Uploader', function () {
 
         const deployPath = Uploader._getFilePathForDeploy({ file, buildId, srcDir, isUploadFile, buildData, config: fakeConf });
         expect(deployPath).to.equal('fakePipeline/fakeBranch/fakeBuildId/fakeFile');
+    });
+
+    it('uploadFiles must upload files by chunks', async () => {
+        const Uploader = await proxyquire('./index.js', {
+            '../FileManager': {
+                _getFilesForUpload() {
+                    return 'test,'.repeat(9).split(',');
+                }
+            }
+        });
+
+        const uploadFiles = Uploader.uploadFiles.bind({
+            _getFilePathForDeploy() {},
+            _uploadFileWithRetry() {}
+        });
+
+        const config = {
+            env: {},
+            uploadParallelLimit: 2
+        };
+
+        const PromiseAllSpy = sinon.spy(Promise, 'all');
+
+        try {
+            await uploadFiles({ config }, {});
+            PromiseAllSpy.restore();
+        } catch (e) {
+            PromiseAllSpy.restore();
+        }
+
+        expect(PromiseAllSpy.callCount).to.equal(5);
     });
 });
