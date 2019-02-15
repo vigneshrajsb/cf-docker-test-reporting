@@ -13,6 +13,7 @@ ARG REPORT_DIR
 ARG REPORT_INDEX_FILE
 ARG CLEAR_TEST_REPORT
 ARG ALLURE_DIR
+ARG REPORT_DEBUG_LOGS
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied

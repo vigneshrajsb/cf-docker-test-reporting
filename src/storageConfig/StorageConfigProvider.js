@@ -31,6 +31,9 @@ class StorageConfigProvider {
         try {
             this.storageConfig = await rp(opts);
         } catch (e) {
+            if (config.env.reportDebugLogs) {
+                throw e;
+            }
             throw new Error(`Can't get storage integration: ${this.integrationName}`);
         }
     }

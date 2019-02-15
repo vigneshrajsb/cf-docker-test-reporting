@@ -93,6 +93,7 @@ class Config {
                 volumePath: process.env.CF_VOLUME_PATH,
                 branchNormalized: process.env.CF_BRANCH_TAG_NORMALIZED,
                 storageIntegration: process.env.CF_STORAGE_INTEGRATION,
+                reportDebugLogs: Boolean(process.env.REPORT_DEBUG_LOGS),
                 sourceReportFolderName: (allureDir || 'allure-results').trim(),
                 reportDir: ((reportDir || '').trim()) || undefined,
                 reportIndexFile: ((reportIndexFile || '').trim()) || undefined,
