@@ -9,6 +9,22 @@ const ConfigUtils = require('./ConfigUtils');
  */
 const UPLOAD_ARRAY_VARS = ['REPORT_DIR', 'REPORT_INDEX_FILE', 'ALLURE_DIR', 'CLEAR_TEST_REPORT', 'REPORT_TYPE'];
 
+const INFO = 'info';
+const DEBUG = 'debug';
+const ERROR = 'error';
+
+const logLevels = {
+    INFO,
+    DEBUG,
+    ERROR,
+};
+
+const logLevelsMap = {
+    [INFO]: INFO,
+    [DEBUG]: DEBUG,
+    [ERROR]: ERROR,
+};
+
 class Config {
     static getSingleConfig() {
 
@@ -93,6 +109,7 @@ class Config {
                 volumePath: process.env.CF_VOLUME_PATH,
                 branchNormalized: process.env.CF_BRANCH_TAG_NORMALIZED,
                 storageIntegration: process.env.CF_STORAGE_INTEGRATION,
+                logLevel: logLevelsMap[process.env.REPORT_LOGGING_LEVEL] || INFO,
                 sourceReportFolderName: (allureDir || 'allure-results').trim(),
                 reportDir: ((reportDir || '').trim()) || undefined,
                 reportIndexFile: ((reportIndexFile || '').trim()) || undefined,
@@ -103,7 +120,8 @@ class Config {
             },
             buildDataSignature: {
                 pipelineId: { type: 'string', required: true }
-            }
+            },
+            logLevels
         };
     }
 }
