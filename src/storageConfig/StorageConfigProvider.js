@@ -32,7 +32,7 @@ class StorageConfigProvider {
             this.storageConfig = await rp(opts);
         } catch (e) {
             const infoErrMsg = `Can't get storage integration: ${this.integrationName}`;
-            if (config.env.loggLevel === config.logLevels.DEBUG) {
+            if (config.env.logLevel === config.logLevels.DEBUG) {
                 console.log(infoErrMsg);
                 throw e;
             }
