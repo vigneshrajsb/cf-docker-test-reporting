@@ -10,7 +10,7 @@ class PaymentsLogic {
         const getPlanOpts = {
             uri: `${config.apiHost}/api/payments/:account_id/plan`,
             headers: {
-                'x-access-token': config.env.apiKey
+                'Authorization': config.env.apiKey
             }
         };
 
