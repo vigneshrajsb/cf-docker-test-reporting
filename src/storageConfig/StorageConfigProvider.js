@@ -24,7 +24,7 @@ class StorageConfigProvider {
         const opts = {
             uri: `${config.apiHost}/api/contexts/${config.env.storageIntegration}/prepare`,
             headers: {
-                'Authorization': config.env.apiKey
+                'x-access-token': config.env.apiKey
             }
         };
 
