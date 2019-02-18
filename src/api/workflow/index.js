@@ -7,7 +7,7 @@ class Workflow {
         const opts = {
             uri: `${config.apiHost}/api/workflow/${id}/process`,
             headers: {
-                'Authorization': config.env.apiKey
+                'x-access-token': config.env.apiKey
             }
         };
 
