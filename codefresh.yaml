@@ -1,0 +1,40 @@
+version: '1.0'
+steps:
+  BuildingDockerImage:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/cf-docker-test-reporting
+    working_directory: ./
+    tag: '${{CF_BRANCH_TAG_NORMALIZED}}'
+    dockerfile: Dockerfile
+    build_arguments:
+      - BUCKET_NAME=${{BUCKET_NAME}}
+      
+  EsLint:
+    title: Run eslint
+    image: ${{BuildingDockerImage}}
+    commands:
+      - npm install
+      - npm run lint
+      
+  UnitTest:
+    title: Run unit tests
+    image: ${{BuildingDockerImage}}
+    commands:
+      - npm install
+      - npm run test
+    environment:
+      - BUCKET_NAME = pasha-codefresh
+      - GCS_CONFIG = ${{GCS_CONFIG}}
+  	
+  
+  PushingToDockerRegistry:
+    title: Pushing to Docker Registry
+    type: push
+    candidate: '${{BuildingDockerImage}}'
+    tag: 'latest'
+    registry: dockerhub
+    when:
+      branch:
+        only:
+          - master
