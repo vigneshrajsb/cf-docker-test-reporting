@@ -89,6 +89,7 @@ class Config {
             basicLinkOnReport: `${apiHost}/api/testReporting/`,
             apiHost,
             allureHistoryDir: 'history',
+            annotationName: 'cf_test_reporter_link',
             reportsIndexDir: `${path.dirname(require.resolve('../_reportsIndex_'))}`,
             uploadArrayVars: UPLOAD_ARRAY_VARS,
             paymentPlanMap: {
