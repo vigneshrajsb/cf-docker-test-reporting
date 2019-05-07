@@ -6,6 +6,7 @@ const SingleReportRunner = require('./SingleReportRunner');
 const StorageConfigProvider = require('../storageConfig/StorageConfigProvider');
 const Logger = require('../logger');
 const PaymentsLogic = require('../paymentsLogic');
+const AnnotationLogic = require('../annotationLogic');
 const _ = require('lodash');
 
 class Runner {
@@ -30,7 +31,12 @@ class Runner {
 
             reporterData.config = config;
 
-            return await runner.run(reporterData);
+            const report = await runner.run(reporterData);
+
+            AnnotationLogic.createAnnotation({ config, value: report.reportLink })
+                .catch(e => Logger.log(`Can't create annotation ${config.annotationName}.\n${e.message}`));
+
+            return report;
         } catch (e) {
             console.error(e.message);
             process.exit(1);
