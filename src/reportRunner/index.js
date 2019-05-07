@@ -34,7 +34,8 @@ class Runner {
             const report = await runner.run(reporterData);
 
             AnnotationLogic.createAnnotation({ config, value: report.reportLink })
-                .catch(e => Logger.log(`Can't create annotation ${config.annotationName}.\n${e.message}`));
+                .then(() => Logger.log(`Annotation ${config.annotationName} was created.`))
+                .catch(e => Logger.log('yellow', `Can't create annotation ${config.annotationName}.\n${e.message}`));
 
             return report;
         } catch (e) {

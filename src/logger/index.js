@@ -4,6 +4,7 @@
 
 const colors = {
     aqua: '\x1b[36m',
+    yellow: '\x1b[33m',
     none: '\x1b[0m'
 };
 

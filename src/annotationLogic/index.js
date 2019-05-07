@@ -7,7 +7,7 @@ class AnnotationLogic {
         // this query use proxy ability to replace :account_id to currentAccountID
         // this ability use because we don`t know accountId
         const createAnnotationOpts = {
-            uri: `${config.apiHost}/api/annotations/:account_id`,
+            uri: `${config.apiHost}/api/annotations`,
             headers: {
                 'Authorization': config.env.apiKey
             },
@@ -18,6 +18,7 @@ class AnnotationLogic {
                 key: config.annotationName,
                 value,
             },
+            json: true,
         };
 
         return rp(createAnnotationOpts);
