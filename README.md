@@ -3,7 +3,6 @@
 
 [![Codefresh build status](http://dev-tunneler.codefresh.io/api/badges/build?branch=master&pipelineName=cf-docker-test-reporting&accountName=codefresh-inc&repoOwner=codefresh-io&repoName=cf-docker-test-reporting&key=eyJhbGciOiJIUzI1NiJ9.NTY3MmQ4ZGViNjcyNGI2ZTM1OWFkZjYy.AN2wExsAsq7FseTbVxxWls8muNx_bBUnQWQVS8IgDTI?client=pasha&service=cfrouter)](https://g.codefresh.io/repositories/codefresh-io/cf-ui/builds?filter=trigger:build)
 
-http://dev-tunneler.codefresh.io/api/providers/github/hook?client=denys&service=cfrouter
 
 
 cf-docker-test-reporting
