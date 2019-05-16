@@ -1,7 +1,7 @@
 [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/codefresh-inc/codefresh-io%2Fcf-docker-test-reporting%2Fcf-docker-test-reporting?key=eyJhbGciOiJIUzI1NiJ9.NTY3MmQ4ZGViNjcyNGI2ZTM1OWFkZjYy.AN2wExsAsq7FseTbVxxWls8muNx_bBUnQWQVS8IgDTI&type=cf-1)]( https://g.codefresh.io/pipelines/cf-docker-test-reporting/builds?filter=trigger:build~Build;pipeline:5b96273ee88521c20c7abac9~cf-docker-test-reporting)
 
 
-[![Codefresh build status](http://dev-tunneler.codefresh.io/api/badges/build?branch=master&pipelineName=cf-docker-test-reporting&accountName=codefresh-inc&repoOwner=codefresh-io&repoName=cf-docker-test-reporting&key=eyJhbGciOiJIUzI1NiJ9.NTY3MmQ4ZGViNjcyNGI2ZTM1OWFkZjYy.AN2wExsAsq7FseTbVxxWls8muNx_bBUnQWQVS8IgDTI?client=pasha&service=cfrouter)](https://g.codefresh.io/repositories/codefresh-io/cf-ui/builds?filter=trigger:build)
+[![Codefresh build status](http://dev-tunneler.codefresh.io/api/badges/build?branch=master&pipelineName=cf-docker-test-reporting&accountName=codefresh-inc&repoOwner=codefresh-io&repoName=cf-docker-test-reporting&key=eyJhbGciOiJIUzI1NiJ9.NTY3MmQ4ZGViNjcyNGI2ZTM1OWFkZjYy.AN2wExsAsq7FseTbVxxWls8muNx_bBUnQWQVS8IgDTI&client=pasha&service=cfrouter)](https://g.codefresh.io/repositories/codefresh-io/cf-ui/builds?filter=trigger:build)
 
 
 
