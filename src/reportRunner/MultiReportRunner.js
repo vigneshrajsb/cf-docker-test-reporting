@@ -7,32 +7,16 @@ const SingleReportRunner = require('./SingleReportRunner.js');
 
 class MultiReportRunner {
     static async run(reporterData) {
-        let uploadReportPromise = Promise.resolve();
-        const uploadedReports = [];
-
         Logger.log('START UPLOAD MULTIPLE REPORTS');
 
-        /**
-         * Now reports uploaded one after one, in feature this can be parallel
-         */
-        reporterData.config.forEach(async (config) => {
-            uploadReportPromise = uploadReportPromise.then(async () => {
-                const result = await SingleReportRunner.run({ ...reporterData, config  });
+        const reports = reporterData.config.map(async config => SingleReportRunner.run({ ...reporterData, config  }));
 
-                uploadedReports.push(result);
-
-                return result;
-            });
-        });
-
-        await uploadReportPromise;
+        const uploadedReports = await Promise.all(reports);
 
         /**
          * upload entry page contains list of uploaded reports
          */
-        await MultiReportRunner.uploadReportsIndexDir({ uploadedReports, reporterData });
-
-        return true;
+        return MultiReportRunner.uploadReportsIndexDir({ uploadedReports, reporterData });
     }
 
     static async uploadReportsIndexDir({ uploadedReports, reporterData }) {
@@ -53,6 +37,8 @@ class MultiReportRunner {
 
         Logger.log('All reports was uploaded, you can access it on');
         Logger.log(reportLink);
+
+        return { reportLink };
     }
 }
 
