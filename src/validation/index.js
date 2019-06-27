@@ -1,7 +1,6 @@
 'use strict';
 
 const fs = require('fs');
-const FileManager = require('../FileManager');
 const _ = require('lodash');
 
 class Validator {
@@ -15,10 +14,6 @@ class Validator {
             throw new Error('Error: Directory for upload is empty');
         }
 
-        if (config.uploadMaxSize < await FileManager.getDirOrFileSize(pathToDir)) {
-            throw new Error(`Error: Directory for upload is to large, max size is ${config.uploadMaxSize} MB`);
-        }
-
         return true;
     }
 
@@ -28,11 +23,7 @@ class Validator {
 
         if (!fs.existsSync(pathToFile)) {
             throw new Error('Error: File for upload does not exist. \n' +
-            'Ensure that "working_directory" was specified for this step and it contains the file for upload');
-        }
-
-        if (config.uploadMaxSize < await FileManager.getDirOrFileSize(pathToFile)) {
-            throw new Error(`Error: File for upload is to large, max size is ${config.uploadMaxSize} MB`);
+            'Ensure that "working_directory" was specified for this step and it contains the file or directory for upload');
         }
 
         return true;

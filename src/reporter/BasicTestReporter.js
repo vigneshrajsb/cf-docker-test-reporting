@@ -70,8 +70,6 @@ class BasicTestReporter {
             console.log(`Start generating visualization of test report for build ${config.env.buildId}`);
             console.log('Using allure upload mode (generate allure visualization and upload it)');
         }
-
-        console.log(`Max upload size for your account is ${config.uploadMaxSize} MB`);
     }
 
     _normalizeIntegrationName(name) {

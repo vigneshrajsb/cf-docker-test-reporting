@@ -70,9 +70,6 @@ class Config {
         } = env;
         const apiHost = ConfigUtils.buildApiHost();
 
-        /**
-         * field uploadMaxSize set by SingleReportRunner, value in MB
-         */
         return {
             googleStorageConfig: {
                 projectId: 'local-codefresh',

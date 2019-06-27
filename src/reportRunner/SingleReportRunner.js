@@ -18,7 +18,6 @@ class SingleReportRunner {
         };
 
         state.isUploadFile = state.isUpload && !reporterData.config.env.reportDir;
-        state.config.uploadMaxSize = reporterData.uploadMaxSize;
 
         try {
             let reporter;

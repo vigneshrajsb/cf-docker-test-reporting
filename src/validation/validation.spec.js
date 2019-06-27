@@ -82,23 +82,6 @@ describe('Validation', () => {
             await FileManager.removeResource(pathToDir);
         });
 
-        it('should throw err when dir is more than uploadMaxSize', async () => {
-            const Vld = require('./index');
-            const pathToDir = './testDir1';
-
-            await FileManager.createDir(pathToDir, { force: true });
-            fs.writeFileSync(`${pathToDir}/test.txt`, 'test'.repeat(100));
-
-            try {
-                await Vld.validateUploadDir({ config: { ...config, uploadMaxSize: 0.0001 } }, pathToDir);
-                expect.fali(false, false, 'must throw err when dir more than uploadMaxSize');
-            } catch (e) {
-                expect(e.message.includes('Directory for upload is to large')).to.equal(true);
-            }
-
-            await FileManager.removeResource(pathToDir);
-        });
-
         it('should pass when dir is valid', async () => {
             const Vld = require('./index');
             const pathToDir = './testDir2';
@@ -128,24 +111,6 @@ describe('Validation', () => {
             } catch (e) {
                 expect(e.message.includes('File for upload does not exist')).to.equal(true);
             }
-        });
-
-        it('should throw err when file bigger then uploadMaxSize', async () => {
-            const Vld = require('./index');
-            const pathToFile = `${__dirname}/testFile.txt`;
-
-            fs.writeFileSync(pathToFile, 'test'.repeat(100));
-
-            try {
-                await Vld.validateUploadFile({
-                    config: { ...config, uploadMaxSize: 0.001, env: { reportIndexFile: pathToFile } }
-                });
-                expect.fali(false, false, 'must throw err when file more than uploadMaxSize');
-            } catch (e) {
-                expect(e.message.includes('File for upload is to large')).to.equal(true);
-            }
-
-            fs.unlinkSync(pathToFile);
         });
 
         it('should pass when file is valid', async () => {
