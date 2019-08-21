@@ -11,3 +11,5 @@ jobs:
           TRIGGER_NAME: 'codefresh-io/cf-docker-test-reporting_1'
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
         id: run-pipeline
+
+
