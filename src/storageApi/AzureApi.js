@@ -38,7 +38,7 @@ class AzureApi {
             { prefix: `${buildData.pipelineId}/${config.env.branchNormalized}/${config.allureHistoryDir}/` });
         const promises = [];
         let blobItem = await iter.next();
-        
+
         while (!blobItem.done) {
             console.log(blobItem.value.name);
             const promise = new Promise((res, rej) => {
@@ -56,6 +56,7 @@ class AzureApi {
                 });
             });
             promises.push(promise);
+            // eslint-disable-next-line no-await-in-loop
             blobItem = await iter.next();
         }
         return Promise.all(promises);
