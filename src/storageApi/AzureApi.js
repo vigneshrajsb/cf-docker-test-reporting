@@ -42,7 +42,6 @@ class AzureApi {
         let blobItem = await iter.next();
 
         while (!blobItem.done) {
-            console.log(blobItem.value.name);
             // eslint-disable-next-line no-loop-func
             const promise = new Promise((res, rej) => {
                 const baseName = blobItem.value.name;
