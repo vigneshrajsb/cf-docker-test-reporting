@@ -7,11 +7,12 @@ const Logger = require('../../src/logger');
 const FULL_USER_PERMISSION = '0744';
 
 class AzureApi {
-    constructor({ config }) {
-        Logger.log(`AzureApi ${config}`);
-        const sharedKeyCredential = new StorageSharedKeyCredential(config.accountName, config.accountKey);
+    constructor({ extractedStorageConfig }) {
+        const { storageConfig: { accountName, accountKey } = {} } = extractedStorageConfig;
+        const sharedKeyCredential = new StorageSharedKeyCredential(accountName,
+            accountKey);
         this.blobServiceClient = new BlobServiceClient(
-            `https://${config.accountName}.blob.core.windows.net`,
+            `https://${accountName}.blob.core.windows.net`,
             sharedKeyCredential
         );
     }
