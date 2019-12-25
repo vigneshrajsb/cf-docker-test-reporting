@@ -8,6 +8,7 @@ const FULL_USER_PERMISSION = '0744';
 
 class AzureApi {
     constructor({ config }) {
+        Logger.info(config);
         const sharedKeyCredential = new StorageSharedKeyCredential(config.accountName, config.accountKey);
         this.blobServiceClient = new BlobServiceClient(
             `https://${config.accountName}.blob.core.windows.net`,
