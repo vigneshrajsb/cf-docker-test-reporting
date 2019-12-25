@@ -3,6 +3,7 @@
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const fs = require('fs');
 const Logger = require('../../src/logger');
+
 const FULL_USER_PERMISSION = '0744';
 
 class AzureApi {
