@@ -14,7 +14,7 @@ class StorageApi {
         } else if (extractedStorageConfig.integrationType === storageTypes.google) {
             return new GCSApi(state);
         } else if (extractedStorageConfig.integrationType === storageTypes.azure) {
-            console.log('use azure api')
+            console.log('use azure api');
             return new AzureApi(state);
         } else {
             const { name, type } = extractedStorageConfig;
