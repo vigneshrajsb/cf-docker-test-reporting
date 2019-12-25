@@ -8,7 +8,7 @@ const FULL_USER_PERMISSION = '0744';
 
 class AzureApi {
     constructor({ config }) {
-        Logger.info(config);
+        Logger.log(`AzureApi ${config}`);
         const sharedKeyCredential = new StorageSharedKeyCredential(config.accountName, config.accountKey);
         this.blobServiceClient = new BlobServiceClient(
             `https://${config.accountName}.blob.core.windows.net`,
@@ -21,7 +21,7 @@ class AzureApi {
     }
 
     async _uploadFileToAzureStorage({ bucketName, file, pathToDeploy }) {
-        Logger.info(`arg ${bucketName} ${file} ${pathToDeploy}`);
+        Logger.log(`_uploadFileToAzureStorage ${bucketName} ${file} ${pathToDeploy}`);
         const containerClient = await this.blobServiceClient.getContainerClient(bucketName);
         if (!(await containerClient.exists())) {
             await containerClient.create();
