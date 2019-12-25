@@ -120,7 +120,6 @@ class Uploader {
     }
 
     static runUploadFileHandler(opts) {
-        Logger.log(opts);
         return StorageApi.getApi(opts).upload(opts);
     }
 

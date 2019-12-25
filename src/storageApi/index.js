@@ -8,13 +8,11 @@ const AzureApi = require('./AzureApi');
 class StorageApi {
     static getApi(state) {
         const { extractedStorageConfig } = state;
-        console.log(extractedStorageConfig);
         if (extractedStorageConfig.integrationType === storageTypes.amazon) {
             return new AmazonApi(state);
         } else if (extractedStorageConfig.integrationType === storageTypes.google) {
             return new GCSApi(state);
         } else if (extractedStorageConfig.integrationType === storageTypes.azure) {
-            console.log('use azure api');
             return new AzureApi(state);
         } else {
             const { name, type } = extractedStorageConfig;

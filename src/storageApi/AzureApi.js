@@ -2,7 +2,6 @@
 
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const fs = require('fs');
-const Logger = require('../../src/logger');
 
 const FULL_USER_PERMISSION = '0744';
 
@@ -22,7 +21,6 @@ class AzureApi {
     }
 
     async _uploadFileToAzureStorage({ bucketName, file, pathToDeploy }) {
-        Logger.log(`_uploadFileToAzureStorage ${bucketName} ${file} ${pathToDeploy}`);
         const containerClient = await this.blobServiceClient.getContainerClient(bucketName);
         if (!(await containerClient.exists())) {
             await containerClient.create();
