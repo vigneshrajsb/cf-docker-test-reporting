@@ -79,6 +79,7 @@ class Config {
                 keyFilename: path.resolve(__dirname, 'google.storage.config.json')
             },
             amazonKeyFileName: path.resolve(__dirname, 'amazon.storage.config.json'),
+            azureKeyFileName: path.resolve(__dirname, 'azure.storage.config.json'),
             resultReportFolderName: 'allure-report',
             requiredVarsForUploadMode: {
                 REPORT_DIR: reportDir,

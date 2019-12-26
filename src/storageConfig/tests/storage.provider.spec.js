@@ -127,6 +127,35 @@ describe('Storage provider', () => {
         }
     };
 
+    const storageConfAzureBlob = {
+        'apiVersion': 'v1',
+        'kind': 'context',
+        'owner': 'account',
+        'metadata': {
+            'default': false,
+            'system': false,
+            'name': 'azureBlobTest'
+        },
+        'spec': {
+            'type': 'storage.azureb',
+            'data': {
+                'sharingPolicy': 'AllUsersInAccount',
+                'auth': {
+                    'type': 'basic',
+                    'jsonConfig': {
+                        'accountName': 'fakeAccountName',
+                        'accountKey': 'fakeAccountKey'
+                    }
+                }
+            }
+        }
+    };
+
+    const storageConfAzureBlobExtracted = {
+        'accountName': 'fakeAccountName',
+        'accountKey': 'fakeAccountKey'
+    };
+
     const storageConfAmazonBasicExtracted = {
         'accessKeyId': 'fakeAccessKeyId',
         'secretAccessKey': 'fakeSecretAccessKey'
@@ -167,6 +196,19 @@ describe('Storage provider', () => {
             integrationType: 'storage.s3',
             name: 's3Test',
             storageConfig: storageConfAmazonBasicExtracted,
+            type: 'json'
+        });
+    });
+
+    it('provide config for azure blob storage', async () => {
+        const storageConfigProvider = new StorageConfigProvider({ config });
+        storageConfigProvider.__proto__._getStorageConfig = function () {
+            this.storageConfig = JSON.stringify(storageConfAzureBlob);
+        };
+        expect(await storageConfigProvider.provide({ config })).to.deep.equal({
+            integrationType: 'storage.azureb',
+            name: 'azureBlobTest',
+            storageConfig: storageConfAzureBlobExtracted,
             type: 'json'
         });
     });
