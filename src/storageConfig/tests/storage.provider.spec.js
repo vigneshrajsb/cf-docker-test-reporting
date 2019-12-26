@@ -137,7 +137,7 @@ describe('Storage provider', () => {
             'name': 'azureBlobTest'
         },
         'spec': {
-            'type': 'storage.azb',
+            'type': 'storage.azureb',
             'data': {
                 'sharingPolicy': 'AllUsersInAccount',
                 'auth': {
@@ -206,7 +206,7 @@ describe('Storage provider', () => {
             this.storageConfig = JSON.stringify(storageConfAzureBlob);
         };
         expect(await storageConfigProvider.provide({ config })).to.deep.equal({
-            integrationType: 'storage.azb',
+            integrationType: 'storage.azureb',
             name: 'azureBlobTest',
             storageConfig: storageConfAzureBlobExtracted,
             type: 'json'

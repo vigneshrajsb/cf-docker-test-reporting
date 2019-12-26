@@ -18,7 +18,7 @@ class AzureStorage extends BasicStorage {
             type: 'json',
             integrationType: AzureStorage.getType(),
             name: _.get(this.storageConfig, 'metadata.name'),
-            storageConfig: _.get(this.storageConfig, 'spec.data.auth.jsonConfig')
+            storageConfig: _.get(this.storageConfig, 'spec.data.auth')
         };
     }
 
