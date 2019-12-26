@@ -25,10 +25,10 @@ class AzureStorage extends BasicStorage {
     validateConfig() {
         this.extractStorageConfig();
 
-        this.validateStorageConfFields();
+        this._validateStorageConfFields();
     }
 
-    validateStorageConfFields() {
+    _validateStorageConfFields() {
 
         const { type, storageConfig } = this.extractedConfig;
 

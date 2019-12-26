@@ -1,11 +1,12 @@
 'use strict';
 
+const Promise = require('bluebird');
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const fs = require('fs');
 
 const FULL_USER_PERMISSION = '0744';
 
-class AzureApi {
+class AzureBlobApi {
     constructor({ extractedStorageConfig }) {
         const { storageConfig: { accountName, accountKey } = {} } = extractedStorageConfig;
         const sharedKeyCredential = new StorageSharedKeyCredential(accountName,
@@ -34,7 +35,7 @@ class AzureApi {
     }
 
     async _downloadHistoryFromAzureStorage({ historyDir, config, buildData }) {
-        const bucketName = config.env.bucketName;
+        const { env: { bucketName } = {} } = config;
         const containerClient = await this.blobServiceClient.getContainerClient(bucketName);
         const iter = await containerClient.listBlobsFlat(
             { prefix: `${buildData.pipelineId}/${config.env.branchNormalized}/${config.allureHistoryDir}/` });
@@ -42,20 +43,12 @@ class AzureApi {
         let blobItem = await iter.next();
 
         while (!blobItem.done) {
-            // eslint-disable-next-line no-loop-func
-            const promise = new Promise((res, rej) => {
-                const baseName = blobItem.value.name;
-                const blobClient = containerClient.getBlobClient(baseName);
-                blobClient.download().then((response) => {
-                    fs.writeFile(`${historyDir}/${baseName}`,
-                        response.readableStreamBody, { mode: FULL_USER_PERMISSION }, (e) => {
-                            if (e) {
-                                rej(e);
-                            }
-
-                            res(true);
-                        });
-                });
+            const { value: { name } = {} } = blobItem;
+            const blobClient = containerClient.getBlobClient(name);
+            const promise = blobClient.download().then((response) => {
+                return Promise.fromCallback(cb =>
+                        fs.writeFile(`${historyDir}/${name}`,
+                        response.readableStreamBody, { mode: FULL_USER_PERMISSION }, cb));
             });
             promises.push(promise);
             // eslint-disable-next-line no-await-in-loop
@@ -65,4 +58,4 @@ class AzureApi {
     }
 }
 
-module.exports = AzureApi;
+module.exports = AzureBlobApi;
