@@ -92,7 +92,7 @@ class AzureFileApi {
                 promises.push(promise);
             });
         } catch (e) {
-            logger.error(e);
+            logger.log(e);
         }
 
         return Promise.all(promises);
