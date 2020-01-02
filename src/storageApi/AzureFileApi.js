@@ -40,8 +40,7 @@ class AzureFileApi {
             path += '/';
         }
         const fileUrl = FileURL.fromDirectoryURL(dirUrl, fileName);
-        await uploadFileToAzureFile(Aborter.none, file, fileUrl);
-        return fileUrl;
+        return uploadFileToAzureFile(Aborter.none, file, fileUrl);
     }
 
     async _createShareUrl(bucketName) {
