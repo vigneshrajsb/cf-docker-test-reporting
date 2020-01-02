@@ -48,11 +48,8 @@ class AzureFileApi {
         const shareUrl = ShareURL.fromServiceURL(this.serviceURL, bucketName);
         try {
             await shareUrl.create(Aborter.none);
-        //    console.info('createShareUrl\t\t\t -> Share successfully created.');
         } catch (err) {
-            if (err.body && err.body.Code === 'ShareAlreadyExists') {
-            //    console.info('createShareUrl\t\t\t -> Share already created.');
-            } else {
+            if (err.body && err.body.Code !== 'ShareAlreadyExists') {
                 throw err;
             }
         }
@@ -68,11 +65,8 @@ class AzureFileApi {
         const directoryUrl = DirectoryURL.fromDirectoryURL(azureUrl, dirName);
         try {
             await directoryUrl.create(Aborter.none);
-        //    console.info(`createDirectoryUrl\t\t -> ${directoryUrl.url} Directory successfully created.`);
         } catch (err) {
-            if (err.body && err.body.Code === 'ResourceAlreadyExists') {
-            //    console.info(`createDirectoryUrl\t\t -> ${directoryUrl.url} Directory already created.`);
-            } else {
+            if (err.body && err.body.Code !== 'ResourceAlreadyExists') {
                 throw err;
             }
         }
@@ -104,32 +98,5 @@ class AzureFileApi {
         return Promise.all(promises);
     }
 }
-
-
-const config = { extractedStorageConfig: { storageConfig: { accountName: 'vkazurefilestorage',
-            accountKey: 'IhjeX61FHQ+2pAXbBOHLCTwczLA6XoVaJyYr9ZPYdDcOpsexi+t7T78gM8sIe/EGTG9wj4Y4stVo4ly0NTnh/w==' } } };
-const test = new AzureFileApi(config);
-const uploadOpts = { bucketName: 'quickstart5',
-    file: '/home/admincomp/test/azureTestFile.html',
-    pathToDeploy: 'home/admincomp/test/azureTestFile.html' };
-(async () => {
-    try {
-        await test.upload(uploadOpts);
-    } catch (e) {
-        console.log(e);
-    }
-})();
-const downloadOpts = { historyDir: '/tmp',
-    config: { env: { bucketName: 'quickstart5', branchNormalized: 'admincomp' },
-        allureHistoryDir: 'test2' },
-    buildData: { pipelineId: 'home' } };
-(async () => {
-    try {
-        await test.downloadHistory(downloadOpts);
-   //     console.log(downloadResult);
-    } catch (e) {
-        console.log(e);
-    }
-})();
 
 module.exports = AzureFileApi;
