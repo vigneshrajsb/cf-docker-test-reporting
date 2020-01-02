@@ -142,16 +142,38 @@ describe('Storage provider', () => {
                 'sharingPolicy': 'AllUsersInAccount',
                 'auth': {
                     'type': 'basic',
-                    'jsonConfig': {
-                        'accountName': 'fakeAccountName',
-                        'accountKey': 'fakeAccountKey'
-                    }
+                    'accountName': 'fakeAccountName',
+                    'accountKey': 'fakeAccountKey'
+
                 }
             }
         }
     };
 
-    const storageConfAzureBlobExtracted = {
+    const storageConfAzureFile = {
+        'apiVersion': 'v1',
+        'kind': 'context',
+        'owner': 'account',
+        'metadata': {
+            'default': false,
+            'system': false,
+            'name': 'azureFileTest'
+        },
+        'spec': {
+            'type': 'storage.azuref',
+            'data': {
+                'sharingPolicy': 'AllUsersInAccount',
+                'auth': {
+                    'type': 'basic',
+                    'accountName': 'fakeAccountName',
+                    'accountKey': 'fakeAccountKey'
+                }
+            }
+        }
+    };
+
+    const storageConfAzureExtracted = {
+        'type': 'basic',
         'accountName': 'fakeAccountName',
         'accountKey': 'fakeAccountKey'
     };
@@ -208,7 +230,20 @@ describe('Storage provider', () => {
         expect(await storageConfigProvider.provide({ config })).to.deep.equal({
             integrationType: 'storage.azureb',
             name: 'azureBlobTest',
-            storageConfig: storageConfAzureBlobExtracted,
+            storageConfig: storageConfAzureExtracted,
+            type: 'json'
+        });
+    });
+
+    it('provide config for azure file storage', async () => {
+        const storageConfigProvider = new StorageConfigProvider({ config });
+        storageConfigProvider.__proto__._getStorageConfig = function () {
+            this.storageConfig = JSON.stringify(storageConfAzureFile);
+        };
+        expect(await storageConfigProvider.provide({ config })).to.deep.equal({
+            integrationType: 'storage.azuref',
+            name: 'azureFileTest',
+            storageConfig: storageConfAzureExtracted,
             type: 'json'
         });
     });

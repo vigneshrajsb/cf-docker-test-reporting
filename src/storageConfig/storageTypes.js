@@ -3,5 +3,6 @@
 module.exports = {
     google: 'storage.gc',
     amazon: 'storage.s3',
-    azure: 'storage.azureb'
+    azureBlob: 'storage.azureb',
+    azureFile: 'storage.azuref'
 };

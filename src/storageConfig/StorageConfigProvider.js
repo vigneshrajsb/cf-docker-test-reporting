@@ -97,7 +97,9 @@ class StorageConfigProvider {
                 jsonConfigFileName = config.googleStorageConfig.keyFilename;
             } else if (storageTypes.amazon === this.extractedStorageConfig.integrationType) {
                 jsonConfigFileName = config.amazonKeyFileName;
-            } else if (storageTypes.azure === this.extractedStorageConfig.integrationType) {
+            } else if (storageTypes.azureBlob === this.extractedStorageConfig.integrationType) {
+                jsonConfigFileName = config.azureBlobKeyFileName;
+            } else if (storageTypes.azureFile === this.extractedStorageConfig.integrationType) {
                 jsonConfigFileName = config.azureKeyFileName;
             } else {
                 throw new Error(`Unsupported integration type "${this.extractedStorageConfig.integrationType}"`);
