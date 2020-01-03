@@ -2,12 +2,13 @@
 
 const Promise = require('bluebird');
 const { Aborter, DirectoryURL, FileURL, ServiceURL, ShareURL,
-    SharedKeyCredential, StorageURL, uploadFileToAzureFile } = require('@azure/storage-file');
+    SharedKeyCredential, StorageURL, uploadStreamToAzureFile } = require('@azure/storage-file');
 const fs = require('fs');
 const logger = require('../logger');
 
 const FULL_USER_PERMISSION = '0744';
-
+const RANGE_SIZE = 4 * 1024 * 1024;
+const PARALLELISM = 20;
 
 class AzureFileApi {
     constructor({ extractedStorageConfig }) {
@@ -40,8 +41,8 @@ class AzureFileApi {
             path += '/';
         }
         const fileUrl = FileURL.fromDirectoryURL(dirUrl, fileName);
-        await uploadFileToAzureFile(Aborter.none, file, fileUrl);
-        return fileUrl;
+        const fileSize = fs.statSync(file).size;
+        return uploadStreamToAzureFile(Aborter.none, fs.createReadStream(file), fileSize, fileUrl, RANGE_SIZE, PARALLELISM);
     }
 
     async _createShareUrl(bucketName) {
