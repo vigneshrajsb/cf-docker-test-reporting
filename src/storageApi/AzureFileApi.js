@@ -44,7 +44,7 @@ class AzureFileApi {
             rangeSize: 4 * 1024 * 1024, // 4MB range size
             parallelism: 20, // 20 concurrency
             progress: ev => console.log(ev)
-        })
+        });
         return fileUrl;
     }
 
