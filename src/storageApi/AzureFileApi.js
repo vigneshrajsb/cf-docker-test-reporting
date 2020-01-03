@@ -27,7 +27,6 @@ class AzureFileApi {
 
     async _uploadFileToAzureStorage({ bucketName, file, pathToDeploy }) {
 
-        console.log(`b:${bucketName} f:${file} pathToDeploy:${pathToDeploy}`);
         const splitedPath = pathToDeploy.split('/');
         const splitedFoldersPath = splitedPath.slice(0, -1);
         const fileName = splitedPath.pop();
@@ -41,9 +40,7 @@ class AzureFileApi {
             path += '/';
         }
         const fileUrl = FileURL.fromDirectoryURL(dirUrl, fileName);
-        console.log(`try to upload ${fileName}`);
         await uploadFileToAzureFile(Aborter.none, file, fileUrl);
-        console.log(`file uploaded ${fileName}`);
         return fileUrl;
     }
 

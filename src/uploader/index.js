@@ -12,7 +12,6 @@ class Uploader {
     static async uploadFiles(state, opts) {
         const { config, isUploadFile, extractedStorageConfig, buildData } = state;
         const { srcDir, uploadHistory } = opts;
-        console.log(state);
 
         const {
             env: {
@@ -56,9 +55,7 @@ class Uploader {
                             logFileUpload
                         });
                     });
-                    console.log('wait for files');
                     await Promise.all(uploadPromises); // eslint-disable-line
-                    console.log('upload all files');
                     start += config.uploadParallelLimit;
                     end += config.uploadParallelLimit;
                 }
