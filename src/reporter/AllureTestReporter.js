@@ -57,7 +57,7 @@ class AllureTestReporter extends BasicTestReporter {
                     const result = await uploader.uploadFiles(state, {
                         srcDir: config.resultReportFolderName,
                     });
-                    console.log(state.linkOnReport)
+                    console.log(state.linkOnReport);
 
                     res({
                         reportLink: state.linkOnReport,
