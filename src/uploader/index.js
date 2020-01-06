@@ -55,9 +55,7 @@ class Uploader {
                             logFileUpload
                         });
                     });
-
                     await Promise.all(uploadPromises); // eslint-disable-line
-
                     start += config.uploadParallelLimit;
                     end += config.uploadParallelLimit;
                 }

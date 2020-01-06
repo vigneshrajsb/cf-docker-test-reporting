@@ -2,10 +2,12 @@
 
 const GoogleStorage = require('./googleStorage');
 const AmazonStorage = require('./amazonStorage');
-const AzureStorage = require('./azureStorage');
+const AzureBlobStorage = require('./azureBlobStorage');
+const AzureFileStorage = require('./azureFileStorage');
 
 module.exports = {
     [GoogleStorage.getType()]: GoogleStorage,
     [AmazonStorage.getType()]: AmazonStorage,
-    [AzureStorage.getType()]: AzureStorage
+    [AzureBlobStorage.getType()]: AzureBlobStorage,
+    [AzureFileStorage.getType()]: AzureFileStorage,
 };
