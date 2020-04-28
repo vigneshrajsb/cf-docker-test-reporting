@@ -1,13 +1,13 @@
 const Minio = require('minio');
 
 class MinioApi {
-    constructor({ config }) {
+    constructor({ extractedStorageConfig }) {
         this.minioClient = new Minio.Client({
-            endPoint: '127.0.0.1',
-            port: 9000,
-            useSSL: false,
-            accessKey: 'minioadmin',
-            secretKey: 'minioadmin'
+            endPoint: extractedStorageConfig.endpoint,
+            port: extractedStorageConfig.port,
+            useSSL: extractedStorageConfig.useSSL,
+            accessKey: extractedStorageConfig.accessKey,
+            secretKey: extractedStorageConfig.secretKey
         });
     }
 
