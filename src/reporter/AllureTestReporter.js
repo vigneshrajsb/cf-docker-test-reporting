@@ -1,5 +1,3 @@
-'use strict';
-
 const BasicTestReporter = require('./BasicTestReporter');
 const allureCmd = require('../../cf-allure-commandline/index');
 const Validator = require('../validation');
@@ -21,7 +19,7 @@ class AllureTestReporter extends BasicTestReporter {
         this.showStartLogs(state);
         state.linkOnReport = this._buildLinkOnReport(state);
 
-        await this.exportVariables(state);
+        //await this.exportVariables(state);
 
         await Validator.validateUploadDir(state, config.env.sourceReportFolderName);
 

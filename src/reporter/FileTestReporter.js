@@ -12,7 +12,7 @@ class FileTestReporter extends BasicTestReporter {
 
         this.showStartLogs(state, true);
         state.linkOnReport = this._buildLinkOnReport(state);
-        await this.exportVariables(state);
+        //await this.exportVariables(state);
 
         if (!isUploadFile) {
             Validator.validateRequiredVars(state);

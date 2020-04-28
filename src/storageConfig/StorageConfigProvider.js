@@ -12,8 +12,8 @@ class StorageConfigProvider {
     }
 
     async provide({ config }) {
-        await this._getStorageConfig({ config });
-        await this._validateStorageConfig();
+        const storageConfig = await this._getStorageConfig({ config });
+        await this._validateStorageConfig(storageConfig);
         await this._extractStorageConfig();
         await this._createStorageConfigFile({ config });
 
@@ -29,7 +29,7 @@ class StorageConfigProvider {
         };
 
         try {
-            this.storageConfig = await rp(opts);
+            return await rp(opts);
         } catch (e) {
             const infoErrMsg = `Can't get storage integration: ${this.integrationName}`;
             if (config.env.logLevel === config.logLevels.DEBUG) {
@@ -44,11 +44,11 @@ class StorageConfigProvider {
         return storageTypesMap[_.get(storageConfig, 'spec.type')];
     }
 
-    _parseStorageConfig() {
+    _parseStorageConfig(storageConfig) {
         let parsedConfig;
 
         try {
-            parsedConfig = JSON.parse(this.storageConfig);
+            parsedConfig = JSON.parse(storageConfig);
 
             if (!_.isObject(parsedConfig)) {
                 throw new Error(`Config must be object, instead got ${typeof parsedConfig}`);
@@ -65,14 +65,14 @@ class StorageConfigProvider {
         this.extractedStorageConfig = this.storageHandler.extractedConfig;
     }
 
-    _validateStorageConfig() {
+    _validateStorageConfig(config) {
         console.log('Starting validate storage config');
 
         if (!this.integrationName) {
             throw new Error('This service requires integration with some storage, you can specify storage via CF_STORAGE_INTEGRATION'); // eslint-disable-line
         }
 
-        const storageConfig = this._parseStorageConfig();
+        const storageConfig = this._parseStorageConfig(config);
 
         const StorageHandler = this._getStorageTypeHandler(storageConfig);
 
