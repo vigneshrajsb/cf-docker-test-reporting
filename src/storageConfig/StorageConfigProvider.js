@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const rp = require('request-promise');
 const storageTypesMap = require('./types');

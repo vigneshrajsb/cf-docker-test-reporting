@@ -1,5 +1,3 @@
-'use strict';
-
 const Promise = require('bluebird');
 const { Aborter, DirectoryURL, FileURL, ServiceURL, ShareURL,
     SharedKeyCredential, StorageURL, uploadStreamToAzureFile } = require('@azure/storage-file');
