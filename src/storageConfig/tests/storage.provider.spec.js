@@ -1,3 +1,5 @@
+'use strict';
+
 /* eslint no-proto: 0 */
 
 const expect = require('chai').expect;

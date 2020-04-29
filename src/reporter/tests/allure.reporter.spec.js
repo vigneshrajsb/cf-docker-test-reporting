@@ -1,3 +1,5 @@
+'use strict';
+
 const expect = require('chai').expect;
 const FileManager = require('../../FileManager');
 const fs = require('fs');

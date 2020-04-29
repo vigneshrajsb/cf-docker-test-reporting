@@ -1,17 +1,22 @@
+'use strict';
 
-const BasicStorage = require('./basic.storage');
 const _ = require('lodash');
-const { azureBlob } = require('../storageTypes');
+const BasicStorage = require('./basicStorage');
+const { azureFile } = require('../storageTypes');
 
-class AzureBlobStorage extends BasicStorage {
+class AzureFileStorage extends BasicStorage {
     constructor({ storageConfig }) {
         super(storageConfig);
+    }
+
+    static getType() {
+        return azureFile;
     }
 
     extractStorageConfig() {
         this.extractedConfig = {
             type: 'json',
-            integrationType: azureBlob,
+            integrationType: AzureFileStorage.getType(),
             name: _.get(this.storageConfig, 'metadata.name'),
             storageConfig: _.get(this.storageConfig, 'spec.data.auth')
         };
@@ -42,4 +47,4 @@ class AzureBlobStorage extends BasicStorage {
     }
 }
 
-module.exports = AzureBlobStorage;
+module.exports = AzureFileStorage;
