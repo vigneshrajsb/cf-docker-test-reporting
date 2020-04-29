@@ -1,4 +1,6 @@
-const BasicStorage = require('./basic.storage');
+'use strict';
+
+const BasicStorage = require('./basicStorage');
 const _ = require('lodash');
 const { google } = require('../storageTypes');
 
@@ -7,17 +9,25 @@ class GoogleStorage extends BasicStorage {
         super(storageConfig);
     }
 
+    static getType() {
+        return google;
+    }
+
     extractStorageConfig() {
-        const config = {
-            integrationType: google,
-            name: _.get(this.storageConfig, 'metadata.name'),
-        };
         if (this.isStorageJsonConfigUsed(this.storageConfig)) {
-            config.type = 'json';
-            config.storageConfig = _.get(this.storageConfig, 'spec.data.auth.jsonConfig');
+            this.extractedConfig = {
+                type: 'json',
+                integrationType: GoogleStorage.getType(),
+                name: _.get(this.storageConfig, 'metadata.name'),
+                storageConfig: _.get(this.storageConfig, 'spec.data.auth.jsonConfig')
+            };
         } else {
-            config.type = 'auth';
-            config.storageConfig = _.get(this.storageConfig, 'spec.data.auth');
+            this.extractedConfig = {
+                type: 'auth',
+                integrationType: GoogleStorage.getType(),
+                name: _.get(this.storageConfig, 'metadata.name'),
+                storageConfig: _.get(this.storageConfig, 'spec.data.auth')
+            };
         }
     }
 

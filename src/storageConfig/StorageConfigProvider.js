@@ -1,3 +1,5 @@
+'use strict';
+
 const _ = require('lodash');
 const rp = require('request-promise');
 const storageTypesMap = require('./types');
@@ -10,8 +12,8 @@ class StorageConfigProvider {
     }
 
     async provide({ config }) {
-        const storageConfig = await this._getStorageConfig({ config });
-        await this._validateStorageConfig(storageConfig);
+        await this._getStorageConfig({ config });
+        await this._validateStorageConfig();
         await this._extractStorageConfig();
         await this._createStorageConfigFile({ config });
 
@@ -27,7 +29,7 @@ class StorageConfigProvider {
         };
 
         try {
-            return await rp(opts);
+            this.storageConfig = await rp(opts);
         } catch (e) {
             const infoErrMsg = `Can't get storage integration: ${this.integrationName}`;
             if (config.env.logLevel === config.logLevels.DEBUG) {
@@ -42,11 +44,11 @@ class StorageConfigProvider {
         return storageTypesMap[_.get(storageConfig, 'spec.type')];
     }
 
-    _parseStorageConfig(storageConfig) {
+    _parseStorageConfig() {
         let parsedConfig;
 
         try {
-            parsedConfig = JSON.parse(storageConfig);
+            parsedConfig = JSON.parse(this.storageConfig);
 
             if (!_.isObject(parsedConfig)) {
                 throw new Error(`Config must be object, instead got ${typeof parsedConfig}`);
@@ -63,14 +65,14 @@ class StorageConfigProvider {
         this.extractedStorageConfig = this.storageHandler.extractedConfig;
     }
 
-    _validateStorageConfig(config) {
+    _validateStorageConfig() {
         console.log('Starting validate storage config');
 
         if (!this.integrationName) {
             throw new Error('This service requires integration with some storage, you can specify storage via CF_STORAGE_INTEGRATION'); // eslint-disable-line
         }
 
-        const storageConfig = this._parseStorageConfig(config);
+        const storageConfig = this._parseStorageConfig();
 
         const StorageHandler = this._getStorageTypeHandler(storageConfig);
 
