@@ -21,6 +21,7 @@
 
   "rules": {
     "global-require": 0,
+    "strict": [2, "never"],
     "indent": [
       "error",
       4,
@@ -53,10 +54,6 @@
     "no-param-reassign": "off",
     "no-else-return": "off",
     "arrow-body-style": "off",
-    "strict": [
-      "error",
-      "global"
-    ],
     "no-multi-spaces": "off",
     "padded-blocks": "off",
     "import/no-extraneous-dependencies": [
