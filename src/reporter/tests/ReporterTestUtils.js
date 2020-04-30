@@ -1,3 +1,5 @@
+'use strict';
+
 const FileManager = require('../../FileManager');
 
 class ReporterTestUtils {

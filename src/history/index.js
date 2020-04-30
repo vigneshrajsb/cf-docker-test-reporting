@@ -1,3 +1,5 @@
+'use strict';
+
 const StorageApi = require('../storageApi');
 const FileManager = require('../FileManager');
 const path = require('path');

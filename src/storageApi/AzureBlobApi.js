@@ -1,3 +1,5 @@
+'use strict';
+
 const Promise = require('bluebird');
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const fs = require('fs');

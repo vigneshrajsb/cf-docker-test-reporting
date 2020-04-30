@@ -1,6 +1,8 @@
+'use strict';
+
 const rp = require('request-promise');
 
-class CodefreshAPI {
+class AnnotationLogic {
     static async createAnnotation({ config, value }) {
         // this query use proxy ability to replace :account_id to currentAccountID
         // this ability use because we don`t know accountId
@@ -21,30 +23,6 @@ class CodefreshAPI {
 
         return rp(createAnnotationOpts);
     }
-
-    static async getProcessById({ id, config }) {
-        const opts = {
-            uri: `${config.apiHost}/api/workflow/${id}/process`,
-            headers: {
-                'Authorization': config.env.apiKey
-            }
-        };
-
-        let process;
-
-        try {
-            const processRes = await rp(opts);
-            process = JSON.parse(processRes);
-        } catch (e) {
-            throw new Error('Error during getting process info');
-        }
-
-        if (!process) {
-            throw new Error('Error, process info is not defined');
-        }
-
-        return process;
-    }
 }
 
-module.exports = CodefreshAPI;
+module.exports = AnnotationLogic;

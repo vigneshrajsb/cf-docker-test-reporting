@@ -1,3 +1,5 @@
+'use strict';
+
 const BasicTestReporter = require('./BasicTestReporter');
 const Validator = require('../validation');
 const uploader = require('../uploader');

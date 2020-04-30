@@ -1,6 +1,8 @@
+'use strict';
+
 const Exec = require('child_process').exec;
 const _ = require('lodash');
-const CodefreshAPI = require('../api');
+const Workflow = require('../api/workflow');
 const Logger = require('../logger');
 
 class BasicTestReporter {
@@ -17,7 +19,7 @@ class BasicTestReporter {
     }
 
     async addBuildData(state) {
-        const process = await CodefreshAPI.getProcessById({ id: state.config.env.buildId, config: state.config });
+        const process = await Workflow.getProcessById({ id: state.config.env.buildId, config: state.config });
         state.buildData = { pipelineId: _.get(process, 'pipeline') };
     }
 
