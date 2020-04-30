@@ -19,10 +19,11 @@ class GoogleStorage extends BasicStorage {
             config.type = 'auth';
             config.storageConfig = _.get(this.storageConfig, 'spec.data.auth');
         }
+        return config;
     }
 
     validateConfig() {
-        this.extractStorageConfig();
+        this.extractedConfig = this.extractStorageConfig();
 
         this.validateStorageConfFields();
     }
