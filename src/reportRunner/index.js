@@ -1,12 +1,9 @@
-'use strict';
-
 const Config = require('../../config');
 const MultiReportRunner = require('./MultiReportRunner');
 const SingleReportRunner = require('./SingleReportRunner');
 const StorageConfigProvider = require('../storageConfig/StorageConfigProvider');
 const Logger = require('../logger');
-const PaymentsLogic = require('../paymentsLogic');
-const AnnotationLogic = require('../annotationLogic');
+const CodefreshAPI = require('../api');
 const _ = require('lodash');
 
 class Runner {
@@ -34,7 +31,7 @@ class Runner {
             const report = await runner.run(reporterData);
 
             const singleConfig = _.isArray(config) ? config[0] : config;
-            AnnotationLogic.createAnnotation({ config: singleConfig, value: report.reportLink })
+            CodefreshAPI.createAnnotation({ config: singleConfig, value: report.reportLink })
                 .then(() => Logger.log(`Annotation ${singleConfig.annotationName} was created.`))
                 .catch(e => Logger.log('yellow', `Can't create annotation ${singleConfig.annotationName}.\n${e.message}`));
 
@@ -50,7 +47,8 @@ class Runner {
 
         Runner.validateRequiredVars({ config });
 
-        const uploadMaxSize = await PaymentsLogic.getMaxUploadSizeDependingOnPlan({ config });
+
+        const uploadMaxSize = config.maxUploadSize;
         const extractedStorageConfig = await storageConfigProvider.provide({ config });
 
         return { extractedStorageConfig, uploadMaxSize };

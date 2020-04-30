@@ -1,5 +1,3 @@
-'use strict';
-
 /* eslint prefer-rest-params: 0 */
 
 const colors = {

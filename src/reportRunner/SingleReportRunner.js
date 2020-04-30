@@ -1,5 +1,3 @@
-'use strict';
-
 /* eslint consistent-return: 0 */
 
 const { removeTestReportDir } = require('../FileManager');

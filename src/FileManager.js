@@ -1,5 +1,3 @@
-'use strict';
-
 /* eslint consistent-return: 0 */
 
 const recursiveReadSync = require('recursive-readdir-sync');
@@ -29,9 +27,8 @@ class FileManager {
     static _getFilesForUpload({ srcDir, uploadFile, isUploadFile }) {
         if (!isUploadFile) {
             return recursiveReadSync(srcDir);
-        } else {
-            return [uploadFile];
         }
+        return [uploadFile];
     }
 
     static removeTestReportDir({ isUpload, config }) {
