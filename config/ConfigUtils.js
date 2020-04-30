@@ -1,3 +1,5 @@
+'use strict';
+
 const _ = require('lodash');
 
 const FIND_VAR_INDEX = /\d{1,2}$/;

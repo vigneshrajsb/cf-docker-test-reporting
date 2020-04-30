@@ -1,3 +1,5 @@
+'use strict';
+
 const fs = require('fs');
 const FileManager = require('../FileManager');
 const _ = require('lodash');
