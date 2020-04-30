@@ -1,13 +1,15 @@
-'use strict';
+const GoogleStorage = require('./google.storage');
+const AmazonStorage = require('./amazon.storage');
+const AzureBlobStorage = require('./azure.blob.storage');
+const AzureFileStorage = require('./azure.file.storage');
+const MinioStorage = require('./minio.storage');
 
-const GoogleStorage = require('./googleStorage');
-const AmazonStorage = require('./amazonStorage');
-const AzureBlobStorage = require('./azureBlobStorage');
-const AzureFileStorage = require('./azureFileStorage');
+const storageTypes = require('../storageTypes');
 
 module.exports = {
-    [GoogleStorage.getType()]: GoogleStorage,
-    [AmazonStorage.getType()]: AmazonStorage,
-    [AzureBlobStorage.getType()]: AzureBlobStorage,
-    [AzureFileStorage.getType()]: AzureFileStorage,
+    [storageTypes.google]: GoogleStorage,
+    [storageTypes.amazon]: AmazonStorage,
+    [storageTypes.azureBlob]: AzureBlobStorage,
+    [storageTypes.azureFile]: AzureFileStorage,
+    [storageTypes.minio]: MinioStorage
 };

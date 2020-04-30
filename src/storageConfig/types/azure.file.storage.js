@@ -1,38 +1,32 @@
-'use strict';
-
-const BasicStorage = require('./basicStorage');
 const _ = require('lodash');
-const { amazon } = require('../storageTypes');
+const BasicStorage = require('./basic.storage');
+const { azureFile } = require('../storageTypes');
 
-class AmazonStorage extends BasicStorage {
+class AzureFileStorage extends BasicStorage {
     constructor({ storageConfig }) {
         super(storageConfig);
-    }
-
-    static getType() {
-        return amazon;
     }
 
     extractStorageConfig() {
         this.extractedConfig = {
             type: 'json',
-            integrationType: AmazonStorage.getType(),
+            integrationType: azureFile,
             name: _.get(this.storageConfig, 'metadata.name'),
-            storageConfig: _.get(this.storageConfig, 'spec.data.auth.jsonConfig')
+            storageConfig: _.get(this.storageConfig, 'spec.data.auth')
         };
     }
 
     validateConfig() {
         this.extractStorageConfig();
 
-        this.validateStorageConfFields();
+        this._validateStorageConfFields();
     }
 
-    validateStorageConfFields() {
+    _validateStorageConfFields() {
 
         const { type, storageConfig } = this.extractedConfig;
 
-        const requiredFields = ['accessKeyId', 'secretAccessKey'];
+        const requiredFields = ['accountName', 'accountKey'];
         const missingVars = [];
 
         requiredFields.forEach((reqVar) => {
@@ -47,4 +41,4 @@ class AmazonStorage extends BasicStorage {
     }
 }
 
-module.exports = AmazonStorage;
+module.exports = AzureFileStorage;

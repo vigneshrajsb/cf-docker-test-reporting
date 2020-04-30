@@ -1,5 +1,3 @@
-'use strict';
-
 const BasicTestReporter = require('./BasicTestReporter');
 const allureCmd = require('../../cf-allure-commandline/index');
 const Validator = require('../validation');

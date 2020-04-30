@@ -1,5 +1,3 @@
-'use strict';
-
 const FileManager = require('../FileManager');
 const Config = require('../../config');
 const Logger = require('../logger');
