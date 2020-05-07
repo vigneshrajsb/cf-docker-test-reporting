@@ -13,7 +13,7 @@ class MinioStorage extends BasicStorage {
             integrationType: minio,
             name: _.get(this.storageConfig, 'metadata.name'),
             endpoint: _.get(this.storageConfig, 'spec.data.auth.endpoint'),
-            port: _.get(this.storageConfig, 'spec.data.auth.port'),
+            port: Number(_.get(this.storageConfig, 'spec.data.auth.port')),
             useSSL: _.get(this.storageConfig, 'spec.data.auth.useSSL'),
             accessKey: _.get(this.storageConfig, 'spec.data.auth.accessKey'),
             secretKey: _.get(this.storageConfig, 'spec.data.auth.secretKey'),
