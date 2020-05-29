@@ -1,0 +1,31 @@
+FROM mcr.microsoft.com/powershell:lts-nanoserver-1809
+WORKDIR /nodejs
+
+RUN pwsh -Command \
+  $ErrorActionPreference = 'Stop'; \
+  $ProgressPreference = 'SilentlyContinue'; \
+  Invoke-WebRequest https://nodejs.org/dist/latest-v10.x/node-v10.20.1-win-x64.zip -OutFile nodejs.zip; \
+  Expand-Archive nodejs.zip -DestinationPath .; \
+  Remove-Item nodejs.zip
+
+FROM openjdk:11-nanoserver-1809
+WORKDIR /app
+COPY --from=0 /nodejs/node-v10.20.1-win-x64 /app/nodejs
+
+# define variables passed form codefresh
+ARG BUCKET_NAME
+ARG REPORT_DIR
+ARG REPORT_INDEX_FILE
+ARG CLEAR_TEST_REPORT
+ARG ALLURE_DIR
+ARG REPORT_LOGGING_LEVEL
+
+# Install app dependencies
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# where available (npm@5+)
+COPY package*.json ./
+RUN /app/nodejs/npm install --only=production
+
+# Bundle app source
+COPY . .
+CMD /app/nodejs/node index.js
