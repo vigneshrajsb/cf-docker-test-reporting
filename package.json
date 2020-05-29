@@ -2,6 +2,10 @@
 	"name": "cf-docker-test-reporting",
 	"version": "1.0.0",
 	"description": "Generate test report",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/codefresh-io/cf-docker-test-reporting"
+	},
 	"main": "index.js",
 	"scripts": {
 		"eslint": "eslint ./src/**/*.js",
