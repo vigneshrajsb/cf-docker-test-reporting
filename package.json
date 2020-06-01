@@ -20,12 +20,12 @@
 		"@google-cloud/storage": "^1.7.0",
 		"aws-sdk": "^2.359.0",
 		"bluebird": "^3.7.2",
-		"lodash": "^4.17.11",
+		"lodash": "^4.17.15",
+		"minio": "^7.0.15",
 		"path": "^0.12.7",
 		"recursive-readdir-sync": "^1.0.6",
 		"request": "^2.88.0",
-		"request-promise": "^4.2.2",
-		"minio": "^7.0.15"
+		"request-promise": "^4.2.2"
 	},
 	"devDependencies": {
 		"chai": "^3.5.0",
