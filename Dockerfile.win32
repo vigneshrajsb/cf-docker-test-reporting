@@ -4,13 +4,13 @@ WORKDIR /nodejs
 RUN pwsh -Command \
   $ErrorActionPreference = 'Stop'; \
   $ProgressPreference = 'SilentlyContinue'; \
-  Invoke-WebRequest https://nodejs.org/dist/latest-v10.x/node-v10.20.1-win-x64.zip -OutFile nodejs.zip; \
+  Invoke-WebRequest https://nodejs.org/dist/v12.17.0/node-v12.17.0-win-x64.zip -OutFile nodejs.zip; \
   Expand-Archive nodejs.zip -DestinationPath .; \
   Remove-Item nodejs.zip
 
 FROM openjdk:11-nanoserver-1809
 WORKDIR /opt
-COPY --from=0 /nodejs/node-v10.20.1-win-x64 nodejs
+COPY --from=0 /nodejs/node-v12.17.0-win-x64 nodejs
 WORKDIR /app
 
 # define variables passed form codefresh
@@ -29,4 +29,4 @@ RUN /opt/nodejs/npm install --only=production
 
 # Bundle app source
 COPY . .
-CMD /opt/nodejs/node index.js
+CMD ["/opt/nodejs/node", "index.js"]
