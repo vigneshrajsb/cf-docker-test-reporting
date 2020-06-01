@@ -64,7 +64,8 @@ typings/
 .idea
 
 allure-report/
-
+/allure-results/
+/FakeVolume/
 
 # End of https://www.gitignore.io/api/node
 
