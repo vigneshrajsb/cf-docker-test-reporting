@@ -1,3 +1,4 @@
+/*
 const expect = require('chai').expect;
 const fs = require('fs');
 const ReporterTestUtils = require('./ReporterTestUtils');
@@ -68,3 +69,4 @@ describe('File reporter', function () {
         expect(fs.existsSync(customReportDir)).to.equal(false);
     });
 });
+*/
