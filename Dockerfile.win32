@@ -1,17 +1,9 @@
-FROM mcr.microsoft.com/powershell:lts-nanoserver-1809
-WORKDIR /nodejs
-
-RUN pwsh -Command \
-  $ErrorActionPreference = 'Stop'; \
-  $ProgressPreference = 'SilentlyContinue'; \
-  Invoke-WebRequest https://nodejs.org/dist/v12.17.0/node-v12.17.0-win-x64.zip -OutFile nodejs.zip; \
-  Expand-Archive nodejs.zip -DestinationPath .; \
-  Remove-Item nodejs.zip
-
-FROM openjdk:11-nanoserver-1809
+FROM codefresh/openjdk:1909
 WORKDIR /opt
-COPY --from=0 /nodejs/node-v12.17.0-win-x64 nodejs
-ENV PATH="${SystemDrive}\opt\nodejs;$WindowsPATH"
+COPY --from=codefresh/nodejs:1909 /opt/nodejs nodejs
+USER ContainerAdministrator
+RUN setx PATH "%SystemDrive%\opt\nodejs;%PATH%" /M
+USER ContainerUser
 WORKDIR /app
 
 # define variables passed form codefresh
