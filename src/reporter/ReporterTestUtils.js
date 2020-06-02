@@ -1,4 +1,4 @@
-const FileManager = require('../../FileManager');
+const FileManager = require('../FileManager');
 
 class ReporterTestUtils {
     static setEnvVariables(varsObj) {

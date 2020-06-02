@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 const fs = require('fs');
 const ReporterTestUtils = require('./ReporterTestUtils');
-const Config = require('../../../config');
+const Config = require('../../config');
 
 const config = Config.getConfig();
 
@@ -26,7 +26,7 @@ describe('File reporter', function () {
 
         await ReporterTestUtils.initCustomTestResults({ customReportDir, indexFile });
 
-        const reporterRunner = require('../../reportRunner');
+        const reporterRunner = require('../reportRunner');
         const result = await reporterRunner.run();
         expect(result.uploadResult).to.equal(true);
     });
@@ -45,7 +45,7 @@ describe('File reporter', function () {
             REPORT_INDEX_FILE: `${customReportDir}/${indexFile}`,
         });
 
-        const reporterRunner = require('../../reportRunner');
+        const reporterRunner = require('../reportRunner');
         const result = await reporterRunner.run();
         expect(result.uploadResult).to.equal(true);
     });
@@ -62,7 +62,7 @@ describe('File reporter', function () {
 
         await ReporterTestUtils.initCustomTestResults({ customReportDir, indexFile });
 
-        const reporterRunner = require('../../reportRunner');
+        const reporterRunner = require('../reportRunner');
         const result = await reporterRunner.run();
         expect(result.uploadResult).to.equal(true);
         expect(fs.existsSync(customReportDir)).to.equal(false);

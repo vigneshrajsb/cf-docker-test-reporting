@@ -1,8 +1,8 @@
 const expect = require('chai').expect;
-const FileManager = require('../../FileManager');
+const FileManager = require('../FileManager');
 const fs = require('fs');
 const ReporterTestUtils = require('./ReporterTestUtils');
-const Config = require('../../../config');
+const Config = require('../../config');
 
 const config = Config.getConfig();
 
@@ -26,7 +26,7 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(config.env.sourceReportFolderName);
 
-        const reporterRunner = require('../../reportRunner');
+        const reporterRunner = require('../reportRunner');
         const result = await reporterRunner.run();
         expect(result.uploadResult).to.equal(true);
     });
@@ -42,7 +42,7 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(customAllureResults);
 
-        const reporterRunner = require('../../reportRunner');
+        const reporterRunner = require('../reportRunner');
         const result = await reporterRunner.run();
         expect(result.uploadResult).to.equal(true);
     });
@@ -56,7 +56,7 @@ describe('Allure Reporter', function () {
 
         await ReporterTestUtils.initAllureTestResults(config.env.sourceReportFolderName);
 
-        const reporterRunner = require('../../reportRunner');
+        const reporterRunner = require('../reportRunner');
         await reporterRunner.run();
         expect(fs.existsSync(config.env.sourceReportFolderName)).to.equal(false);
     });
@@ -73,18 +73,18 @@ describe('Allure Reporter', function () {
         /**
          * Mock method by rewrite require cache
          */
-        const FileMan = require('../../FileManager');
+        const FileMan = require('../FileManager');
         FileMan.removeTestReportDir = () => {
             Promise.resolve();
         };
 
         ReporterTestUtils.clearRequireCache();
 
-        require('../../FileManager.js');
+        require('../FileManager.js');
 
-        require.cache[require.resolve('../../FileManager.js')].exports = FileMan;
+        require.cache[require.resolve('../FileManager.js')].exports = FileMan;
 
-        const reporterRunner = require('../../reportRunner');
+        const reporterRunner = require('../reportRunner');
         await reporterRunner.run();
 
         expect(fs.existsSync(`${config.env.sourceReportFolderName}/${config.allureHistoryDir}`)).to.equal(true);

@@ -1,9 +1,9 @@
 /* eslint no-proto: 0 */
 
 const expect = require('chai').expect;
-const StorageConfigProvider = require('../StorageConfigProvider');
-const FileManager = require('../../FileManager');
-const Config = require('../../../config');
+const StorageConfigProvider = require('./StorageConfigProvider');
+const FileManager = require('../FileManager');
+const Config = require('../../config');
 
 const config = Config.getConfig();
 
