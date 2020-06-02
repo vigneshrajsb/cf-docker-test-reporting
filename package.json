@@ -9,7 +9,7 @@
 	"main": "index.js",
 	"scripts": {
 		"eslint": "eslint ./src/**/*.js",
-		"test": "mocha src/**/**.spec.js",
+		"test": "mocha src/**/*.spec.js",
 		"lint": "eslint src"
 	},
 	"author": "Pasha <pasha@codefresh.io>",
