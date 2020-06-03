@@ -23,4 +23,4 @@ RUN npm install --only=production
 
 # Bundle app source
 COPY . .
-CMD ["node", "index.js"]
+CMD ["node", "/app/index.js"]
