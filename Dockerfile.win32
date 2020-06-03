@@ -1,9 +1,4 @@
-FROM codefresh/openjdk:1909
-WORKDIR /opt
-COPY --from=codefresh/nodejs:1909 /opt/nodejs nodejs
-USER ContainerAdministrator
-RUN setx PATH "%SystemDrive%\opt\nodejs;%PATH%" /M
-USER ContainerUser
+FROM codefresh/openjdk-nodejs:1909
 WORKDIR /app
 
 # define variables passed form codefresh
