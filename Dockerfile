@@ -5,7 +5,7 @@ RUN apt-get install -y curl \
   && apt-get install -y nodejs
 
 RUN echo "NODE Version:" && node --version
-RUN echo "NPM Version:" && npm --version
+RUN echo "NPM Version:" && yarn --version
 
 
 # Create app directory
