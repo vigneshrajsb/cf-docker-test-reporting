@@ -2,10 +2,11 @@ FROM openjdk:11.0.1-jdk-sid
 
 RUN apt-get install -y curl \
   && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-  && apt-get install -y nodejs
+  && apt-get install -y nodejs \
+  npm
 
 RUN echo "NODE Version:" && node --version
-RUN echo "NPM Version:" && yarn --version
+RUN echo "NPM Version:" && npm --version
 
 
 # Create app directory
