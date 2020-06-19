@@ -21,7 +21,7 @@ class BasicTestReporter {
         state.buildData = { pipelineId: _.get(process, 'pipeline') };
     }
 
-    async exportVariables({ extractedStorageConfig, config, buildData }) {
+    async exportVariables({ extractedStorageConfig, config, buildData, linkOnReport }) {
         /**
          * reportWrapDir - exists only when multiple reports uploads
          * not need export variables on upload each of multiple reports,
@@ -29,6 +29,10 @@ class BasicTestReporter {
          */
         if (config.env.reportWrapDir) {
             return;
+        }
+
+        if (linkOnReport) {
+            await this.setExportVariable('TEST_REPORT_LINK', linkOnReport, config);
         }
 
         await this.setExportVariable('TEST_REPORT', true, config);
