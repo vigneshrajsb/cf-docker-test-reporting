@@ -1,7 +1,7 @@
 FROM openjdk:11.0.1-jdk-sid
 
 RUN apt-get install -y curl \
-  && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_11.x | bash - \
   && apt-get install -y nodejs
 
 # Create app directory
