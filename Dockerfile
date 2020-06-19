@@ -4,6 +4,8 @@ RUN apt-get install -y curl \
   && curl -sL https://deb.nodesource.com/setup_11.x | bash - \
   && apt-get install -y nodejs
 
+RUN echo "NODE Version:" && node --version
+
 # Create app directory
 WORKDIR /app/
 
