@@ -6,7 +6,7 @@ const Logger = require('../logger');
 class BasicTestReporter {
     setExportVariable(varName, varValue, config) {
         return new Promise((res, rej) => {
-            Exec(`echo ${varName}=${varValue} >> ${config.env.volumePath}/env_vars_to_export`, (err) => {
+            Exec(`cf_export ${varName}=${varValue}`, (err) => {
                 if (err) {
                     rej(new Error(`Fail to set export variable, cause: ${err.message}`));
                 }
