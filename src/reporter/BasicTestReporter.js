@@ -4,7 +4,7 @@ const CodefreshAPI = require('../api');
 const Logger = require('../logger');
 
 class BasicTestReporter {
-    setExportVariable(varName, varValue, config) {
+    setExportVariable(varName, varValue) {
         return new Promise((res, rej) => {
             Exec(`cf_export ${varName}=${varValue}`, (err) => {
                 if (err) {
