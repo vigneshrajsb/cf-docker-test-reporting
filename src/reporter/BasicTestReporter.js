@@ -1,19 +1,11 @@
-const Exec = require('child_process').exec;
 const _ = require('lodash');
 const CodefreshAPI = require('../api');
 const Logger = require('../logger');
+const exporter = require('../util/exporter');
 
 class BasicTestReporter {
-    setExportVariable(varName, varValue, config) {
-        return new Promise((res, rej) => {
-            Exec(`echo ${varName}=${varValue} >> ${config.env.volumePath}/env_vars_to_export`, (err) => {
-                if (err) {
-                    rej(new Error(`Fail to set export variable, cause: ${err.message}`));
-                }
-
-                res();
-            });
-        });
+    setExportVariable(varName, varValue) {
+        return exporter.export({ key: varName, value: varValue });
     }
 
     async addBuildData(state) {
