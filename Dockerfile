@@ -5,10 +5,6 @@ RUN apt-get install -y curl \
   && apt-get install -y nodejs \
   npm
 
-RUN echo "NODE Version:" && node --version
-RUN echo "NPM Version:" && npm --version
-
-
 # Create app directory
 WORKDIR /app/
 

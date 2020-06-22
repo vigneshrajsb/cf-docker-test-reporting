@@ -4,8 +4,8 @@ const Logger = require('../logger');
 const exporter = require('../util/exporter');
 
 class BasicTestReporter {
-    setExportVariable(varName, varValue) {
-        return exporter.export({ key: varName, value: varValue });
+    setExportVariable(varName, varValue, config) {
+        return exporter.export({ key: varName, value: varValue, config });
     }
 
     async addBuildData(state) {
@@ -47,7 +47,7 @@ class BasicTestReporter {
             await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', config.env.reportIndexFile, config);
         }
 
-        await this.setExportVariable(`${config.stepName}_CF_OUTPUT_URL`, linkOnReport);
+        await this.setExportVariable(`${config.stepName}_CF_OUTPUT_URL`, linkOnReport, config);
     }
 
     showStartLogs({ config, isUpload }, fileReporter) {
