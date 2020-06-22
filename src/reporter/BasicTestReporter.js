@@ -46,6 +46,8 @@ class BasicTestReporter {
         if (config.env.reportIndexFile) {
             await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', config.env.reportIndexFile, config);
         }
+
+        await this.setExportVariable(`${config.stepName}_CF_OUTPUT_URL`, linkOnReport);
     }
 
     showStartLogs({ config, isUpload }, fileReporter) {
