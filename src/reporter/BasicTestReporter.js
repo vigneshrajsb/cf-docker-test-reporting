@@ -47,7 +47,11 @@ class BasicTestReporter {
             await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', config.env.reportIndexFile, config);
         }
 
-        await this.setExportVariable(`${config.stepName}_CF_OUTPUT_URL`, linkOnReport, config);
+        // we pass it only in case with plugin
+        if (config.stepName) {
+            await this.setExportVariable(`${config.stepName}_CF_OUTPUT_URL`, linkOnReport, config);
+        }
+
     }
 
     showStartLogs({ config, isUpload }, fileReporter) {
