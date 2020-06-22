@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const CodefreshAPI = require('../api');
 const Logger = require('../logger');
-const exporter = require('../util/exporter');
+const exporter = require('../util/envExporter');
 
 class BasicTestReporter {
     setExportVariable(varName, varValue, config) {

@@ -1,6 +1,6 @@
 const exec = require('util').promisify(require('child_process').exec);
 
-class Exporter {
+class EnvExporter {
 
     async export({ key,  value, config }) {
         const { stderr } = await exec(`echo ${key}=${value} >> ${config.env.volumePath}/env_vars_to_export`);
@@ -12,4 +12,4 @@ class Exporter {
     }
 }
 
-module.exports = new Exporter();
+module.exports = new EnvExporter();
