@@ -1,19 +1,11 @@
-const Exec = require('child_process').exec;
 const _ = require('lodash');
 const CodefreshAPI = require('../api');
 const Logger = require('../logger');
+const exporter = require('../util/envExporter');
 
 class BasicTestReporter {
     setExportVariable(varName, varValue, config) {
-        return new Promise((res, rej) => {
-            Exec(`echo ${varName}=${varValue} >> ${config.env.volumePath}/env_vars_to_export`, (err) => {
-                if (err) {
-                    rej(new Error(`Fail to set export variable, cause: ${err.message}`));
-                }
-
-                res();
-            });
-        });
+        return exporter.export({ key: varName, value: varValue, config });
     }
 
     async addBuildData(state) {
@@ -21,7 +13,7 @@ class BasicTestReporter {
         state.buildData = { pipelineId: _.get(process, 'pipeline') };
     }
 
-    async exportVariables({ extractedStorageConfig, config, buildData }) {
+    async exportVariables({ extractedStorageConfig, config, buildData, linkOnReport }) {
         /**
          * reportWrapDir - exists only when multiple reports uploads
          * not need export variables on upload each of multiple reports,
@@ -29,6 +21,10 @@ class BasicTestReporter {
          */
         if (config.env.reportWrapDir) {
             return;
+        }
+
+        if (linkOnReport) {
+            await this.setExportVariable('TEST_REPORT_LINK', linkOnReport, config);
         }
 
         await this.setExportVariable('TEST_REPORT', true, config);
@@ -50,6 +46,12 @@ class BasicTestReporter {
         if (config.env.reportIndexFile) {
             await this.setExportVariable('TEST_REPORT_UPLOAD_INDEX_FILE', config.env.reportIndexFile, config);
         }
+
+        // we pass it only in case with plugin
+        if (config.stepName) {
+            await this.setExportVariable(`${config.stepName}_CF_OUTPUT_URL`, linkOnReport, config);
+        }
+
     }
 
     showStartLogs({ config, isUpload }, fileReporter) {

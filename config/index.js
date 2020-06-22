@@ -116,6 +116,7 @@ class Config {
                 allureDir,
                 clearTestReport
             },
+            stepName: process.env.CF_STEP_NAME,
             buildDataSignature: {
                 pipelineId: { type: 'string', required: true }
             },
