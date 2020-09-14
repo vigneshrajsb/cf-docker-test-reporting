@@ -2,8 +2,7 @@ FROM openjdk:11.0.1-slim
 
 RUN apt-get update && apt-get install -y curl \
   && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
-  && apt-get install -y nodejs \
-  npm
+  && apt-get install -y nodejs
 
 # Create app directory
 WORKDIR /app
