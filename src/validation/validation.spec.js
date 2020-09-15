@@ -136,7 +136,7 @@ describe('Validation', () => {
 
             try {
                 await Vld.validateUploadFile({
-                    config: { ...config, uploadMaxSize: 0.001, env: { reportIndexFile: pathToFile } }
+                    config: { ...config, uploadMaxSize: 0.0003, env: { reportIndexFile: pathToFile } }
                 });
                 expect.fali(false, false, 'must throw err when file more than uploadMaxSize');
             } catch (e) {

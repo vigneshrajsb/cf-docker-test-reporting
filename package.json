@@ -2,10 +2,14 @@
 	"name": "cf-docker-test-reporting",
 	"version": "1.0.0",
 	"description": "Generate test report",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/codefresh-io/cf-docker-test-reporting"
+	},
 	"main": "index.js",
 	"scripts": {
 		"eslint": "eslint ./src/**/*.js",
-		"test": "mocha src/**/**.spec.js",
+		"test": "mocha src/**/*.spec.js",
 		"lint": "eslint src"
 	},
 	"author": "Pasha <pasha@codefresh.io>",
@@ -16,12 +20,14 @@
 		"@google-cloud/storage": "^1.7.0",
 		"aws-sdk": "^2.359.0",
 		"bluebird": "^3.7.2",
-		"lodash": "^4.17.11",
+		"get-folder-size": "^2.0.1",
+		"lodash": "^4.17.15",
+		"minio": "^7.0.15",
 		"path": "^0.12.7",
 		"recursive-readdir-sync": "^1.0.6",
 		"request": "^2.88.0",
 		"request-promise": "^4.2.2",
-		"minio": "^7.0.15"
+		"rimraf": "^2.7.1"
 	},
 	"devDependencies": {
 		"chai": "^3.5.0",
@@ -32,9 +38,8 @@
 		"eslint-plugin-jsx-a11y": "^4.0.0",
 		"eslint-plugin-mocha": "^4.11.0",
 		"eslint-plugin-react": "^7.11.1",
-		"mocha": "^3.2.0",
+		"mocha": "^7.2.0",
 		"proxyquire": "^2.1.0",
-		"rimraf": "^2.6.2",
 		"sinon": "^1.17.7",
 		"sinon-chai": "^2.8.0"
 	}

@@ -1,26 +1,25 @@
 /* eslint consistent-return: 0 */
 
 const recursiveReadSync = require('recursive-readdir-sync');
-const Exec = require('child_process').exec;
 const fs = require('fs');
+const rimraf = require('rimraf');
+const getSize = require('get-folder-size');
 
-const FIND_RESOURCE_SIZE = /^[\d.,]+/;
-const KILOBYTES_IN_MEGABYTE = 1024;
-const DECIMAL_SYSTEM = 10;
 const FULL_USER_PERMISSION = '0744';
 
 class FileManager {
     static getDirOrFileSize(pathToResource) {
         return new Promise((res) => {
-            Exec(`du -sk ${pathToResource}`, (err, response) => {
-                const match = response.trim().match(FIND_RESOURCE_SIZE);
-
-                if (!match) {
-                    res(null);
-                }
-
-                res(parseInt(match.toString().trim(), DECIMAL_SYSTEM) / KILOBYTES_IN_MEGABYTE);
-            });
+            if (fs.statSync(pathToResource).isDirectory()) {
+                getSize(pathToResource, (err, size) => {
+                    if (err) {
+                        throw err;
+                    }
+                    res(size / 1024 / 1024);
+                });
+            } else {
+                res(fs.statSync(pathToResource).size / 1024 / 1024);
+            }
         });
     }
 
@@ -41,29 +40,20 @@ class FileManager {
         if (folderForRemove) {
             return new Promise((res) => {
                 console.log('Start removing test report folder');
-                Exec(`rm -rf ${folderForRemove}`, (err) => {
-                    if (err) {
-                        console.error(`Cant remove report folder "${folderForRemove}", cause: 
-                        ${err.message ? err.message : 'unknown error'}`);
-                    } else {
-                        console.log(`Test report folder "${folderForRemove}" has been removed`);
-                    }
-
-                    res(true);
-                });
+                rimraf.sync(folderForRemove);
+                res(true);
             });
         }
     }
 
     static removeResource(path) {
         return new Promise((res, rej) => {
-            Exec(`rm -rf ${path}`, (err) => {
-                if (err) {
-                    rej(err);
-                }
-
+            try {
+                rimraf.sync(path);
                 res(path);
-            });
+            } catch (e) {
+                rej(e);
+            }
         });
     }
 

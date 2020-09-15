@@ -33,6 +33,8 @@ class Uploader {
 
                 while ((filesChunk = files.slice(start, end)).length) { // eslint-disable-line
                     const uploadPromises = filesChunk.map((file) => {
+                        file = file.replace(/\\/g, '/'); // work-around for Windows paths with backslashes
+
                         const pathToDeploy = this._getFilePathForDeploy({
                             file,
                             config,

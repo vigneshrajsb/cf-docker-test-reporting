@@ -4,12 +4,9 @@ steps:
     title: Building Docker Image
     type: build
     image_name: codefresh/cf-docker-test-reporting
-    working_directory: ./
     tag: '${{CF_BRANCH_TAG_NORMALIZED}}'
     dockerfile: Dockerfile
-    build_arguments:
-      - BUCKET_NAME=${{BUCKET_NAME}}
-      
+
   EsLint:
     title: Run eslint
     image: ${{BuildingDockerImage}}
@@ -22,11 +19,7 @@ steps:
     image: ${{BuildingDockerImage}}
     commands:
       - npm install
-      - npm run test
-    environment:
-      - BUCKET_NAME = pasha-codefresh
-      - GCS_CONFIG = ${{GCS_CONFIG}}
-  	
+      - npm test
   
   PushingToDockerRegistry:
     title: Pushing to Docker Registry
