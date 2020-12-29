@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const rp = require('request-promise');
+const VariableResolver = require('../ variableResolver/VariableResolver');
 const storageTypesMap = require('./types');
 const storageTypes = require('./storageTypes');
 const fs = require('fs');
@@ -7,6 +8,7 @@ const fs = require('fs');
 class StorageConfigProvider {
     constructor({ config }) {
         this.integrationName = config.env.storageIntegration;
+        this.variableResolver = new VariableResolver({ config });
     }
 
     async provide({ config }) {
@@ -63,14 +65,15 @@ class StorageConfigProvider {
         this.extractedStorageConfig = this.storageHandler.extractedConfig;
     }
 
-    _validateStorageConfig(config) {
+    async _validateStorageConfig(config) {
         console.log('Starting validate storage config');
 
         if (!this.integrationName) {
             throw new Error('This service requires integration with some storage, you can specify storage via CF_STORAGE_INTEGRATION'); // eslint-disable-line
         }
 
-        const storageConfig = this._parseStorageConfig(config);
+        let storageConfig = this._parseStorageConfig(config);
+        storageConfig = await this.variableResolver.resolve(storageConfig);
 
         const StorageHandler = this._getStorageTypeHandler(storageConfig);
 
