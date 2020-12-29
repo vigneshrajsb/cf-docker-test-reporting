@@ -15,6 +15,7 @@ class VariableResolver {
             }),
         }, {
             getContext: getContextImpl({ apiHost: config.apiHost, apiKey: config.env.apiKey }),
+            log: console,
         });
     }
 
