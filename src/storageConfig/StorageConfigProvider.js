@@ -73,9 +73,11 @@ class StorageConfigProvider {
         }
 
         let storageConfig = this._parseStorageConfig(config);
+        console.log(`before: ${JSON.parse(storageConfig)}`);
+
         storageConfig = await this.variableResolver.resolve(storageConfig);
 
-        console.log(JSON.parse(storageConfig));
+        console.log(`after: ${JSON.parse(storageConfig)}`);
 
         const StorageHandler = this._getStorageTypeHandler(storageConfig);
 
