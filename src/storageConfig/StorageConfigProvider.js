@@ -111,6 +111,7 @@ class StorageConfigProvider {
             }
 
             fs.writeFileSync(jsonConfigFileName, JSON.stringify(this.extractedStorageConfig.storageConfig));
+            console.log(`wrote: ${JSON.stringify(this.extractedStorageConfig.storageConfig)}`);
         }
     }
 }
