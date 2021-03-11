@@ -8,7 +8,7 @@ const FULL_USER_PERMISSION = '0744';
 class AmazonApi {
     constructor({ config }) {
         AWS.config.loadFromPath(config.amazonKeyFileName);
-        if('https_proxy' in process.env) {
+        if ('https_proxy' in process.env) {
             AWS.config.update({
                 httpOptions: { agent: proxy(process.env.https_proxy) }
             });
