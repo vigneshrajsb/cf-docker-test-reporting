@@ -11,7 +11,7 @@ class AmazonApi {
         if ('https_proxy' in process.env) {
             AWS.config.update({
                 httpOptions: { agent: proxy(process.env.https_proxy) }
-                });
+            });
         }
         this.s3 = new AWS.S3({ signatureVersion: 'v4' });
     }
