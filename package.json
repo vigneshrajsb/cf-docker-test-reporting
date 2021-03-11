@@ -25,6 +25,7 @@
 		"lodash": "^4.17.15",
 		"minio": "^7.0.15",
 		"path": "^0.12.7",
+		"proxy-agent": "^4.0.1",
 		"recursive-readdir-sync": "^1.0.6",
 		"request": "^2.88.0",
 		"request-promise": "^4.2.2",
