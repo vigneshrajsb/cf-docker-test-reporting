@@ -1,12 +1,13 @@
 const rp = require('request-promise');
 const fs = require('fs');
 const path = require('path');
+const { Storage } = require('@google-cloud/storage');
 
 const FULL_USER_PERMISSION = '0744';
 
 class GCSApi {
     constructor({ extractedStorageConfig, config }) {
-        const gcs = require('@google-cloud/storage')(config.googleStorageConfig);
+        const gcs = new Storage(config.googleStorageConfig);
         const { storageConfig: { accessToken } = {} } = extractedStorageConfig;
         this.accessToken = accessToken;
         this.bucket = gcs.bucket(config.env.bucketName);
