@@ -1,4 +1,4 @@
-FROM openjdk:11.0.1-slim
+FROM openjdk:11.0.10-slim
 
 RUN apt-get update && apt-get install -y curl \
   && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
