@@ -9,7 +9,7 @@
 	"main": "index.js",
 	"scripts": {
 		"eslint": "eslint ./src/**/*.js",
-		"test": "nyc mocha src/**/*.spec.js",
+		"test": "nyc mocha src/**",
 		"report-coverage": "nyc report --reporter=text-lcov > coverage.lcov",
 		"lint": "eslint src"
 	},
