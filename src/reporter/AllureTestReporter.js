@@ -8,7 +8,7 @@ const Logger = require('../logger');
 class AllureTestReporter extends BasicTestReporter {
 
     generateReport({ config }) {
-        return allureCmd(['generate', config.env.sourceReportFolderName, '--clean']);
+        return allureCmd(['generate', config.env.sourceReportFolderName, '--clean', '-o', config.resultReportFolderName]);
     }
 
     async start(state) {
