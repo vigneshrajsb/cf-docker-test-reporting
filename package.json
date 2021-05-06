@@ -9,9 +9,8 @@
 	"main": "index.js",
 	"scripts": {
 		"eslint": "eslint ./src/**/*.js",
-		"test": "nyc mocha src/**",
+		"test": "nyc mocha src/** --exit",
 		"report-coverage": "nyc report --reporter=text-lcov > coverage.lcov",
-        "report-2":"nyc src/**/*.spec.js --reporter=html --reporter=text mocha",
 		"lint": "eslint src"
 	},
 	"author": "Pasha <pasha@codefresh.io>",
