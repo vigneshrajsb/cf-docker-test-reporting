@@ -10,7 +10,7 @@
 	"scripts": {
 		"eslint": "eslint ./src/**/*.js",
 		"test": "nyc mocha src/**/*.spec.js",
-		"report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+		"report-coverage": "nyc report --reporter=text-lcov > coverage.lcov",
 		"lint": "eslint src"
 	},
 	"author": "Pasha <pasha@codefresh.io>",
@@ -34,7 +34,6 @@
 	},
 	"devDependencies": {
 		"chai": "^3.5.0",
-		"codecov": "^3.8.2",
 		"eslint": "^3.17.1",
 		"eslint-config-airbnb": "^14.1.0",
 		"eslint-plugin-chai-friendly": "^0.3.6",
