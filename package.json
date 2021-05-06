@@ -1,6 +1,6 @@
 {
 	"name": "cf-docker-test-reporting",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Generate test report",
 	"repository": {
 		"type": "git",
