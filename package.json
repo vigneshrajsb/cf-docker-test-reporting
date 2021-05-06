@@ -1,15 +1,17 @@
 {
 	"name": "cf-docker-test-reporting",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Generate test report",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/codefresh-io/cf-docker-test-reporting"
 	},
+
 	"main": "index.js",
 	"scripts": {
 		"eslint": "eslint ./src/**/*.js",
-		"test": "mocha src/**/*.spec.js",
+		"test": "nyc mocha ./src/**/*.spec.js",
+		"report-coverage": "nyc report --reporter=text-lcov > coverage.lcov",
 		"lint": "eslint src"
 	},
 	"author": "Pasha <pasha@codefresh.io>",
@@ -41,6 +43,7 @@
 		"eslint-plugin-mocha": "^4.11.0",
 		"eslint-plugin-react": "^7.11.1",
 		"mocha": "^7.2.0",
+		"nyc": "^15.1.0",
 		"proxyquire": "^2.1.0",
 		"sinon": "^1.17.7",
 		"sinon-chai": "^2.8.0"
