@@ -15,7 +15,7 @@ ARG CLEAR_TEST_REPORT
 ARG ALLURE_DIR
 ARG REPORT_LOGGING_LEVEL
 
-# Install app dependencies
+# Install app dependencieswas specified for this step and it contains the directory for upload
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
 COPY package*.json ./

@@ -42,6 +42,9 @@ class AllureTestReporter extends BasicTestReporter {
                     /**
                      * upload allure history to storage for use it before next report generation
                      */
+                    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+                    console.log(`srcDir:: ${`${config.resultReportFolderName}/${config.allureHistoryDir}`}`);
+                    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
                     await uploader.uploadFiles(state, {
                         srcDir: `${config.resultReportFolderName}/${config.allureHistoryDir}`,
                         uploadHistory: true

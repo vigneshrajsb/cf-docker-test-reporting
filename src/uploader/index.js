@@ -22,6 +22,7 @@ class Uploader {
         return new Promise(async (res, rej) => {
             try {
                 const files = await FileManager._getFilesForUpload({ srcDir, uploadFile, isUploadFile });
+
                 const logFileUpload = files.length < MAX_FILES_FOR_LOGS;
                 let start = 0;
                 let end = config.uploadParallelLimit;
