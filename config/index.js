@@ -70,6 +70,7 @@ class Config {
         } = env;
         const apiHost = ConfigUtils.buildApiHost();
 
+        const _reportWrapDir = _.isNumber(reportWrapDir) ? String(reportWrapDir) : '';
         /**
          * field uploadMaxSize set by SingleReportRunner, value in MB
          */
@@ -81,7 +82,7 @@ class Config {
             amazonKeyFileName: path.resolve(__dirname, 'amazon.storage.config.json'),
             azureBlobKeyFileName: path.resolve(__dirname, 'azure.blob.storage.config.json'),
             azureKeyFileName: path.resolve(__dirname, 'azure.file.storage.config.json'),
-            resultReportFolderName: 'allure-report',
+            resultReportFolderName: `allure-report${_reportWrapDir ? `.${_reportWrapDir}` : ''}`,
             requiredVarsForUploadMode: {
                 REPORT_DIR: reportDir,
                 REPORT_INDEX_FILE: reportIndexFile
@@ -111,7 +112,7 @@ class Config {
                 sourceReportFolderName: (allureDir || 'allure-results').trim(),
                 reportDir: ((reportDir || '').trim()) || undefined,
                 reportIndexFile: ((reportIndexFile || '').trim()) || undefined,
-                reportWrapDir: _.isNumber(reportWrapDir) ? String(reportWrapDir) : '',
+                reportWrapDir: _reportWrapDir,
                 reportType: _.isString(reportType) ? reportType.replace(/[<>]/g, 'hackDetected') : 'default',
                 allureDir,
                 clearTestReport
