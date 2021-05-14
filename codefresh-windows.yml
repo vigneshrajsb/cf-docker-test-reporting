@@ -38,4 +38,4 @@ steps:
         registry: dockerhub
       PushingToQuayRegistry:
         title: Pushing To Quay Registry
-        registry: cf-quay=
+        registry: cf-quay
