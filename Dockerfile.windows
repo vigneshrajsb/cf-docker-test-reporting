@@ -1,4 +1,4 @@
-FROM codefresh/openjdk-nodejs:1909
+FROM codefresh/openjdk-nodejs:windows-20H2
 WORKDIR /app
 
 # define variables passed form codefresh
