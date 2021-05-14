@@ -1,0 +1,41 @@
+version: "1.0"
+steps:
+  main_clone:
+    title: Clone
+    type: git-clone
+    repo: codefresh-io/cf-docker-test-reporting
+    revision: CR-4674
+  docker_build:
+    title: Build
+    type: build
+    dockerfile: Dockerfile.windows
+    image_name: codefresh/cf-docker-test-reporting
+    tag: 'windows-20H2'
+  run_lint:
+    title: Lint
+    image: ${{docker_build}}
+    commands:
+      - npm install
+      - npm run lint
+  run_tests:
+    title: Test
+    image: ${{docker_build}}
+    commands:
+      - npm install
+      - npm test
+    environment:
+      - BUCKET_NAME=codefresh-test-reporting
+      - CF_BRANCH_TAG_NORMALIZED=test-vasily3
+      - CF_STORAGE_INTEGRATION=testReporting
+  docker_push:
+    title: Push
+    type: push
+    candidate: '${{docker_build}}'
+    tag: 'windows-20H2'
+    scale:
+      PushingToDockerHubRegistry:
+        title: Pushing To DockerHub Registry
+        registry: dockerhub
+      PushingToQuayRegistry:
+        title: Pushing To Quay Registry
+        registry: cf-quay=
