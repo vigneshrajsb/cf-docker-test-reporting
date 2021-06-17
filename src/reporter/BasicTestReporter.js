@@ -93,7 +93,7 @@ class BasicTestReporter {
         let reportWrap = config.env.reportWrapDir;
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 
-        const basePath = config.env.reportPath ?
+        const basePath = false && config.env.reportPath ?
             `${config.basicLinkOnReport}v2/${config.env.reportPath}`
             : `${config.basicLinkOnReport}v2/${pipeline}/${branch}`;
 
