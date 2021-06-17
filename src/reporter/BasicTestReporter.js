@@ -93,12 +93,8 @@ class BasicTestReporter {
         let reportWrap = config.env.reportWrapDir;
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 
-        const basePath = config.env.reportPath ?
-            `${config.basicLinkOnReport}v2/${pipeline}/${branch}`
-            : `${config.basicLinkOnReport}v2/${pipeline}/${branch}`;
-
         const qs = config.env.reportPath ? `?reportPath=${config.env.reportPath}` : '';
-        const url = `${basePath}/${integType}/${integName}/${bucket}/${config.env.reportPath}/${buildId}/${reportWrap}${file}`;
+        const url = `${config.basicLinkOnReport}v2/${pipeline}/${branch}/${integType}/${integName}/${bucket}/${buildId}/${reportWrap}${file}`; // eslint-disable-line
         return url + qs;
     }
 }
