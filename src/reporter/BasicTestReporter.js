@@ -97,8 +97,9 @@ class BasicTestReporter {
             `${config.basicLinkOnReport}v2/${pipeline}/${branch}`
             : `${config.basicLinkOnReport}v2/${pipeline}/${branch}`;
 
-        const qs = ''; // config.env.reportPath ? `reportPath=${config.env.reportPath}&buildId=${config.env.buildId}` : '';
-        return `${basePath}/${integType}/${integName}/${bucket}/${config.env.reportPath}/${buildId}/${reportWrap}${file}?${qs}`;
+        const qs = config.env.reportPath ? `?reportPath=${config.env.reportPath}` : '';
+        const url = `${basePath}/${integType}/${integName}/${bucket}/${config.env.reportPath}/${buildId}/${reportWrap}${file}`;
+        return url + qs;
     }
 }
 
