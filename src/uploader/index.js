@@ -127,28 +127,28 @@ class Uploader {
         const buildId = config.env.buildId;
         const subPath = config.env.bucketSubPath;
         let reportWrapDir = config.env.reportWrapDir;
+        const basePath = config.env.reportPath
+            ? `${buildData.pipelineId}/${config.env.reportPath}`
+            : `${buildData.pipelineId}`;
 
         if (!isUploadFile) {
             const pathWithoutSrcDir = file.replace(srcDir, '');
             const pathToFile = pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`;
             reportWrapDir = reportWrapDir ? `/${reportWrapDir}` : '';
-            resultPath = config.env.reportPath ?
-                `${config.env.reportPath}/${subPath}${buildId}${reportWrapDir}${pathToFile}`
-                : `${buildData.pipelineId}/${branch}/${subPath}${buildId}${reportWrapDir}${pathToFile}`;
+            resultPath = `${basePath}/${branch}/${subPath}${buildId}${reportWrapDir}${pathToFile}`;
         } else {
             reportWrapDir = reportWrapDir ? `${reportWrapDir}/` : '';
-            resultPath = config.env.reportPath ?
-                `${config.env.reportPath}/${subPath}${buildId}/${reportWrapDir}${path.parse(uploadFile).base}`
-                : `${buildData.pipelineId}/${branch}/${subPath}${buildId}/${reportWrapDir}${path.parse(uploadFile).base}`;
+            resultPath = `${basePath}/${branch}/${subPath}${buildId}/${reportWrapDir}${path.parse(uploadFile).base}`;
         }
 
         return resultPath;
     }
 
     static _getFilePathForDeployHistory({ file, config, buildData }) {
-        return config.env.reportPath ?
-            `${config.env.reportPath}/${config.allureHistoryDir}/${path.parse(file).base}` :
-            `${buildData.pipelineId}/${config.env.branchNormalized}/${config.allureHistoryDir}/${path.parse(file).base}`;
+        const basePath = config.env.reportPath ?
+            `${buildData.pipelineId}/${config.env.reportPath}`
+            : `${buildData.pipelineId}`;
+        return `${basePath}/${config.env.branchNormalized}/${config.allureHistoryDir}/${path.parse(file).base}`;
     }
 
     static _getFilePathForDeploy(opts) {

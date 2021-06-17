@@ -93,11 +93,12 @@ class BasicTestReporter {
         let reportWrap = config.env.reportWrapDir;
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 
-        const basePath = false && config.env.reportPath ?
-            `${config.basicLinkOnReport}v2/${config.env.reportPath}`
+        const basePath = config.env.reportPath ?
+            `${config.basicLinkOnReport}v3/${pipeline}/${branch}`
             : `${config.basicLinkOnReport}v2/${pipeline}/${branch}`;
 
-        return `${basePath}/${integType}/${integName}/${bucket}/${buildId}/${reportWrap}${file}`;
+        const qs = config.env.reportPath ? `reportPath=${config.env.reportPath}` : '';
+        return `${basePath}/${integType}/${integName}/${bucket}/${buildId}/${reportWrap}${file}?${qs}`;
     }
 }
 
