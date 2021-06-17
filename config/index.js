@@ -7,7 +7,7 @@ const ConfigUtils = require('./ConfigUtils');
 /**
  * arrayVars - customer can define array of this vars for upload multiple reports, for example REPORT_DIR.0
  */
-const UPLOAD_ARRAY_VARS = ['REPORT_DIR', 'REPORT_INDEX_FILE', 'ALLURE_DIR', 'CLEAR_TEST_REPORT', 'REPORT_TYPE'];
+const UPLOAD_ARRAY_VARS = ['REPORT_DIR', 'REPORT_PATH', 'REPORT_INDEX_FILE', 'ALLURE_DIR', 'CLEAR_TEST_REPORT', 'REPORT_TYPE'];
 
 const INFO = 'info';
 const DEBUG = 'debug';
@@ -66,10 +66,11 @@ class Config {
             allureDir,
             clearTestReport,
             reportType,
-            reportWrapDir
+            reportWrapDir,
+            reportPath,
         } = env;
         const apiHost = ConfigUtils.buildApiHost();
-
+        const _reportPath =  ((reportPath || '').trim()).replace(/\/$/, '');
         const _reportWrapDir = _.isNumber(reportWrapDir) ? String(reportWrapDir) : '';
         /**
          * field uploadMaxSize set by SingleReportRunner, value in MB
@@ -111,6 +112,7 @@ class Config {
                 logLevel: logLevelsMap[process.env.REPORT_LOGGING_LEVEL] || INFO,
                 sourceReportFolderName: (allureDir || 'allure-results').trim(),
                 reportDir: ((reportDir || '').trim()) || undefined,
+                reportPath: _reportPath,
                 reportIndexFile: ((reportIndexFile || '').trim()) || undefined,
                 reportWrapDir: _reportWrapDir,
                 reportType: _.isString(reportType) ? reportType.replace(/[<>]/g, 'hackDetected') : 'default',
