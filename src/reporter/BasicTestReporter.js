@@ -94,7 +94,7 @@ class BasicTestReporter {
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 
         const basePath = config.env.reportPath ?
-            `${config.basicLinkOnReport}v3/${pipeline}/${branch}`
+            `${config.basicLinkOnReport}v2/${pipeline}/${branch}`
             : `${config.basicLinkOnReport}v2/${pipeline}/${branch}`;
 
         const qs = ''; // config.env.reportPath ? `reportPath=${config.env.reportPath}&buildId=${config.env.buildId}` : '';
