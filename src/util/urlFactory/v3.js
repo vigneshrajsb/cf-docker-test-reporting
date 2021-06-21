@@ -2,10 +2,6 @@ const path = require('path');
 
 class V3 {
 
-    constructor(options) {
-        this.options = options;
-    }
-
     createFilePathForDeployHistory({ file, reportPath, pipelineId, branchNormalized, allureHistoryDir }) {
         return `${pipelineId}/${reportPath}/${branchNormalized}/${allureHistoryDir}/${path.parse(file).base}`;
     }
