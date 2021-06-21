@@ -2,6 +2,8 @@ const _ = require('lodash');
 const CodefreshAPI = require('../api');
 const Logger = require('../logger');
 const exporter = require('../util/envExporter');
+const UrlBuilder = require('../util/urlBuilder/index');
+
 
 class BasicTestReporter {
     setExportVariable(varName, varValue, config) {
@@ -93,16 +95,18 @@ class BasicTestReporter {
         let reportWrap = config.env.reportWrapDir;
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 
-        const urlItems = config.env.reportPath
-            ? [`${config.basicLinkOnReport}v3`,
-                pipeline, branch, integType, integName, bucket,
-                Buffer.from(config.env.reportPath).toString('base64'),
-                buildId, `${reportWrap}${file}`]
-            : [`${config.basicLinkOnReport}v2`,
-                pipeline, branch, integType, integName, bucket,
-                buildId, `${reportWrap}${file}`];
-
-        return urlItems.join('/');
+        return new UrlBuilder(config).buildLinkOnReport({
+            basicLinkOnReport: config.basicLinkOnReport,
+            reportPath: config.env.reportPath,
+            pipeline,
+            branch,
+            integType,
+            integName,
+            bucket,
+            buildId,
+            reportWrap,
+            file
+        });
     }
 }
 

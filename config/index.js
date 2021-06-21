@@ -70,7 +70,6 @@ class Config {
             reportPath,
         } = env;
         const apiHost = ConfigUtils.buildApiHost();
-        const _reportPath =  ((reportPath || '').trim()).replace(/\/$/, '');
         const _reportWrapDir = _.isNumber(reportWrapDir) ? String(reportWrapDir) : '';
         /**
          * field uploadMaxSize set by SingleReportRunner, value in MB
@@ -112,7 +111,7 @@ class Config {
                 logLevel: logLevelsMap[process.env.REPORT_LOGGING_LEVEL] || INFO,
                 sourceReportFolderName: (allureDir || 'allure-results').trim(),
                 reportDir: ((reportDir || '').trim()) || undefined,
-                reportPath: _reportPath,
+                reportPath: ((reportPath || '').trim()).replace(/\/$/, ''),
                 reportIndexFile: ((reportIndexFile || '').trim()) || undefined,
                 reportWrapDir: _reportWrapDir,
                 reportType: _.isString(reportType) ? reportType.replace(/[<>]/g, 'hackDetected') : 'default',

@@ -2,6 +2,7 @@ const FileManager = require('../FileManager');
 const path = require('path');
 const StorageApi = require('../storageApi');
 const Logger = require('../logger');
+const UrlBuilder = require('../util/urlBuilder');
 
 const FORBIDDEN_STATUS = 403;
 const MAX_FILES_FOR_LOGS = 1000;
@@ -145,10 +146,13 @@ class Uploader {
     }
 
     static _getFilePathForDeployHistory({ file, config, buildData }) {
-        const basePath = config.env.reportPath ?
-            `${buildData.pipelineId}/${config.env.reportPath}`
-            : `${buildData.pipelineId}`;
-        return `${basePath}/${config.env.branchNormalized}/${config.allureHistoryDir}/${path.parse(file).base}`;
+        return new UrlBuilder(config).buildFilePathForDeployHistory({
+            file,
+            reportPath: config.env.reportPath,
+            pipelineId: buildData.pipelineId,
+            branchNormalized: config.env.branchNormalized,
+            allureHistoryDir: config.allureHistoryDir
+        });
     }
 
     static _getFilePathForDeploy(opts) {
