@@ -11,15 +11,17 @@ class BuilderV2 {
     }
 
     buildLinkOnReport(
-        basicLinkOnReport,
-        pipeline,
-        branch,
-        integType,
-        integName,
-        bucket,
-        buildId,
-        reportWrap,
-        file
+        {
+            basicLinkOnReport,
+            pipeline,
+            branch,
+            integType,
+            integName,
+            bucket,
+            buildId,
+            reportWrap,
+            file
+        }
     ) {
         return [
             `${basicLinkOnReport}v2`, pipeline, branch, integType, integName, bucket,
