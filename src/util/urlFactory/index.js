@@ -1,7 +1,7 @@
-const builderV2 = require('./builderV2');
-const builderV3 = require('./builderV3');
+const builderV2 = require('./v2');
+const builderV3 = require('./v3');
 
-module.exports = class UrlBuilderFabric {
+module.exports = class UrlFactory {
 
     constructor(config) {
         return this._resolveBuilder(config);

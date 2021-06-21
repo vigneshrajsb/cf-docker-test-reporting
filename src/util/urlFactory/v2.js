@@ -1,16 +1,16 @@
 const path = require('path');
 
-class BuilderV2 {
+class V2 {
 
     constructor(options) {
         this.options = options;
     }
 
-    buildFilePathForDeployHistory({ file, pipelineId, branchNormalized, allureHistoryDir }) {
+    createFilePathForDeployHistory({ file, pipelineId, branchNormalized, allureHistoryDir }) {
         return `${pipelineId}/${branchNormalized}/${allureHistoryDir}/${path.parse(file).base}`;
     }
 
-    buildLinkOnReport(
+    createLinkOnReport(
         {
             basicLinkOnReport,
             pipeline,
@@ -30,4 +30,4 @@ class BuilderV2 {
     }
 }
 
-module.exports = new BuilderV2();
+module.exports = new V2();

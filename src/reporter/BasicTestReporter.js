@@ -2,7 +2,7 @@ const _ = require('lodash');
 const CodefreshAPI = require('../api');
 const Logger = require('../logger');
 const exporter = require('../util/envExporter');
-const UrlBuilder = require('../util/urlBuilder/index');
+const UrlFactory = require('../util/urlFactory/index');
 
 
 class BasicTestReporter {
@@ -95,7 +95,7 @@ class BasicTestReporter {
         let reportWrap = config.env.reportWrapDir;
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 
-        return new UrlBuilder(config).buildLinkOnReport({
+        return new UrlFactory(config).createLinkOnReport({
             basicLinkOnReport: config.basicLinkOnReport,
             reportPath: config.env.reportPath,
             pipeline,

@@ -2,7 +2,7 @@ const FileManager = require('../FileManager');
 const path = require('path');
 const StorageApi = require('../storageApi');
 const Logger = require('../logger');
-const UrlBuilder = require('../util/urlBuilder');
+const UrlFactory = require('../util/urlFactory');
 
 const FORBIDDEN_STATUS = 403;
 const MAX_FILES_FOR_LOGS = 1000;
@@ -146,7 +146,7 @@ class Uploader {
     }
 
     static _getFilePathForDeployHistory({ file, config, buildData }) {
-        return new UrlBuilder(config).buildFilePathForDeployHistory({
+        return new UrlFactory(config).createFilePathForDeployHistory({
             file,
             reportPath: config.env.reportPath,
             pipelineId: buildData.pipelineId,
