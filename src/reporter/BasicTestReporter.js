@@ -94,7 +94,7 @@ class BasicTestReporter {
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 
         const urlItems = config.env.reportPath
-            ? [`${config.basicLinkOnReport}v3/`,
+            ? [`${config.basicLinkOnReport}v3`,
                 pipeline, branch, integType, integName, bucket,
                 Buffer.from(config.env.reportPath).toString('base64'),
                 buildId, `${reportWrap}${file}`]
