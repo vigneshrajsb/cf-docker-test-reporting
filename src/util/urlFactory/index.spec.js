@@ -36,7 +36,7 @@ describe('urlFactory', () => {
                 .createLinkOnReport(_fomArrayToObj(['basicLinkOnReport', 'pipeline', 'branch', 'integType',
                     'integName', 'bucket', 'buildId', 'reportWrap', 'file', 'reportPath']));
             expect(url).to
-                .equal('basicLinkOnReportv3/pipeline/branch/integType/integName/bucket/cmVwb3J0UGF0aA==/buildId/reportWrapfile');
+                .equal('basicLinkOnReportv3/pipeline/branch/integType/integName/bucket/reportPath/buildId/reportWrapfile');
         });
     });
 
