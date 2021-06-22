@@ -2,6 +2,7 @@ const FileManager = require('../FileManager');
 const path = require('path');
 const StorageApi = require('../storageApi');
 const Logger = require('../logger');
+const UrlFactory = require('../util/urlFactory');
 
 const FORBIDDEN_STATUS = 403;
 const MAX_FILES_FOR_LOGS = 1000;
@@ -127,22 +128,31 @@ class Uploader {
         const buildId = config.env.buildId;
         const subPath = config.env.bucketSubPath;
         let reportWrapDir = config.env.reportWrapDir;
+        const basePath = config.env.reportPath
+            ? `${buildData.pipelineId}/${config.env.reportPath}`
+            : `${buildData.pipelineId}`;
 
         if (!isUploadFile) {
             const pathWithoutSrcDir = file.replace(srcDir, '');
             const pathToFile = pathWithoutSrcDir.startsWith('/') ? pathWithoutSrcDir : `/${pathWithoutSrcDir}`;
             reportWrapDir = reportWrapDir ? `/${reportWrapDir}` : '';
-            resultPath = `${buildData.pipelineId}/${branch}/${subPath}${buildId}${reportWrapDir}${pathToFile}`;
+            resultPath = `${basePath}/${branch}/${subPath}${buildId}${reportWrapDir}${pathToFile}`;
         } else {
             reportWrapDir = reportWrapDir ? `${reportWrapDir}/` : '';
-            resultPath = `${buildData.pipelineId}/${branch}/${subPath}${buildId}/${reportWrapDir}${path.parse(uploadFile).base}`;
+            resultPath = `${basePath}/${branch}/${subPath}${buildId}/${reportWrapDir}${path.parse(uploadFile).base}`;
         }
 
         return resultPath;
     }
 
     static _getFilePathForDeployHistory({ file, config, buildData }) {
-        return `${buildData.pipelineId}/${config.env.branchNormalized}/${config.allureHistoryDir}/${path.parse(file).base}`;
+        return new UrlFactory(config).createFilePathForDeployHistory({
+            file,
+            reportPath: config.env.reportPath,
+            pipelineId: buildData.pipelineId,
+            branchNormalized: config.env.branchNormalized,
+            allureHistoryDir: config.allureHistoryDir
+        });
     }
 
     static _getFilePathForDeploy(opts) {

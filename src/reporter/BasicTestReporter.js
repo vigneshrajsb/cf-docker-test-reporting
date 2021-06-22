@@ -2,6 +2,8 @@ const _ = require('lodash');
 const CodefreshAPI = require('../api');
 const Logger = require('../logger');
 const exporter = require('../util/envExporter');
+const UrlFactory = require('../util/urlFactory/index');
+
 
 class BasicTestReporter {
     setExportVariable(varName, varValue, config) {
@@ -93,7 +95,18 @@ class BasicTestReporter {
         let reportWrap = config.env.reportWrapDir;
         reportWrap = reportWrap ? `${reportWrap}/` : '';
 
-        return `${config.basicLinkOnReport}v2/${pipeline}/${branch}/${integType}/${integName}/${bucket}/${buildId}/${reportWrap}${file}`; // eslint-disable-line
+        return new UrlFactory(config).createLinkOnReport({
+            basicLinkOnReport: config.basicLinkOnReport,
+            reportPath: config.env.reportPath,
+            pipeline,
+            branch,
+            integType,
+            integName,
+            bucket,
+            buildId,
+            reportWrap,
+            file
+        });
     }
 }
 
