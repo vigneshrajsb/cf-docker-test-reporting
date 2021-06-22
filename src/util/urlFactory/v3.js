@@ -22,7 +22,7 @@ class V3 {
     ) {
         return [
             `${basicLinkOnReport}v3`, pipeline, branch, integType, integName, bucket,
-            Buffer.from(reportPath).toString('base64'), buildId, `${reportWrap}${file}`
+            encodeURIComponent(reportPath), buildId, `${reportWrap}${file}`
         ].join('/');
     }
 }
