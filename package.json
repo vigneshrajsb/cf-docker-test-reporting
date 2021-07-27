@@ -17,6 +17,7 @@
 	"author": "Pasha <pasha@codefresh.io>",
 	"license": "ISC",
     "resolutions": {
+      "date-and-time": "0.14.2",
       "json-bigint": "1.0.0",
       "node-forge": "0.10.0",
       "normalize-url": "4.5.1"
