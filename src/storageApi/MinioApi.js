@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const Minio = require('minio');
 
 class MinioApi {
@@ -5,7 +6,7 @@ class MinioApi {
         this.minioClient = new Minio.Client({
             endPoint: extractedStorageConfig.endpoint,
             port: extractedStorageConfig.port,
-            useSSL: extractedStorageConfig.useSSL,
+            useSSL: _.get(extractedStorageConfig, 'useSSL', false),
             accessKey: extractedStorageConfig.accessKey,
             secretKey: extractedStorageConfig.secretKey
         });
