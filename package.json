@@ -27,7 +27,7 @@
 		"@azure/storage-file": "^10.3.0",
 		"@codefresh-io/cf-variable-resolver": "^0.0.18",
 		"@google-cloud/storage": "^2.5.0",
-		"aws-sdk": "^2.359.0",
+		"aws-sdk": "^2.814.0",
 		"bluebird": "^3.7.2",
 		"get-folder-size": "^2.0.1",
 		"lodash": "^4.17.21",
