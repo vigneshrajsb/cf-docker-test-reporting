@@ -95,7 +95,7 @@ class Config {
             annotationName: 'cf_test_reporter_link',
             reportsIndexDir: `${path.dirname(require.resolve('../_reportsIndex_'))}`,
             uploadArrayVars: UPLOAD_ARRAY_VARS,
-            maxUploadSize: 1000,
+            maxUploadSize: 2000,
             env: {
                 // bucketName - only bucket name, with out subdir path
                 bucketName: ConfigUtils.getBucketName(),
